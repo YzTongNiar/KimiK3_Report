@@ -42,21 +42,21 @@ def page2():
     rbox(ax, 77, 13, 14, 6, PINK, "Linear", fs=8, shadow=PINK_SH)
     circle(ax, 84, 25, 2.1, "σ", fs=9)
     line(ax, [(84, 19), (84, 22.9)])
-    line(ax, [(84, 27.1), (84, 62), (57.2, 62)])
+    line(ax, [(84, 27.1), (84, 62), (48.3, 62)])
     dashed_frame(ax, 75.5, 11.5, 18, 9.5, ec=RED, lw=1.3, ls=(0, (4, 2)))
     label(ax, 94.5, 16, "②", fs=10, color=RED, fam=HEI, bold=True)
     # 注意力核心（改动① NoPE）
     rbox(ax, 12, 46, 66, 10, BLUE, "Gated MLA Attention", fs=10.5)
     dashed_frame(ax, 10, 44, 72, 14, ec=RED, lw=1.3, ls=(0, (4, 2)))
     label(ax, 13, 59.5, "① NoPE（全部头）", fs=7.5, color=RED, fam=HEI, bold=True)
-    # 输出
-    arrow(ax, 54, 56, 54, 59.2)
-    mul_circle(ax, 54, 62)
-    arrow(ax, 54, 64.8, 54, 70)
-    rbox(ax, 41, 70, 26, 6, PINK, "Linear $W^O$", fs=8.5, shadow=PINK_SH)
-    arrow(ax, 54, 76, 54, 82)
-    label(ax, 56.5, 79.5, "$y_t$", fs=10)
-    label(ax, 70, 79.5, "③ 训练输出 FP32", fs=7.5, color=RED, fam=HEI, bold=True)
+    # 输出（⊗ 与 MLA 框中心 x=45 对齐，输出箭头延至虚线框顶）
+    arrow(ax, 45, 56, 45, 59.2)
+    mul_circle(ax, 45, 62)
+    arrow(ax, 45, 64.8, 45, 70)
+    rbox(ax, 32, 70, 26, 6, PINK, "Linear $W^O$", fs=8.5, shadow=PINK_SH)
+    arrow(ax, 45, 76, 45, 92)
+    label(ax, 47.5, 88, "$y_t$", fs=10)
+    label(ax, 60, 85, "③ 训练输出 FP32", fs=7.5, color=RED, fam=HEI, bold=True)
     save(fig, "gated_mla.png")
 
 # ============================================================
@@ -64,29 +64,40 @@ def page2():
 # ============================================================
 def page3():
     fig, ax = new_canvas()
-    # 上：朴素交替
+    # 上：朴素交替（显式空闲气泡）
     dashed_frame(ax, 4, 56, 186, 40)
     label(ax, 8, 90, "朴素交替：CUBE / Vector 串行等待", fs=8.5, fam=HEI, bold=True)
-    xs = [(14, 34, "C1", BLUE), (38, 50, "S1", GREEN), (54, 74, "C2", BLUE),
-          (78, 90, "S2", GREEN), (94, 114, "C3", BLUE)]
-    for x0, x1, t, c in xs:
-        rbox(ax, x0, 66, x1 - x0, 8, c, t, fs=9, tc=BLUE_TXT if c == BLUE else "black")
-    for x0, x1 in [(34, 38), (50, 54), (74, 78), (90, 94)]:
-        arrow(ax, x0 + 0.5, 70, x1 - 0.5, 70, lw=1.0)
-    label(ax, 120, 70, "… 气泡 = 等待", fs=8, color=NOTE_GRAY, fam=HEI)
+    xs = [(14, 30, "C1", BLUE, 1), (34, 44, "空闲", None, 0), (46, 56, "S1", GREEN, 1),
+          (60, 70, "空闲", None, 0), (72, 88, "C2", BLUE, 1), (92, 102, "空闲", None, 0),
+          (104, 114, "S2", GREEN, 1), (118, 128, "空闲", None, 0), (130, 146, "C3", BLUE, 1)]
+    for x0, x1, t, c, solid in xs:
+        if solid:
+            rbox(ax, x0, 66, x1 - x0, 8, c, t, fs=8.5, tc=BLUE_TXT if c == BLUE else "black")
+        else:
+            dashed_frame(ax, x0, 66, x1 - x0, 8, ec="#9A9A9C", lw=1.0)
+            label(ax, (x0 + x1) / 2, 70, t, fs=6.5, color="#9A9A9C", fam=HEI, ha="center")
+    label(ax, 152, 70, "… 气泡 = 算力空置", fs=8, color=NOTE_GRAY, fam=HEI)
     label(ax, 14, 61, "C = chunk 内稠密 matmul（CUBE）　S = 跨 chunk 状态传播（Vector）",
           fs=7.5, color=NOTE_GRAY, fam=HEI)
-    # 下：FlashKDA 交叠流水
+    # 下：FlashKDA 交叠流水（细化子阶段，折线连接）
     dashed_frame(ax, 4, 6, 186, 44)
-    label(ax, 8, 44, "FlashKDA：intra-chunk 与跨 chunk 流水交叠", fs=8.5, fam=HEI, bold=True)
+    label(ax, 8, 44, "FlashKDA：intra-chunk 与跨 chunk 流水交叠（S 驻留 L1 / UB，双缓冲）",
+          fs=8.5, fam=HEI, bold=True)
     label(ax, 8, 30, "CUBE", fs=8, fam=SER)
     for i, x0 in enumerate([16, 34, 52, 70]):
-        rbox(ax, x0, 26, 17, 8, BLUE, f"C{i+1}", fs=9, tc=BLUE_TXT)
+        rbox(ax, x0, 26, 10, 8, BLUE, f"A·V{i+1}", fs=7.5, tc=BLUE_TXT)
+        rbox(ax, x0 + 10.5, 26, 7, 8, "#A6C8EA", f"UT{i+1}", fs=7.5, tc=BLUE_TXT)
     label(ax, 8, 16, "Vector", fs=8, fam=SER)
+    rbox(ax, 16, 12, 12, 8, GREEN, "Γ", fs=8.5)
+    label(ax, 22, 9, "cumsum", fs=6, color=NOTE_GRAY, ha="center")
     for i, x0 in enumerate([34, 52, 70]):
         rbox(ax, x0, 12, 13, 8, GREEN, f"S{i+1}", fs=9)
+    # 折线依赖：C_i 底部 → 水平通道 → S_i 顶部
     for i in range(3):
-        arrow(ax, 25.5 + 18 * i, 26, 40.5 + 18 * i, 20, lw=1.0)
+        cx_c = 21 + 18 * i      # A·V 中心
+        cx_s = 40.5 + 18 * i    # S 中心
+        line(ax, [(cx_c, 26), (cx_c, 23), (cx_s, 23)], lw=1.0)
+        arrow(ax, cx_s, 23, cx_s, 20.2, lw=1.0)
     # 公式框
     dashed_frame(ax, 120, 10, 66, 28, ec="#7A7A7A", lw=1.0)
     label(ax, 123, 33, "chunkwise 递推（C = 64）", fs=7.5, fam=HEI, bold=True)
@@ -118,6 +129,8 @@ def page4():
     drafts = [(14, "d1 √", GREEN), (34, "d2 √", GREEN), (54, "d3 ×", PINK_DK), (74, "d4 ×", PINK_DK)]
     for x0, t, c in drafts:
         rbox(ax, x0, 22, 16, 8, c, t, fs=8.5, fam=HEI)
+    for x0 in (30, 50, 70):
+        arrow(ax, x0 + 0.5, 26, x0 + 3.5, 26, lw=1.0)
     arrow(ax, 91, 26, 99, 26)
     rbox(ax, 100, 22, 36, 8, GRAY2, "片上重建 S（仅 d1, d2）", fs=8, fam=HEI)
     arrow(ax, 137, 26, 145, 26)
@@ -141,13 +154,15 @@ def page5():
     circle(ax, 116, 70, 3, "w", fs=9, ec=DARK, fc=PINK, italic=True)
     label(ax, 121.5, 70, "伪查询（逐层可学习）", fs=7, color=NOTE_GRAY, fam=HEI)
     circle(ax, 62, 57, 2.6, "Σ", fs=9)
-    for x0 in (22, 42, 62):
-        arrow(ax, x0, 66, 62, 59.8, lw=1.0)
-    arrow(ax, 98, 66, 64.5, 58.5, lw=1.0)
-    arrow(ax, 113.2, 68.5, 64.8, 57.8, lw=1.0)
+    # 总线折线：各 b / w 垂直汇入 y=62.5 总线，再垂直入 Σ
+    line(ax, [(22, 62.5), (116, 62.5)], lw=1.0)
+    for x0 in (22, 42, 98):
+        line(ax, [(x0, 66), (x0, 62.5)], lw=1.0)
+    line(ax, [(116, 67), (116, 62.5)], lw=1.0)
+    arrow(ax, 62, 66, 62, 59.8, lw=1.0)   # b2 正对 Σ，直通
     label(ax, 70, 57, r"$h_l=\sum_i \alpha_i \cdot b_i$", fs=9)
-    label(ax, 122, 57, "α = softmax(w·RMSNorm(b))", fs=7, color=NOTE_GRAY, fam=HEI)
-    label(ax, 122, 52.5, "online softmax 合并", fs=7, color=NOTE_GRAY, fam=HEI)
+    label(ax, 122, 64.5, "α = softmax(w·RMSNorm(b))", fs=7, color=NOTE_GRAY, fam=HEI)
+    label(ax, 122, 60.5, "online softmax 合并", fs=7, color=NOTE_GRAY, fam=HEI)
     # 中：Prefill
     label(ax, 8, 46, "Prefill：all-reduce 拆为 RS + AG，kernel 插入其间", fs=8.5, fam=HEI, bold=True)
     rbox(ax, 14, 32, 30, 8, GRAY2, "Reduce-Scatter", fs=8)
@@ -159,8 +174,12 @@ def page5():
     label(ax, 8, 24, "Decode：inter-block 放 side stream 交叠", fs=8.5, fam=HEI, bold=True)
     for x0, w in [(14, 30), (48, 30)]:
         rbox(ax, x0, 12, w, 7, BLUE, "主流计算", fs=7.5, tc=BLUE_TXT, fam=HEI)
+    arrow(ax, 44.5, 15.5, 47.5, 15.5, lw=1.0)
     label(ax, 84, 15.5, "…", fs=11, color=NOTE_GRAY, ha="center")
     rbox(ax, 30, 3.5, 60, 6, PINK, "inter-block kernel（side stream）", fs=7.5, fam=HEI)
+    # side stream 与主流的交叠关系（虚线垂直连接）
+    for x0 in (45, 75):
+        line(ax, [(x0, 9.5), (x0, 12)], color="#9A9A9C", lw=0.9)
     label(ax, 94, 6.5, "与主流独立计算交叠，隐藏延迟", fs=7, color=NOTE_GRAY, fam=HEI)
     save(fig, "attnres.png")
 
@@ -181,17 +200,19 @@ def page6():
     rbox(ax, 102, 64, 34, 12, GREEN, "16 / 896 路由专家\n(ℓ 宽 FFN)".replace("ℓ", "l"), fs=7.5, fam=HEI)
     arrow(ax, 137, 70, 143, 70)
     rbox(ax, 144, 64, 36, 12, PINK, "W↑ + AG ②\nepilogue 融合", fs=7.5, fam=HEI, shadow=PINK_SH)
-    # 共享专家交叠
+    # 共享专家交叠（折线）
     rbox(ax, 70, 54, 44, 7, GREEN, "共享专家 ×2（全宽 d）", fs=7.5, fam=HEI)
     line(ax, [(80, 66), (80, 61)], color=MAROON, lw=1.0)
-    arrow(ax, 114, 57.5, 150, 63.5, color=MAROON, lw=1.0)
-    label(ax, 124, 58.5, "③ 交叠", fs=7.5, color=MAROON, fam=HEI, bold=True)
+    line(ax, [(114, 57.5), (160, 57.5)], color=MAROON, lw=1.0)
+    arrow(ax, 160, 57.5, 160, 63.5, color=MAROON, lw=1.0)
+    label(ax, 133, 59.5, "③ 交叠", fs=7.5, color=MAROON, fam=HEI, bold=True)
     # 下：decode 权重流读
     dashed_frame(ax, 4, 6, 186, 40)
     label(ax, 8, 40, "Decode 小 batch：token 中心（WarpDecode）权重流读", fs=8.5, fam=HEI, bold=True)
     for i, y0 in enumerate([26, 17, 8]):
         label(ax, 10, y0 + 3, f"lane team {i+1}", fs=7.5, fam=SER)
-        rbox(ax, 34, y0, 96, 6, BLUE, None)
+        rbox(ax, 34, y0, 96, 6, BLUE, f"专家权重分片 {i+1}/3 · warp 流式读权重 · 归约合并",
+             fs=7.5, tc=BLUE_TXT, fam=HEI)
     label(ax, 134, 29, "每 warp 负责一个输出神经元，", fs=7, color=NOTE_GRAY, fam=HEI)
     label(ax, 134, 23, "直接从内存流式读权重；", fs=7, color=NOTE_GRAY, fam=HEI)
     label(ax, 134, 17, "lane team 细分 → warp 内归约合并；", fs=7, color=NOTE_GRAY, fam=HEI)
