@@ -1,0 +1,63 @@
+===== PAGE 5 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+The gate projection Wg is full rank, matching the new parameterization used by KDA in Kimi K3. This gate allows
+each token to modulate the channels read from global attention [100].
+To correct the biased rounding error identified by [99] in flash attention, we keep the attention output in FP32 during
+training. This choice doubles the on-chip footprint of the output tile; we therefore redesign the training kernel to overlap
+it with the KV staging buffers instead of the query tile, freeing shared memory for a deeper KV pipeline and higher
+training throughput.
+2.2 Attention Residuals
+Standard residual connections [44] compress all prior information into a single state hl over depth — a bottleneck
+reminiscent of RNNs over time. For sequence modeling, the Transformer replaced recurrence with attention [10, 127],
+allowing each position to selectively access all previous positions with data-dependent weights. Attention Residuals
+(AttnRes) [58] applies the same methodology to depth: each layer selectively retrieves representations from all preceding
+layers rather than accumulating them uniformly.
+Full Attention ResidualsFor each layer l, we define a layer-specific learnable pseudo-query ql =w l ∈R d and keys
+and values
+ki =v i =
+ h1 i= 0
+fi(hi) 1≤i≤l−1 (8)
+where fi(hi) is the output of layer i and h1 is the token embedding. The attention weights follow a softmax kernel
+ϕ(q,k) = exp
+ 
+q⊤ RMSNorm(k)
+ 
+[56, 148], where the RMSNorm prevents layers with large-magnitude outputs
+from dominating the weights:
+αi→l = ϕ(q l,k i)
+Pl−1
+j=0 ϕ(q l,k j)
+,h l =
+l−1X
+i=0
+αi→l ·v i.(9)
+Since network depth is modest (L <100 ), the O(L2d) arithmetic of thisfullform is affordable; the practical overhead
+is theO(Ld)memory (and cross-stage communication under pipeline parallelism) for keeping all layer outputs alive.
+Block Attention ResidualsTo reduce this overhead, we partition the L layers into N blocks of S=L/N layers
+each. Within block n (layer indices Bn), layer outputs are reduced to a single representation by summation, bn =P
+j∈Bn fj(hj), with bi
+n denoting the partial sum over the first i layers of the block; we set b0 =h 1 so the token
+embedding is always included as a source. Across blocks, full attention is applied over only the N block-level
+representations: for thei-th layer in blockn, the value matrix is
+V=
+ [b0,b 1, . . . ,bn−1]⊤ ifi= 1(first layer of blockn)
+[b0,b 1, . . . ,bn−1,b i−1
+n ]⊤ ifi≥2(subsequent layers) (10)
+with keys and attention weights following Eq. 8 and Eq. 9. The final output layer then aggregates all N block
+representations. Under Block AttnRes, memory and communication overhead drop from O(Ld) to O(N d), while this
+block structure also bounds the inference-time state, enabling the parallel inter-block results to be better merged with
+the sequential intra-block partial sums via online softmax [80], significantly reducing inference time cost.
+Empirically, N≈8 recovers most of the benefit across model scales [58]; for Kimi K3, we partition its layers into 8
+blocks with 12-layer size, giving a partial final block and 9 total blocks when counting the embedding layer.
+2.3 Stable LatentMoE
+Increasing both the expert pool and the number of active experts expands the space of expert specializations, but in a
+conventional MoE each selected expert receives the full d-dimensional token representation, so communication and
+expert-weight traffic grow with the routing multiplicity. LatentMoE [32] makes this expansion affordable by separating
+the full model width from the routed-expert width: shared experts retain a full-width path for common transformations,
+whereas specialized routed experts operate in a compact latent space of width ℓ. This enables Kimi K3 to scale channel
+mixing to 896 routed experts with 16 active experts per token, corresponding to a sparsity of 56.
+This extreme sparsity amplifies two failure modes of the vanilla design. First, the routed path composes W↓, a gated
+multi-branch expert feed-forward network, and W↑ into a chain of nearly four consecutive matrix multiplications. This
+ill-conditioned structure, combined with the 2.8-trillion-parameter scale, produces exploding internal activations in the
+routed branch. Second, balancing the load of nearly 103 experts exceeds the regime in which existing auxiliary-loss-free
+6

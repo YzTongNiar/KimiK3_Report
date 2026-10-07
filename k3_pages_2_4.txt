@@ -1,0 +1,255 @@
+===== PAGE 2 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+KDA
+Stable LatentMoE
+Gated MLA
+Stable LatentMoE
+α
+w
+α
+w
+α
+w
+α
+w
+αw
+Output
+Blockn−1
+Blockn−2
+Embedding
+3×
+1×
+Shared Expert
+Routed Expert
+1 2 21 3 N
+Router Linear
+Linear
+Norm
+MLP
+MoonViT-V2
+Kimi Delta Attention
+Norm
+Linear
+Linear
+Conv
+L2
+Linear
+Conv
+L2
+Linear
+Conv σ σ
+Linear
+σ
+q k v α β
+α
+α
+α
+α
+α
+w
+w
+w
+w
+w
+KDA
+Stable LatentMoE
+Gated MLA
+Stable LatentMoE
+Blockn−1
+Blockn−2
+Embedding
+Figure 2: The Kimi K3 architecture, organized around token, channel, and layer mixing, with a native vision pathway at the input.
+Each block contains three Kimi Delta Attention (KDA) layers followed by one Gated MLA layer, with each attention layer paired
+with a Stable LatentMoE feed-forward network. Attention Residuals (AttnRes) use learned pseudo-queries (w) to derive attention
+weights (α) over the embedding and preceding block outputs, enabling selective information flow across depth.Top left: the Stable
+LatentMoE module with shared and routed experts.Bottom left: the KDA module.Bottom right: the native vision pathway.
+2 Model Architecture
+The Kimi K3 architecture is designed to scale information flow along three complementary dimensions: sequence
+length, network depth, and model width. Along the sequence dimension, Hybrid Attention combines three Kimi Delta
+Attention (KDA) [64] layers with one Gated MLA layer in each block, providing an efficient mechanism for long-context
+token mixing while retaining selective high-capacity attention (§2.1). Along the depth dimension, Attention Residuals
+(AttnRes) [58] enable each module to selectively retrieve representations from the embedding, the current block, and
+preceding blocks, extending information access beyond conventional sequential residual accumulation (§2.2). Along
+the width dimension, each attention layer is followed by a Stable LatentMoE layer that performs sparse channel mixing,
+effectively activating 16 of 896 routed experts for each token (§2.3). For native vision, MoonViT-V2 encodes images
+and videos, and a lightweight projector maps the resulting visual features into the shared embedding space before
+backbone processing (§2.4). Together with Per-Head Muon (§2.5), these components provide a unified architecture for
+scaling information flow across tokens, layers, and channels. Combined with refined training and data recipes, they
+yield an approximately 2.5× improvement in overall scaling efficiency over Kimi K2. Figure 2 provides an overview of
+the architecture.
+3
+===== PAGE 3 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+2.1 Hybrid Attention
+Kimi K3 uses a layerwise hybrid of linear and global attention, combining KDA [64] with Gated MLA. Each block
+contains 3 KDA layers followed by 1 Gated MLA layer, giving a 3:1 mixing ratio. This pattern is repeated throughout
+the backbone. The two attention mechanisms are described separately below. An additional Gated MLA layer is placed
+at the end of the backbone, ensuring that the final layer always performs global attention.
+2.1.1 Kimi Delta Attention
+KDA extends the delta-rule recurrence [106, 140] with a channel-wise forget gate [64]. Consider a sequence of hidden
+states xt ∈R d, where t indexes the token position and d is the model hidden dimension. For clarity, we first describe a
+single attention head, with query and key vectorsqt,k t ∈R dk, value vector vt ∈R dv, and recurrent state St ∈R dk×dv.
+KDA applies channel-wise decay before the delta-rule update:
+St =
+
+I−β tktk⊤
+t
+
+Diag(αt)St−1 +β tktv⊤
+t , ˜ot =S ⊤
+t qt.(1)
+Here, αt ∈(0,1) dk is the channel-wise one-step retention factor, and βt ∈(0,1) controls the delta-rule write strength.
+Following Kimi Linear [64], KDA parameterizes the per-head quantities as
+qh
+t ,k h
+t = L2Norm
+
+Swish
+
+ShortConv
+
+Wh
+q/kxt
+
+∈R dk ,
+vh
+t = Swish
+
+ShortConv
+
+Wh
+v xt
+
+∈R dv ,
+βh
+t = Sigmoid
+
+Wh
+βxt
+
+∈(0,1),
+zh
+t =W ↑
+αW↓
+αxt +b h
+α ∈R dk .(2)
+The query, key, and value projections applyShortConv followed by Swish [140], and the query and key are further
+normalized with L2Norm [143]. The low-rank projection and head-specific bias bh
+α ∈R dk produce a fine-grained
+decay logit zh
+t for each key channel. The lower-bounded mapping from zh
+t to αh
+t is introduced after the chunkwise
+formulation below.
+Chunkwise parallel formFollowing Kimi Linear [64], KDA is recurrent across chunks and parallel within each
+chunk. For a chunk sizeC,X [t] stacks the token vectors in thet-th chunk forX∈ {Q,K,V,O,U,W}. The matrix
+S[t] ∈R dk×dv denotes the recurrent state entering chunk t. For positions 1≤i≤j≤C , define the channel-wise
+cumulative decay
+γi→j
+[t] :=
+jY
+r=i
+αr
+[t],γ r
+[t] :=γ 1→r
+[t] .(3)
+As in Kimi Linear, Γ1→C
+[t] ∈R C×d k stacks γ1
+[t], . . . ,γ C
+[t] row-wise. The UT transform produces U[t] and W[t], from
+which we define the pseudo-value termeV[t] :=U [t] −W [t]S[t]. Given the incoming state S[t], all outputs in chunk t
+are computed in parallel as
+A[t] = Tril
+h
+(Q[t] ⊙Γ 1→C
+[t] )(K[t]/Γ1→C
+[t] )⊤
+i
+,
+O[t] = (Γ1→C
+[t] ⊙Q [t])S[t]
+| {z }
+inter-chunk
++A [t]eV[t]
+| {z }
+intra-chunk
+.(4)
+For a matrix M, Tril(M) sets all strictly upper-triangular entries to zero and retains the lower-triangular entries,
+including the diagonal. This mask enforces causal interactions within the chunk, and the diagonal is retained because
+each output reads the state after the current-token update. The first term in O[t] carries information from preceding
+chunks, whereas the second term accounts for interactions within the current chunk. We refer readers to Kimi Linear [64]
+for the UT transform and the full derivation of the chunkwise form.
+Lower-bounded decayEq. 4 rescales the keys in each chunk by the reciprocal cumulative decay 1/Γ1→C
+[t] . Because
+Γ1→C
+[t] is a product of retention factors in (0,1) , this reciprocal can grow without bound and overflow in finite
+precision [142, 64]. Kimi Linear controls this numerical range by computing relative decay in log space and dividing
+each chunk into secondary 16-token tiles [142, 64]. The off-diagonal tiles can then be computed with dense matrix
+multiplications on Tensor Cores directly. The diagonal tiles, in contrast, still require explicit position-pair computations,
+which remain the main intra-chunk bottleneck.
+4
+===== PAGE 4 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Kimi Linear:g=−eA Softplus(z)
+Kimi K3:g=gminSigmoid(eAz)
+g
+z
+0
+gmin=−5
+−∞
+A= 0
+(a) Log-decay parameterization.
+Kimi Linear Kimi K3
+lower-bounded
+Position-pair Diagonal
+Tensor Core
+(b) Diagonal-tile computation.
+Figure 3: Lower-bounded decay and its effect on chunkwise KDA computation.(a)Kimi Linear uses an unbounded negative-Softplus
+mapping, whereas Kimi K3 bounds the log-decay with a scaled sigmoid; the curves show A= 0 and gmin =−5 .(b)Kimi Linear
+evaluates each diagonal tile with an explicit position-pair computation, while the bounded range in Kimi K3 allows all causal tiles to
+use dense Tensor Core matrix multiplications.
+Kimi K3 addresses this bottleneck by changing the mapping from the decay logits zh
+t to the per-step log-decay
+gh
+t . Following GDN and Mamba-2, Kimi Linear uses the negative-Softplus mapping gh
+t =−e Ah Softplus(zh
+t )∈
+(−∞,0) dk [140, 24, 64]. Kimi K3 instead uses a scaled sigmoid to bound the log-decay from below:
+gh
+t =g min Sigmoid
+
+eAh zh
+t
+
+∈(g min,0) dk ,
+αh
+t = exp(gh
+t )∈(e gmin ,1) dk ,(5)
+where Ah is a learnable per-head log-scale and gmin =−5 is fixed. We initialize Ah = 0, and each bias bh
+α is initialized
+following [64, 24, 140]. With gmin =−5 , every retention factor satisfies αh
+t,j > e −5 ≈6.7×10 −3, and the cumulative
+log-decay over a 16-token tile lies in (−80,0) . The corresponding reciprocal rescaling factor is therefore smaller
+than e80 and remains within the BF16 dynamic range. This finite range allows both diagonal and off-diagonal tiles to
+use dense Tensor Core matrix multiplications, eliminating the position-pair diagonal path. This parameterization is
+closely related to the lower-bounded recurrence gates in prior work [98, 27, 92]. Fig. 3 illustrates the change in decay
+parameterization and its computational consequence.
+Full-rank gateFinally, Kimi K3 changes KDA’s output gate from the low-rank parameterization used by Kimi
+Linear [64] to an input-dependent full-rank projection. After applying head-wise RMSNorm [148] to the recurrent
+output, KDA applies data-dependent output gating [100]:
+yt =W o[Sigmoid(Wgxt)⊙RMSNorm( ˜ot)].(6)
+2.1.2 Gated MLA
+Multi-head Latent Attention (MLA), introduced in DeepSeek-V2 [28], compresses the key–value representation of each
+token into a low-dimensional latent vector ct =W cxt. Instead of caching full head-specific keys and values, MLA
+caches ct and reconstructs the content keys and values through learned up-projections during attention computation. This
+factorization reduces the KV-cache footprint while retaining global token-to-token attention. MLA was subsequently
+adopted by Kimi K2 and Kimi K2.5 [59, 60], and Kimi K3 retains it in the periodic global-attention layers.
+Unlike Kimi K2 and Kimi K2.5, Kimi K3 follows the hybrid design of Kimi Linear [64] and applies No Position
+Encoding (NoPE) to all MLA layers. Consequently, no explicit positional encoding is applied to their queries or keys.
+The intervening KDA layers provide position-sensitive and recency-aware sequence mixing, while the MLA layers
+provide unrestricted global content interaction. This separation also avoids modifying positional-encoding parameters
+when extending the context length, such as retuning a RoPE frequency base or applying YaRN [93].
+In addition, Kimi K3 augments MLA with an input-dependent, channel-wise full-rank output gate. Let ˜ot denote the
+ungated MLA output at positiont; the gated output is
+yt =W o[Sigmoid(Wgxt)⊙ ˜ot].(7)
+5

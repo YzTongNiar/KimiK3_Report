@@ -1,0 +1,374 @@
+pageType: content
+background:
+  type: solid
+  color: "#FFFFFF"
+elements:
+  # ===== 页眉 =====
+  - elementId: kicker
+    elementType: text
+    bounds: [44, 14, 300, 14]
+    content:
+      fontSize: 9
+      color: "$gray"
+      fontFamily: 黑体
+      letterSpacing: 3
+      wrap: false
+      align: [left, middle]
+      text: INFRASTRUCTURE · 01
+  - elementId: source-note
+    elementType: text
+    bounds: [370, 14, 554, 14]
+    content:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+      wrap: false
+      align: [right, middle]
+      text: 资料来源：Kimi K3 Technical Report §5.1.1；FlashKDA（MoonshotAI）；vllm-ascend ops/triton/kda
+  - elementId: title
+    elementType: text
+    bounds: [44, 30, 880, 30]
+    content:
+      fontSize: 21
+      bold: true
+      color: "$primary"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: FlashKDA：chunkwise 训练 / Prefill 融合算子
+  - elementId: title-bar
+    elementType: shape
+    bounds: [44, 66, 64, 3]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+
+  # ===== 分析结论 =====
+  - elementId: concl-label-bg
+    elementType: shape
+    bounds: [44, 96, 88, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+  - elementId: concl-label
+    elementType: text
+    bounds: [44, 96, 88, 110]
+    content:
+      fontSize: 14
+      bold: true
+      color: "#FFFFFF"
+      fontFamily: 黑体
+      align: [center, middle]
+      text: 分析结论
+  - elementId: concl-body-bg
+    elementType: shape
+    bounds: [140, 96, 784, 110]
+    shapeName: rect
+    fill: {type: solid, color: "#F2F2F2"}
+  - elementId: concl-bullets
+    elementType: text
+    bounds: [154, 101, 756, 100]
+    content:
+      fontSize: 9
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <ul>
+        <li><strong>问题</strong>：chunkwise KDA = chunk 内并行（matmul）+ chunk 间串行（状态 S 传递）；朴素实现两阶段交替执行，串行传播期间算力空置 —— 气泡占比随 chunk 数线性放大</li>
+        <li style="margin-top:4px"><strong>方案</strong>：FlashKDA（CUTLASS）将计算分解为 token 并行阶段与 head 并行递归，各自独立调度调参，以 chunk 内计算掩盖跨 chunk 状态传播 → 显著优于 Triton 参考实现；训练与推理 prefill 共用，作为 flash-linear-attention 的后端自动分发</li>
+        <li style="margin-top:4px"><strong>负载构成</strong>：intra-chunk（A、O = AṼ，C = 64）为稠密 matmul → CUBE；inter-chunk（(Γ⊙Q)S、S 更新）为 dk×dv 小矩阵 → 单 chunk 并行度低，但可沿 head 维并行、并被计算掩盖</li>
+        <li style="margin-top:4px"><strong>长序列短板</strong>：纯 TP 只切 head、不缩短递归，超长 prefill 时各 rank 仅持少量 head、算力闲置 → SM 级 CP planner 在单设备内切分序列，并行求各段转移再精确合并，无跨设备通信</li>
+        </ul>
+
+  # ===== 左：调度示意 =====
+  - elementId: arch-label
+    elementType: text
+    bounds: [44, 208, 260, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 计算 / 状态传播调度交叠
+  - elementId: module-border
+    elementType: shape
+    bounds: [36, 228, 428, 222]
+    shapeName: roundRect
+    adjustments: [6000]
+    border: {style: dash, width: 1, color: "#404040"}
+
+  # 朴素调度
+  - elementId: naive-label
+    elementType: text
+    bounds: [56, 240, 260, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: 朴素调度：两阶段交替}
+  - elementId: nv-c1
+    elementType: shape
+    bounds: [56, 258, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: nv-c1-t
+    elementType: text
+    bounds: [56, 258, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t−1 内 matmul}
+  - elementId: nv-s1
+    elementType: shape
+    bounds: [148, 258, 42, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: nv-s1-t
+    elementType: text
+    bounds: [148, 258, 42, 22]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: S 传递}
+  - elementId: nv-c2
+    elementType: shape
+    bounds: [194, 258, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: nv-c2-t
+    elementType: text
+    bounds: [194, 258, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t 内 matmul}
+  - elementId: nv-s2
+    elementType: shape
+    bounds: [286, 258, 42, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: nv-s2-t
+    elementType: text
+    bounds: [286, 258, 42, 22]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: S 传递}
+  - elementId: nv-c3
+    elementType: shape
+    bounds: [332, 258, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: nv-c3-t
+    elementType: text
+    bounds: [332, 258, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t+1 内}
+  - elementId: naive-note
+    elementType: text
+    bounds: [56, 284, 360, 11]
+    content: {fontSize: 7.5, color: "$primary", fontFamily: 黑体, wrap: false, align: [left, middle], text: matmul（CUBE）与状态传播互相等待，算力空置}
+
+  # FlashKDA 流水
+  - elementId: fk-label
+    elementType: text
+    bounds: [56, 302, 360, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: FlashKDA：token 并行 + head 并行，两段交叠}
+  - elementId: fk-c1
+    elementType: shape
+    bounds: [56, 320, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-c1-t
+    elementType: text
+    bounds: [56, 320, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t−1 内}
+  - elementId: fk-c2
+    elementType: shape
+    bounds: [148, 320, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-c2-t
+    elementType: text
+    bounds: [148, 320, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t 内}
+  - elementId: fk-c3
+    elementType: shape
+    bounds: [240, 320, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-c3-t
+    elementType: text
+    bounds: [240, 320, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t+1 内}
+  - elementId: fk-c4
+    elementType: shape
+    bounds: [332, 320, 88, 22]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-c4-t
+    elementType: text
+    bounds: [332, 320, 88, 22]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: chunk t+2 内}
+  - elementId: fk-s1
+    elementType: shape
+    bounds: [104, 348, 88, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-s1-t
+    elementType: text
+    bounds: [104, 348, 88, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: S(t−2)→S(t−1)}
+  - elementId: fk-s2
+    elementType: shape
+    bounds: [196, 348, 88, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-s2-t
+    elementType: text
+    bounds: [196, 348, 88, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: S(t−1)→S(t)}
+  - elementId: fk-s3
+    elementType: shape
+    bounds: [288, 348, 88, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-s3-t
+    elementType: text
+    bounds: [288, 348, 88, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: S(t)→S(t+1)}
+  - elementId: fk-a1
+    elementType: line
+    bounds: [179, 342, 2, 6]
+    viewBox: [2, 6]
+    points: "1,6 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-a2
+    elementType: line
+    bounds: [271, 342, 2, 6]
+    viewBox: [2, 6]
+    points: "1,6 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-a3
+    elementType: line
+    bounds: [363, 342, 2, 6]
+    viewBox: [2, 6]
+    points: "1,6 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+
+  # chunkwise 公式
+  - elementId: n-eq
+    elementType: shape
+    bounds: [56, 380, 364, 48]
+    shapeName: roundRect
+    adjustments: [12000]
+    fill: {type: solid, color: "#F2F2F3"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-eq
+    elementType: text
+    bounds: [64, 383, 348, 42]
+    content:
+      fontSize: 7.5
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <p>A<sub>[t]</sub> = Tril((Q<sub>[t]</sub>⊙Γ)(K<sub>[t]</sub>/Γ)<sup>⊤</sup>)；O<sub>[t]</sub> = (Γ⊙Q<sub>[t]</sub>)·S<sub>[t]</sub> + A<sub>[t]</sub>·Ṽ<sub>[t]</sub></p>
+        <p>chunk 内并行（稠密 matmul，C = 64）｜ 跨 chunk 串行（S 传递，head 维并行）</p>
+        <p><span style="font-size:7px;color:$gray">训练 / 推理 prefill 共用；作为 flash-linear-attention 的后端自动分发</span></p>
+
+  # ===== 右：参数与 FLOPs 表 =====
+  - elementId: param-label
+    elementType: text
+    bounds: [488, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 各阶段负载与昇腾诉求
+  - elementId: param-table
+    elementType: table
+    bounds: [488, 240, 436, 196]
+    columnWidths: [0.26, 0.26, 0.16, 0.32]
+    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    style: "$param"
+    rows:
+      - - text: 阶段
+        - text: 张量形状
+        - text: FLOPs/token
+        - text: 负载特征 → 昇腾诉求
+      - - text: chunk 内注意力 A·Ṽ
+        - text: "[C,dk]×[dk,C]×[C,dv]，C = 64"
+        - text: 2C(dk+dv)
+        - text: 稠密 matmul → CUBE；典型 tile 64×128
+      - - text: 跨 chunk 读取 (Γ⊙Q)S
+        - text: "[C,dk]×[dk,dv]"
+        - text: 2dk·dv
+        - text: 小矩阵乘、CUBE 利用率低 → 与 chunk 内计算双缓冲交叠
+      - - text: 状态更新 S←MS+K̄ᵀṼ
+        - text: "[dk,dk]×[dk,dv]；[dk,C]×[C,dv]"
+        - text: ≈3dk·dv
+        - text: 串行依赖；S 驻留片上（dk·dv×2B / head）避免 HBM 往返
+      - - text: 累积衰减 Γ
+        - text: "[C,dk] / head，log 空间 cumsum"
+        - text: O(C·dk)，逐元素
+        - text: 纯 Vector；与 matmul 构成异构流水
+      - - text: UT 变换（W / U）
+        - text: "[C,C] 三角求逆 + 小 matmul"
+        - text: O(C·dk)
+        - text: 小尺寸 matmul → CUBE 效率受限，宜融合进主 kernel
+      - - text: SM 级 CP planner
+        - text: 段转移 M∈R<sup>dk×dk</sup>、Ŝ∈R<sup>dk×dv</sup>
+        - text: 合并 2dk²·dv / 段
+        - text: 单设备内序列切分并行，无通信 → AICore 级调度需求
+  - elementId: param-note
+    elementType: text
+    bounds: [488, 442, 436, 24]
+    content:
+      fontSize: 7.5
+      color: "$gray"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>片上驻留：S 为 dk×dv / head（dk = dv = 128 时 32KB / head，BF16），单核多 head 驻留能力决定流水深度。</p>
+        <p>注：C = 64（FLA 默认 chunk size）；dk / dv 以 checkpoint config 为准；FLOPs 为按 chunkwise 公式推算。</p>
+
+  # ===== 底部：开发需求与趋势 =====
+  - elementId: dev-label
+    elementType: text
+    bounds: [44, 452, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 开发需求与趋势思考
+  - elementId: dev-bullets
+    elementType: text
+    bounds: [44, 468, 876, 68]
+    content:
+      fontSize: 8
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <ul>
+        <li><strong>昇腾现状</strong>：vllm-ascend 为 Triton 版 chunk_kda（scaled_dot_kkt / solve_tril / wy_fast / chunk_delta_h / chunk_o 等多 kernel 串行调度），kernel 间显存往返多、串行段无掩盖，与 FlashKDA 存在代差</li>
+        <li style="margin-top:3px"><strong>需求①</strong>：Ascend C 融合 chunkwise 算子 —— intra-chunk matmul 上 CUBE，状态传播与计算双缓冲流水，S 驻留 L1 / UB 避免 HBM 往返</li>
+        <li style="margin-top:3px"><strong>需求②</strong>：SM 级 CP planner 的 NPU 对等实现 —— AICore 级序列切分、段转移并行求值与前缀合并，适配昇腾核间同步机制</li>
+        <li style="margin-top:3px"><strong>趋势</strong>：线性注意力 prefill 算子的竞争点是串行段掩盖率；Cube / Vector 异构流水 + 片上状态驻留是达成路径，DSL（TileLang 类）可缩短开发周期</li>
+        </ul>

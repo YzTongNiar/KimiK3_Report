@@ -1,0 +1,94 @@
+===== PAGE 9 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+ArchitectureThis training recipe builds on a vision pathway that follows the overall design of Kimi K2.5 [60,
+62]: visual inputs are first encoded by MoonViT-V2 and then mapped by a lightweight MLP projector into the LLM.
+MoonViT-V2 is a 27-layer vision transformer with roughly 0.4B parameters that adopts RMSNorm and removes
+all bias terms from its linear and attention projections, a design that further stabilizes the from-scratch optimization
+above. Images and videos are processed with fully shared parameters, as in MoonViT-3D: attention is factorized into
+intra-frame spatial and inter-frame temporal passes, and temporal pooling further compresses tokens along the time
+dimension. Before projection, a pixel-shuffle operation with 2×2 downsampling reduces the number of visual tokens
+by a factor of four, keeping inputs of up to3584×3584pixels affordable within the 1M-token context.
+2.5 Per-Head Muon
+Following Kimi K2, Kimi K3 adopts Muon [54] as the optimizer for its matrix parameters. For attention projections,
+we further refine it into a per-head variant [112, 147]: instead of applying Newton–Schulz orthogonalization to the full
+Q, K, and V projection matrices, we partition their momentum matrices along the head dimension and orthogonalize
+each head’s block separately. The intuition is that full-matrix orthogonalization treats all heads as a single coupled
+block, so heads with larger gradient or momentum scales dominate the shared update direction, while smaller-scale
+heads receive insufficiently normalized updates; per-head orthogonalization equalizes the update scale across heads.
+In practice, this design yields more balanced learning dynamics across heads and improves training stability at larger
+scales. It also slightly reduces optimizer overhead, as Newton–Schulz iterations on tall per-head blocks are cheaper
+than on the full projection matrix.
+3 Pre-Training
+3.1 Pre-Training Data
+Kimi K3 is pre-trained on a curated corpus spanning four primary text domains—Web Text, Code, Mathematics,
+and Knowledge—together with a large-scale vision corpus. The vision data covers captions, interleaved image–text
+documents, OCR, perception, video, and visual coding data. Our data pipelines build on those developed for Kimi
+K2 [59] and refined in Kimi K2.5 [60].
+Text dataEach domain is filtered by a combination of rule-based heuristics, classifier-based quality scoring, and
+deduplication, with domain-specific sampling rates determined by ablation studies on smaller models. Following the
+rephrasing recipe of Kimi K2 [59], we rephrase knowledge and mathematics corpora with style and perspective-diverse
+prompting, chunk-wise autoregressive generation, and fidelity verification against the source documents.
+Vision dataThe vision corpus follows the taxonomy of Kimi K2.5 [60], combining open-source collections with
+in-house pipelines for filtering, synthesis, and deduplication. During training, coordinate supervision is provided in both
+absolute and normalized ([0,1]) formats, enabling precise and resolution-robust localization. In addition to classical
+text-captioned images, we substantially scale up programmatic multimodal data, coupling code snippets with their
+rendered visuals across domain-specific formats including SVG, 3D assets, Webpage, Game, and CAD schematics.
+3.2 Scaling Law
+Taken together, the architectural, data, and training improvements described in the previous sections define our new
+model family. Since these changes also alter the optimal training regime, we conduct dedicated scaling-law studies to
+retune key hyperparameters, including the batch size, learning rate, tokens-per-parameter ratio (TPP) and the model
+shape. Evaluated on held-out OOD validation data, the scaling law curves in (Fig. 7) show that these improvements
+collectively deliver an approximately 2.5× gain in overall scaling efficiency over Kimi K2. Table 1 provides a detailed
+architectural comparison between Kimi K2 and Kimi K3, highlighting the structural changes that contribute to this
+improvement.
+Our scaling-law study consistently favors cosine decay over Warmup Stable Decay (WSD) [47], leading us to adopt
+cosine decay as the default learning rate schedule. We compare cosine decay and WSD under a fixed minimum learning
+rate. Although prior work has reported that WSD can match or even outperform cosine decay, we observe that the two
+schedules exhibit markedly different optimal hyperparameters. Even under the same model size and training-token
+budget, their optimal peak learning rates and batch sizes differ substantially. As a result, comparing the two schedules
+using a shared set of hyperparameters may unfairly favor one simply because those hyperparameters are better aligned
+with it. To ensure a fair comparison, we conduct an independent scaling-law search for each schedule. Under their
+respective optimal hyperparameter settings, cosine decay consistently achieves a lower final loss than WSD.
+10
+===== PAGE 10 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+1020 1021
+2.5×
+FLOPs
+Validation Loss
+Kimi K2
+Kimi K3
+Figure 7: Fitted scaling-law curves for Kimi K2 and Kimi K3. Kimi K3 achieves2.5×gain in scaling efficiency over Kimi K2.
+Table 1: Architectural comparison between Kimi K2 and Kimi K3.
+Kimi K2 Kimi K3∆
+Architecture MoE MoE –
+#Layers 61 93↑52%
+Total Parameters 1.04T 2.78T↑167%
+Activated Parameters 32.6B 104.2B↑220%
+Hidden Dimension 7,168 7,168=
+Latent MoE Dimension – 3584 (0.5×) –
+MoE Hidden Dimension per Expert 2,048 3,072↑50%
+Routed Experts 384 896↑133%
+Experts Active per Token 8 16↑100%
+Shared Experts 1 2↑100%
+Attention Heads 64 96↑50%
+Number of Dense Layers 1 1=
+V ocabulary Size 160K 160K=
+Training Context Length 128K 1M8×
+Attention Mechanism MLA Hybrid KDA–MLA –
+Activation Function SwiGLU SiTU-GLU –
+Attention-Layer Composition 61 MLA 69 KDA + 24 MLA –
+Number of MTP Layers 1 layer 1 layer=
+Total Parameters of ViT - 401M -
+#ViT Layers - 27 layers -
+Patch Size of ViT - 14 -
+#Attention Heads of ViT - 12 -
+3.3 Training Recipe
+Kimi K3 adopts a native multimodal training strategy in which language and vision are jointly optimized from the start
+of training, rather than grafting a vision encoder onto a pre-trained language model through a post-hoc alignment stage.
+Under this paradigm, visual and textual tokens are interleaved within a single next-token prediction objective, enabling
+the shared backbone to learn unified multimodal representations from the outset.
+We optimize the model using the Per-Head Muon optimizer (§ 2.5) together with the weight-clipping mechanism
+introduced in Kimi K2, while adopting QB (§ 2.3.3) for MoE load balancing. We use a cosine learning rate schedule
+with a1%linear warmup. Weight decay is set to0.1throughout.
+11

@@ -1,0 +1,305 @@
+===== PAGE 16 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+0 25 50 75 100
+0
+25
+50
+75
+100
+Normalized executor tool-call progress (%)
+Completion curve (%)
+Camera Repair Management System Replication
+Kimi K3 (1.000)
+Opus 4.8 (0.918)
+GPT-5.5 (0.893)
+Kimi K2.6 (0.560)
+Figure 10: Completion curves on Camera Repair Management System, a black-box system replication task in which the agent
+reconstructs a hidden 3D-camera repair system as a web application through oracle queries. Completion denotes verifier-assessed
+task progress.
+5 Infrastructure
+Kimi K3 combines three system challenges rarely encountered in a single model: hybrid KDA attention, 3T-class
+sparse multimodal training and inference, and million-token agentic workloads. Our infrastructure is co-designed with
+these challenges across the model lifecycle. At the architecture level, high-performance KDA kernels and Context
+Parallelism make the recurrent formulation efficient within and across devices, in both training and inference. During
+pretraining, balanced expert execution, reduced memory footprint, and communication-overlapped scheduling sustain
+high utilization at scale. During 1M-token agentic RL, hierarchical state management and resumable sandbox execution
+preserve long trajectories across iterations. Finally, state-aware KDA prefix caching, specialized inference kernels, and
+cache- and budget-aware scheduling translate these efficiencies into predictable production serving.
+5.1 Algorithm-System Co-Design for KDA
+KDA replaces the growing key–value cache of softmax attention with a fixed-size recurrent stateS∈R dk×dv (§2.1.1),
+whose serial update poses challenges in parallel execution, in exchange for a fixed-size state that is cheap to transfer
+and reuse. The designs below address the first property and exploit the second at two levels of execution, with fused
+kernels within a device and KDA Context Parallelism across devices.
+5.1.1 KDA Kernels across Regimes
+The serial dependence of the KDA state is at odds with the GPU’s preference for wide, uniform parallelism, and it
+manifests as a different bottleneck in each execution regime. We design a dedicated kernel for each regime.
+Chunkwise kernel for training and prefillThe chunkwise form of KDA is parallel within each chunk but serial
+across chunks, since the recurrent state must propagate from chunk to chunk. Executed naively, these two phases
+alternate, leaving the SMs idle during the serial propagation. We therefore develop FlashKDA [14], a CUTLASS-based
+chunkwise kernel that overlaps intra-chunk computation with cross-chunk state propagation. The kernel decomposes
+the work into token-parallel stages and a head-parallel recurrence, each scheduled and tuned independently, and
+substantially outperforms the Triton reference implementation. FlashKDA serves both training and inference prefill and
+is auto-dispatched as a backend of flash-linear-attention [141].
+Intra-device context parallelism for long-context prefillTensor parallelism partitions heads across devices but
+never shortens the recurrence, so under pure TP deployment, prefilling an ultra-long sequence leaves most SMs idle
+when each rank holds only a few heads. The key observation is that the state transition of each segment can be evaluated
+17
+===== PAGE 17 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+independently of the incoming state and composed exactly afterward. An automatic SM-level context-parallel (CP)
+planner [144, 141] therefore partitions the sequence across the SMs of a single rank, evaluates the segment transitions
+in parallel, and merges them to recover each segment’s exact initial state. In contrast to the cross-device KCP of §5.1.2,
+this parallelism is entirely intra-device and incurs no cross-device communication.
+KDA decoding presents challenges distinct from those encountered during training and prefill. We discuss these
+challenges in detail in §5.4.2.
+5.1.2 KDA Context Parallelism
+The communication overhead of context parallelism differs fundamentally between softmax and linear attention.
+Softmax attention requires ranks to exchange key–value blocks whose size grows with the sequence length [73]. Linear
+attention instead carries the preceding context in a fixed-size recurrent stateS∈R dk×dv. Prior context-parallel methods
+exploit the additive recurrence of vanilla linear attention by computing, on each rank, the state that the local tokens
+generate from S=0 and summing these local states over the preceding ranks to recover the incoming state [116, 115].
+This direct summation, however, is insufficient for KDA. Recall from Eq. 1 that KDA updates its state as St =
+MtSt−1 +β tktv⊤
+t , where Mt :=
+ 
+I−β tktk⊤
+t
+ 
+Diag(αt). KDA’s delta rule applies the token-dependent matrixMt
+to the incoming state before adding the current write. Consequently, the effect of a local sequence segment depends on
+the state entering that segment and cannot be determined from the state computed withS=0alone.
+To preserve this dependence, we introduce KDA Context Parallelism (KCP), which decomposes the effect of each
+segment into two locally computable quantities, a cumulative transition acting on the incoming state and a state
+generated locally from zero. Following the chunkwise notation of §2.1.1, we write St
+[i] for the recurrent state within the
+segment of rank i after t local tokens, so that STi
+[i] denotes the state leaving rank i and entering rank i+ 1 . We write
+eSt
+[i] for the state of the same recurrence started instead from S=0 . For an arbitrary state entering the (i+ 1) -th of P
+context-parallel ranks, the state aftertlocal tokens is
+Mt←1
+[i+1] :=
+tY
+r←1
+Mr ∈R dk×dk ,S t
+[i+1] =eSt
+[i+1] +M t←1
+[i+1]STi
+[i]
+=eSt
+[i+1] +M t←1
+[i+1]
+iX
+j=1
+  iY
+l←j+1
+MTl←1
+[l]
+ 
+eSTj
+[j] ∈R dk×dv .
+(17)
+= Q
+r
+  
+− ×
+  !
+= + P
+j
+M t←1
+[i+1] I−β r kr k⊤
+r Diag(α r ) St
+[i+1]
+eSt
+[i+1] M t←1
+[i+1]
+Q
+l M
+Tl ←1
+[l]
+eS
+Tj
+[j]
+where Mt←1
+[i+1] denotes the cumulative transition of the first t local tokens. The first term contains the state generated by
+the local tokens, whereas the second term propagates the context from preceding ranks through the local KDA updates.
+At t=T i+1, both quantities MTi+1←1
+[i+1] andeSTi+1
+[i+1] can be computed using only the local tokens, before STi
+[i] is available,
+and are the fragments each rank exchanges with the others.
+The summation in Eq. 17 shows that every state is composed purely from locally computed fragments. These rank-level
+updates compose associatively, so the incoming state of each rank can be recovered by a prefix scan [78]. Each rank first
+computes MTi←1
+[i] andeSTi
+[i] locally, then exchanges both tensors with one all-gather [141].2 After the all-gather,
+rank i+ 1 reconstructs STi
+[i] by processing preceding fragments of the same document in order, starting from S=0
+and applying S←M Tj ←1
+[j] S+ eSTj
+[j] at each fragment. Therefore, KCP requires only a fixed-size all-gather for
+recurrent-state synchronization and achieves linear compute scaling.
+5.2 Infra for 3T-class Pre-Training
+Kimi K3 pre-training combines Pipeline Parallelism (PP) with virtual stages (VP) [49, 82], Expert Parallelism (EP) [67],
+ZeRO-1 Data Parallelism [101], Pipeline ZeRO-2 gradient sharding [147], and Context Parallelism (CP, §5.1.2) [51].
+2The construction builds on DeltaNet context parallelism [144]. The KDA implementation is available in FLA PR #691.
+18
+===== PAGE 22 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+boundary. We therefore design a KDA-aware prefix cache that manages the two cache types jointly—from a unified
+paged layout to fine-grained prefix reuse and consistency under concurrent scheduling—keeping million-token prefixes
+cheap to retain and reusable across requests.
+Unified cache layout for hybrid KDA–MLA attentionEach Kimi K3 block consists of three KDA layers and one
+Gated MLA layer, whose caches differ fundamentally. The MLA KV cache grows with sequence length and is paged per
+token, whereas the KDA recurrent state is fixed in size with a single copy per request. Maintaining a separate manager
+for each would duplicate the allocation, eviction, and transfer logic. We therefore pack KDA states into the same paged
+block pool as MLA KV , unifying pages to the same byte size so that both page types share one implementation of
+allocation, reference counting, and eviction. Within a page, the states of all heads are stored contiguously head by
+head, so that each head’s byte stream is self-contained and serves as the minimal unit of cross-node transfer. Under
+prefill/decode disaggregation, when prefill and decode nodes adopt different TP degrees, re-layout is performed on the
+transfer path with zero GPU-side reshuffling. This asymmetry proved useful during development: any type-confused
+access yields garbage rather than plausible data — a zero-overhead sanity check on the pooled layout.
+KDA prefix cache optimizationBlock-hash-based prefix caching reuses the KV cache at the granularity of one
+physical block: only complete blocks are hashed, so only block-aligned prefixes are reusable.
+This coupling breaks down in Kimi K3. Block-hash matching requires one block size shared by all layers, and a prefix
+hit is reusable only if the KDA state at the hit boundary has been persisted. A KDA layer maintains a single large
+recurrent state per sequence rather than per-token entries, so state snapshots are affordable only at sparse boundaries;
+the shared block size is therefore forced to 1024–6144 tokens—and, since hashing is tied to the storage block, the
+hash granularity as well, although MLA’s per-token entries alone would tolerate much finer blocks. At such a coarse
+granularity caching is nearly useless: requests shorter than one block can never be reused, and chunked prefill exports
+no cacheable prefix until it crosses a full block boundary.
+physical cache block (6144 tokens) = 12 prefix-hash blocks
+hash block (512 tokens)
+MLA KV
+KDA ckpt
+hit boundaryB= 2560
+restore the KDA checkpoint atB; copy-on-write the partial MLA block;
+resume prefill from tokenBwith zero recompute of[0, B)
+Figure 12:Fine-grained prefix caching within a physical cache block.A 6144-token physical block contains twelve 512-token
+hash blocks, with cached MLA blocks shown in blue and empty blocks in light gray. The markers below show the KDA checkpoint
+status at each hash boundary. An open circle (◦) denotes a boundary without a stored checkpoint, a gray dot (•) denotes a persisted
+KDA checkpoint, and an orange dot ( •) marks the checkpoint hit at B= 2560 . Persisted checkpoints are sparse and typically
+coincide with conversation-turn boundaries. The request reuses the five MLA hash blocks and the KDA checkpoint at B, then
+resumes prefill without recomputing[0, B).
+We therefore decouple the two granularities. Prefix hashing runs on finehash blocks(e.g., 512 tokens) inside MLA
+pages, while the physical block remains the coarse allocation unit. Alignment runs the other way for KDA: checkpoints
+of the recurrent state are saved only at (a sparse subset of) MLA’s hash endpoints—the only positions a lookup can ever
+reference.
+During prefill, a partially filled MLA page is registered in the prefix-cache index under the chained hash of its last
+complete hash block, where each hash covers all preceding hash blocks so that matching an endpoint certifies the
+whole prefix up to it; the registered endpoint advances as the page fills. Meanwhile, after each forward pass, the KDA
+kernel persists the recurrent state at the last hash-aligned position processed. Checkpoints are large, so intermediate
+checkpoints superseded as the request advances are recycled, while those at conversation-turn boundaries are retained
+for cross-request reuse. Cached checkpoints are read-only snapshots: a hit restores the state by copying it into the
+request’s private running state before the next forward pass, and new checkpoints are written to fresh slots, so a
+checkpoint visible to other requests is never mutated in place.
+Lookup proceeds in two stages (Fig. 12). The MLA stage matches whole physical blocks by chained hash and, at
+the first missing block, falls back to the hash endpoints inside it, so partially filled pages remain hittable. The KDA
+stage then requires a checkpoint at the candidate boundary in every KDA cache group, each of which maintains an
+23
+===== PAGE 23 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+independent recurrent state. The hit is the longest boundary satisfying both stages—always a multiple of the hash block,
+and never required to be a multiple of the physical block. In Fig. 12, a request whose first 2800 tokens match the cached
+prefix hits at B= 2560 = 5×512 , deep inside a 6144-token physical block, and resumes prefill from token B instead
+of recomputing[0, B).
+Consistency under concurrent schedulingThe remaining design points are each dictated by a concrete failure mode
+of sharing partially filled blocks, in a setting where a hit block is at once a shared cache entry and the growth point of a
+private request, and where the MLA and KDA cache groups must agree on every hit boundary. First, all cache groups
+draw blocks from one shared free list, so allocating a private copy for one group could evict a block that another group
+has just hit; every hit block is therefore pinned across all groups before anything is allocated. Second, the copy into the
+private block executes on the GPU immediately before the forward pass, so a block allocated or registered within the
+current scheduling step would still hand the previous owner’s bytes to a reader; such blocks are excluded from matching
+until their copies land. Third, a checkpoint can restore a request only if it exists in every KDA group, so evicting one
+group’s checkpoint atomically invalidates its siblings — a checkpoint is either hittable in every group or in none. With
+these mechanisms, every registered state always corresponds to exactly its declared token prefix, and prefix caching for
+hybrid KDA–MLA models reaches the same generality as for full-attention models: any shared prefix is reusable at any
+512-token boundary, independently of request length, chunking, or scheduling interleaving.
+5.4.2 High-Performance Kernels
+Kimi K3 introduces several new architectural modules: KDA (§2.1.1), Block AttnRes (§2.2), and Stable LatentMoE
+(§2.3). We optimize the kernel implementation for each.
+KDACompared with KDA prefill (§5.1), KDA decoding presents a distinct set of challenges: the primary bottleneck
+shifts from exploiting parallelism to efficiently managing the evolving recurrent state, which is updated in place at every
+decoding step. This in-place update becomes problematic in MTP-based speculative decoding: if verification rejects a
+subset of the drafted tokens, the state has already advanced beyond the last accepted token and cannot be trivially rolled
+back. Maintaining a state snapshot for each draft position would enable rollback, but would also multiply state traffic —
+a cost that dominates at the large batch sizes typical of online serving.
+The state after any accepted draft prefix, however, is fully determined by the projected inputs of the draft tokens, which
+are far smaller than the state itself. We therefore cache only these projected inputs, rebuild the states of accepted tokens
+on-chip, and write back the states of the verified and bonus tokens, a design independently proposed in the concurrent
+work ReplaySSM [25]. The replayed tokens, the bonus token, and the next draft window share one recurrent loop
+inside a single fused kernel covering short convolution, input normalization, gating, the KDA recurrence, and output
+normalization. Verification latency grows sub-linearly with the number of tokens verified and remains below that of
+state-caching baselines. Because the projection caches never leave the decode stage, prefix caching and prefill–decode
+disaggregation operate on the same payload as in non-speculative serving.
+Block AttnResBlock AttnRes [58] follows a two-phase schedule: a batched inter-block pass reads the cached block
+representations once per block, after which each layer folds in the intra-block partial sum through an online-softmax
+merge [80]. Memory access accounts for a substantial fraction of the cost of these kernels in both prefill and decoding,
+so our optimizations in both stages focus primarily on memory efficiency.
+For prefill, materializing the block representations on every tensor-parallel (TP) rank would incur substantial redundant
+memory consumption. We therefore adopt sequence parallelism (SP) for activations: the TP all-reduce is decomposed
+into a reduce-scatter and an all-gather, with the intra-block kernel inserted between the two collectives, operating on the
+sequence-sharded hidden states so that the block representations of each token are materialized on exactly one rank.
+This eliminates the additional memory consumption and reduces the I/O overheads of Block AttnRes during prefill.
+For decoding, we launch the inter-block kernel on a side stream so that it overlaps with independent computation on the
+main stream. The intra-block kernel is instead streamlined through fusion: the merging of the AttnRes output with its
+partial-sum update, together with the subsequent RMSNorm, is fused into the preceding TP all-reduce, eliminating a
+dedicated kernel for the intra-block phase. Together, these optimizations hide the latency of the inter-block pass and
+reduce the memory traffic of the intra-block phase.
+Stable LatentMoEStable LatentMoE increases both the total number of experts and the number of activated
+experts per token. The resulting growth in both the expert space and the per-token expert count raises scheduling and
+coordination overheads, making it difficult for conventional MoE kernels to sustain high hardware utilization. These
+challenges motivate dedicated kernel optimizations for this module.
+24
+===== PAGE 24 =====
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+To mitigate the overhead of the latent GEMMs, we adopt three optimizations. First, we fuse the latent down-projection
+with the MoE router into a single GEMM. Second, we shard latent weight matrices across ranks and fuse the output
+all-gather into the GEMM epilogue using multimem store instructions. Finally, we overlap the resulting communication
+with other operators, such as the shared-expert computation. Together, these optimizations eliminate redundant weight
+traffic and duplicated computation, while hiding the communication latency behind computation.
+For routed experts, at small batch sizes, the group GEMMs reduce to memory-bound streaming of weight matrices
+— a regime for which conventional tile-centric kernels are poorly suited due to their compute-oriented design and
+preprocessing overheads. We instead build the MoE decoding kernel upon the token-centric design of WarpDecode [12],
+in which each warp is responsible for one output neuron and streams the associated weights directly from memory. To
+further increase parallelism, we subdivide each warp into finer-grained lane teams, each processing a disjoint subset of
+experts, followed by a warp-wide reduction of the partial results. In addition, the weight layout is permuted offline at a
+one-time preprocessing cost, substantially reducing the runtime dequantization overhead.
+5.4.3 Fleet-Level Scheduling
+Beyond a single serving instance, the challenge shifts from per-request efficiency to predictability: a prefix-cache miss
+costs orders of magnitude more than a hit, and a burst of million-token requests can starve short ones. We propose two
+fleet-level scheduling policies to address this: cache-aware affinity scheduling routes each session to the cluster holding
+its prefix cache while bounding the cost of cluster failures, and budget-based admission control grants each request
+class its own resource budget so that bursty long-context traffic cannot degrade system-wide SLOs.
+Cache-aware affinity schedulingAt 1M context, a typical coding input carries a prefix of 400K tokens but requires a
+prefill increment of only 4K tokens, so a prefix-cache hit avoids re-prefilling the entire prefix and is orders of magnitude
+cheaper than a miss. We therefore route each request to the cluster that holds its prefix cache, as moving the cache
+to another cluster would require transferring it over inter-cluster links far slower than the intra-cluster fabric. This
+cache-aware affinity, however, binds each session to a single cluster, whose failure would interrupt all sessions bound to
+it. Consistent hashing therefore pins each session to two clusters, a primary that serves its traffic and a pre-assigned
+secondary that takes over when the primary fails. The secondary holds none of the session’s prefix cache and must
+re-prefill it upon failover. Since consistent hashing distributes the secondary assignments of different sessions uniformly
+across the fleet, this re-prefill work is divided among many clusters rather than concentrated on one. Cache locality is
+thus preserved in the common case, while the impact of any single cluster failure remains bounded.
+Budget-based admission controlProduction traffic mixes short requests under 2K tokens with ultra-long requests up
+to 1M tokens, so the per-request cost spans roughly three orders of magnitude and the total load imposed by any fixed
+number of requests is highly unpredictable. Capacity planning, queueing models, and rate-limiting quotas based on
+the “average request” all break down under this variance. In a typical failure mode, a burst of long-context requests
+saturates the available compute, and short requests arriving afterwards cannot be scheduled promptly, degrading time to
+first token (TTFT) across all traffic. We therefore adopt budget-based admission control, allocating separate resource
+budgets to different request classes so that bursty long-context traffic consumes at most its own share of the capacity
+and cannot degrade system-wide SLOs experienced by other classes.
+6 Evaluations
+6.1 Main Results
+6.1.1 Benchmarks
+We evaluate Kimi K3 on a comprehensive benchmark suite organized along four broad capability axes:
+• Reasoning & Knowledge: GPQA Diamond [102], CritPt [8], AA-LCR [9], and Humanity’s Last Exam (HLE-Full,
+with and without tools) [94].
+•Coding: DeepSWE [31], ProgramBench [96], Terminal-Bench 2.1 [79], FrontierSWE [36], SWE-Marathon [119],
+PostTrainBench [95], MLS-Bench-Lite [77], and SciCode [123, 8].
+•Agentic: BrowseComp [133], DeepSearchQA [128], ResearchRubrics [107], Toolathlon-Verified [70], MCPMark-
+Verified [135], MCP-Atlas [11], AutomationBench [109], JobBench [71], GDPval-AA v2 [91], AA-Briefcase [8,
+2], Agents’ Last Exam (ALE) [4, 117], APEX-Agents [129], OfficeQA Pro [88], SpreadsheetBench 2 [152],
+OSWorld-Verified [138] and OSWorld 2.0 [145], SaaS-Bench [110],τ 3-Banking [1, 8], Harvey Lab-AA [8, 43],
+CorpFin v2 [21], Finance Agent v2 [35], and Legal Research Bench [66].
+25

@@ -1,0 +1,47 @@
+version: v2
+title: Kimi K3 模型结构分析
+size: [960, 540]
+theme:
+  colors:
+    primary: "#C00000"
+    text: "#262626"
+    gray: "#737373"
+    line: "#D4D4D4"
+    lightred: "#FDF0F0"
+    lightgray: "#F5F5F5"
+  textStyles:
+    sectitle:
+      fontSize: 12
+      bold: true
+      color: "$primary"
+      fontFamily: 黑体
+    body:
+      fontSize: 10
+      color: "$text"
+      lineHeight: 1.45
+      fontFamily: 黑体
+    small:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+  tableStyles:
+    param:
+      cellStyle:
+        fontSize: 8
+        color: "$text"
+        fontFamily: 黑体
+        align: [left, middle]
+        border: [null, null, {style: solid, width: 0.75, color: "$line"}, null]
+      firstRowStyle:
+        bold: true
+        color: "$text"
+        fontFamily: 黑体
+        fill: {type: solid, color: "$lightgray"}
+        border: [null, null, {style: solid, width: 1, color: "$gray"}, null]
+pages:
+  - pages/1_kda.page
+  - pages/2_gated_mla.page
+  - pages/3_kernel_flashkda.page
+  - pages/4_kernel_kda_decode.page
+  - pages/5_kernel_attnres.page
+  - pages/6_kernel_latentmoe.page

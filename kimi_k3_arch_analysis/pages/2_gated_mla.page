@@ -1,0 +1,472 @@
+pageType: content
+background:
+  type: solid
+  color: "#FFFFFF"
+elements:
+  # ===== 页眉 =====
+  - elementId: kicker
+    elementType: text
+    bounds: [44, 14, 300, 14]
+    content:
+      fontSize: 9
+      color: "$gray"
+      fontFamily: 黑体
+      letterSpacing: 3
+      wrap: false
+      align: [left, middle]
+      text: HYBRID ATTENTION · 02
+  - elementId: source-note
+    elementType: text
+    bounds: [400, 14, 524, 14]
+    content:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+      wrap: false
+      align: [right, middle]
+      text: 资料来源：Kimi K3 Technical Report §2.1.2；vllm / vllm-ascend 代码仓
+  - elementId: title
+    elementType: text
+    bounds: [44, 30, 880, 30]
+    content:
+      fontSize: 21
+      bold: true
+      color: "$primary"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: Gated MLA：NoPE 全局注意力 + 全秩输出门
+  - elementId: title-bar
+    elementType: shape
+    bounds: [44, 66, 64, 3]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+
+  # ===== 分析结论 =====
+  - elementId: concl-label-bg
+    elementType: shape
+    bounds: [44, 96, 88, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+  - elementId: concl-label
+    elementType: text
+    bounds: [44, 96, 88, 110]
+    content:
+      fontSize: 14
+      bold: true
+      color: "#FFFFFF"
+      fontFamily: 黑体
+      align: [center, middle]
+      text: 分析结论
+  - elementId: concl-body-bg
+    elementType: shape
+    bounds: [140, 96, 784, 110]
+    shapeName: rect
+    fill: {type: solid, color: "#F2F2F2"}
+  - elementId: concl-bullets
+    elementType: text
+    bounds: [154, 101, 756, 100]
+    content:
+      fontSize: 9
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <ul>
+        <li><strong>结构定位</strong>：MLA 将每 token 的 KV 压缩为低维隐向量 c<sub>t</sub> 缓存、注意力时经上投影重建 K/V；K3 每 block 保留 1 层 Gated MLA（共 24 层，骨干末尾再 +1 层），承担无限制的全局内容交互</li>
+        <li style="margin-top:4px"><strong>改动① 全面 NoPE</strong>：MLA 层不施加任何显式位置编码（K2 / K2.5 为 RoPE），位置与近因感知交由 KDA 层；扩展上下文无需重调 RoPE 基频或 YaRN；KV Cache 不含 rope 分量，单 token 缓存由 (dc+dr) 降为 dc</li>
+        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：y = W<sub>o</sub>[σ(W<sub>g</sub>·x) ⊙ õ]，与 KDA 同款门控，逐通道调节全局注意力读出；新增 d×H·dh 稠密 GEMM → CUBE 友好</li>
+        <li style="margin-top:4px"><strong>训练数值</strong>：注意力输出在训练中保持 FP32（修正 flash attention 的 biased rounding），输出 tile 片上占用翻倍 → 训练 kernel 重排为与 KV staging buffer 交叠，换取更深 KV 流水与更高吞吐</li>
+        </ul>
+
+  # ===== 左：模块结构 =====
+  - elementId: arch-label
+    elementType: text
+    bounds: [44, 208, 200, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 模块结构与数据流
+  - elementId: legend-box
+    elementType: shape
+    bounds: [230, 211, 10, 10]
+    shapeName: rect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "$primary"}
+  - elementId: legend-text
+    elementType: text
+    bounds: [244, 208, 240, 14]
+    content:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: 红框 = K3 相对标准 MLA（K2）的改动
+  - elementId: module-border
+    elementType: shape
+    bounds: [36, 228, 428, 222]
+    shapeName: roundRect
+    adjustments: [6000]
+    border: {style: dash, width: 1, color: "#404040"}
+
+  # 阴影
+  - elementId: sh-wo
+    elementType: shape
+    bounds: [154, 248, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+  - elementId: sh-wq
+    elementType: shape
+    bounds: [64, 427, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+  - elementId: sh-wc
+    elementType: shape
+    bounds: [174, 427, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+  - elementId: sh-gate
+    elementType: shape
+    bounds: [394, 427, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+  - elementId: sh-wuk
+    elementType: shape
+    bounds: [120, 370, 64, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+  - elementId: sh-wuv
+    elementType: shape
+    bounds: [220, 370, 64, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#D4D4D4"}
+
+  # 主干：Gated MLA → ⊗ → Linear(Wo) → y_t
+  - elementId: a-out
+    elementType: line
+    bounds: [179, 230, 2, 16]
+    viewBox: [2, 16]
+    points: "1,16 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: lab-y
+    elementType: text
+    bounds: [186, 230, 40, 12]
+    content: {fontSize: 8, color: "#404040", fontFamily: 黑体, wrap: false, align: [left, middle], text: y<sub>t</sub>}
+  - elementId: n-wo
+    elementType: shape
+    bounds: [152, 246, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-wo
+    elementType: text
+    bounds: [152, 246, 56, 16]
+    content: {fontSize: 7.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Linear}
+  - elementId: a-mul-wo
+    elementType: line
+    bounds: [179, 262, 2, 8]
+    viewBox: [2, 8]
+    points: "1,8 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: n-mul
+    elementType: shape
+    bounds: [172, 270, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-mul
+    elementType: text
+    bounds: [172, 270, 16, 16]
+    content: {fontSize: 9, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: ⊗}
+  - elementId: a-attn-mul
+    elementType: line
+    bounds: [179, 286, 2, 32]
+    viewBox: [2, 32]
+    points: "1,32 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: n-attn
+    elementType: shape
+    bounds: [64, 318, 296, 34]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-attn
+    elementType: text
+    bounds: [68, 320, 288, 30]
+    content:
+      fontSize: 8.5
+      color: "#1F2A36"
+      fontFamily: 黑体
+      lineHeight: 1.3
+      align: [center, middle]
+      text: |
+        <p><strong>Gated MLA（NoPE 全局注意力）</strong><span style="color:$primary"><strong> ①</strong></span></p>
+        <p><span style="font-size:7px">õ<sub>t</sub> = Σ<sub>j≤t</sub> softmax(q<sub>t</sub>·k<sub>j</sub> / √dh)·v<sub>j</sub>（q / k 无任何位置编码）</span></p>
+
+  # q / k / v 三路汇入
+  - elementId: a-q
+    elementType: line
+    bounds: [89, 352, 2, 73]
+    viewBox: [2, 73]
+    points: "1,73 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: a-kk
+    elementType: line
+    bounds: [149, 352, 2, 16]
+    viewBox: [2, 16]
+    points: "1,16 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: a-vv
+    elementType: line
+    bounds: [249, 352, 2, 16]
+    viewBox: [2, 16]
+    points: "1,16 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: lab-q
+    elementType: text
+    bounds: [94, 380, 14, 10]
+    content: {fontSize: 8, color: "#404040", fontFamily: 黑体, wrap: false, align: [left, middle], text: q}
+  - elementId: lab-k
+    elementType: text
+    bounds: [154, 354, 14, 10]
+    content: {fontSize: 8, color: "#404040", fontFamily: 黑体, wrap: false, align: [left, middle], text: k}
+  - elementId: lab-v
+    elementType: text
+    bounds: [254, 354, 14, 10]
+    content: {fontSize: 8, color: "#404040", fontFamily: 黑体, wrap: false, align: [left, middle], text: v}
+
+  # 上投影 K / V
+  - elementId: n-wuk
+    elementType: shape
+    bounds: [118, 368, 64, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-wuk
+    elementType: text
+    bounds: [118, 368, 64, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Linear W<sub>uk</sub>}
+  - elementId: n-wuv
+    elementType: shape
+    bounds: [218, 368, 64, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-wuv
+    elementType: text
+    bounds: [218, 368, 64, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Linear W<sub>uv</sub>}
+  - elementId: a-ct-uk
+    elementType: line
+    bounds: [150, 384, 30, 12]
+    viewBox: [30, 12]
+    points: "30,12 0,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: a-ct-uv
+    elementType: line
+    bounds: [180, 384, 70, 12]
+    viewBox: [70, 12]
+    points: "0,12 70,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+
+  # 隐向量 c_t（即 KV Cache）
+  - elementId: n-ct
+    elementType: shape
+    bounds: [160, 396, 80, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-ct
+    elementType: text
+    bounds: [160, 396, 80, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: c<sub>t</sub>（= KV Cache）}
+  - elementId: lab-cache
+    elementType: text
+    bounds: [246, 398, 170, 12]
+    content: {fontSize: 7, color: "$gray", fontFamily: 黑体, wrap: false, align: [left, middle], text: 每层每 token：dc×2B（无 rope 分量）}
+  - elementId: a-wc-ct
+    elementType: line
+    bounds: [199, 412, 2, 13]
+    viewBox: [2, 13]
+    points: "1,13 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+
+  # 底部投影
+  - elementId: n-wq
+    elementType: shape
+    bounds: [62, 425, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-wq
+    elementType: text
+    bounds: [62, 425, 56, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Linear W<sub>q</sub>}
+  - elementId: n-wc
+    elementType: shape
+    bounds: [172, 425, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: t-wc
+    elementType: text
+    bounds: [172, 425, 56, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Linear W<sub>c</sub>}
+  - elementId: n-gate
+    elementType: shape
+    bounds: [392, 425, 56, 16]
+    shapeName: roundRect
+    adjustments: [30000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1.25, color: "$primary"}
+  - elementId: t-gate
+    elementType: text
+    bounds: [392, 425, 56, 16]
+    content:
+      fontSize: 7
+      color: "$text"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        <p>Linear W<sub>g</sub> <span style="color:$primary"><strong>②</strong></span></p>
+  - elementId: a-gate-mul
+    elementType: line
+    bounds: [188, 278, 232, 147]
+    viewBox: [232, 147]
+    points: "232,147 232,0 0,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: a-bus
+    elementType: line
+    bounds: [89, 441, 332, 2]
+    viewBox: [332, 2]
+    points: "0,1 332,1"
+    curve: sharp
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: a-in
+    elementType: line
+    bounds: [249, 443, 2, 7]
+    viewBox: [2, 7]
+    points: "1,7 1,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+
+  # ===== 右：参数与 FLOPs 表 =====
+  - elementId: param-label
+    elementType: text
+    bounds: [488, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 参数、FLOPs 与昇腾诉求
+  - elementId: param-table
+    elementType: table
+    bounds: [488, 240, 436, 196]
+    columnWidths: [0.24, 0.26, 0.17, 0.33]
+    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    style: "$param"
+    rows:
+      - - text: 组件
+        - text: 张量形状
+        - text: FLOPs/token
+        - text: 负载特征 → 昇腾诉求
+      - - text: 隐向量下投影 W<sub>c</sub>
+        - text: x∈R<sup>7168</sup> → c<sub>t</sub>∈R<sup>dc</sup>
+        - text: 2d·dc
+        - text: 稠密 GEMM → CUBE；decode 退化为 GEMV，访存受限
+      - - text: Q/K/V 投影与上投影
+        - text: "q: d→H·dh；k,v: dc→H·dh"
+        - text: 2d·H·dh + 4dc·H·dh
+        - text: decode 可吸收（absorb）上投影、直接以 c<sub>t</sub> 计算，降低 KV 读取
+      - - text: 全局注意力 <span style="color:$primary">①</span>
+        - text: q,k,v∈R<sup>H·dh</sup>；L 任意
+        - text: 4L·H·dh，随 L 线性
+        - text: CUBE matmul + Vector softmax；无 RoPE → 省去旋转 kernel 与 sin/cos 表
+      - - text: KV Cache
+        - text: c<sub>t</sub>：dc×2B / token / 层
+        - text: —
+        - text: 随 L 线性增长，1M 上下文为主要显存项；NoPE 后单 token 缓存 &lt; 标准 MLA
+      - - text: 全秩输出门 <span style="color:$primary">②</span>
+        - text: "W<sub>g</sub>: d×H·dh"
+        - text: 2d·H·dh
+        - text: 新增标准稠密 GEMM → CUBE 友好；应与注意力输出融合
+      - - text: 训练 FP32 输出
+        - text: 输出 tile：H·dh，FP32
+        - text: —
+        - text: 片上占用 ×2 → 重排 buffer 分配，与 KV staging 交叠换深流水
+  - elementId: param-note
+    elementType: text
+    bounds: [488, 442, 436, 24]
+    content:
+      fontSize: 7.5
+      color: "$gray"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>显存：24+1 层 MLA 的 KV Cache 随 L 线性增长，为 1M 上下文下的主要显存项；标准 MLA 缓存为 (dc+dr)×2B / token。</p>
+        <p>注：d = 7168、H = 96（报告 Table 1）；dc / dr / dh 以 checkpoint config 为准（K2 参考值 512 / 64 / 128）；FLOPs 为推算。</p>
+
+  # ===== 底部：开发需求与趋势 =====
+  - elementId: dev-label
+    elementType: text
+    bounds: [44, 452, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 开发需求与趋势思考
+  - elementId: dev-bullets
+    elementType: text
+    bounds: [44, 468, 876, 68]
+    content:
+      fontSize: 8
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <ul>
+        <li><strong>算子层（推理）</strong>：MLA 已接入 vllm-ascend mla_v1.py 后端，kimi_k3 适配层强制 use_nope=True 并透传 output gate；需回归验证 qk_rope_head_dim = 0 配置下各后端（含量化路径）的正确性</li>
+        <li style="margin-top:3px"><strong>算子层（融合）</strong>：输出门 σ(W<sub>g</sub>·x) ⊙ õ 应与注意力输出及 W<sub>o</sub> 融合，避免三次显存往返；训练侧 FP32 输出 tile 需 Ascend C 级 buffer 规划（与 KV staging 交叠）</li>
+        <li style="margin-top:3px"><strong>框架层</strong>：KV Cache 按 dc×2B / token 分页，与 KDA checkpoint 统一池化；PD 分离部署下 NoPE 缓存更小，跨节点传输负载相应下降</li>
+        <li style="margin-top:3px"><strong>趋势</strong>：NoPE 将位置建模完全交给递归层，长上下文外推不再受 RoPE 限制；硬件诉求集中于 KV Cache 容量 / 带宽与吸收矩阵 GEMV 效率</li>
+        </ul>

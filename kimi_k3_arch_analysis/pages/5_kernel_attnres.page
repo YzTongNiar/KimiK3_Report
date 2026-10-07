@@ -1,0 +1,383 @@
+pageType: content
+background:
+  type: solid
+  color: "#FFFFFF"
+elements:
+  # ===== 页眉 =====
+  - elementId: kicker
+    elementType: text
+    bounds: [44, 14, 300, 14]
+    content:
+      fontSize: 9
+      color: "$gray"
+      fontFamily: 黑体
+      letterSpacing: 3
+      wrap: false
+      align: [left, middle]
+      text: INFRASTRUCTURE · 03
+  - elementId: source-note
+    elementType: text
+    bounds: [370, 14, 554, 14]
+    content:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+      wrap: false
+      align: [right, middle]
+      text: 资料来源：Kimi K3 Technical Report §2.2 / §5.4.2（Block AttnRes）
+  - elementId: title
+    elementType: text
+    bounds: [44, 30, 880, 30]
+    content:
+      fontSize: 21
+      bold: true
+      color: "$primary"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: Block AttnRes：两阶段调度与通信融合
+  - elementId: title-bar
+    elementType: shape
+    bounds: [44, 66, 64, 3]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+
+  # ===== 分析结论 =====
+  - elementId: concl-label-bg
+    elementType: shape
+    bounds: [44, 96, 88, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+  - elementId: concl-label
+    elementType: text
+    bounds: [44, 96, 88, 110]
+    content:
+      fontSize: 14
+      bold: true
+      color: "#FFFFFF"
+      fontFamily: 黑体
+      align: [center, middle]
+      text: 分析结论
+  - elementId: concl-body-bg
+    elementType: shape
+    bounds: [140, 96, 784, 110]
+    shapeName: rect
+    fill: {type: solid, color: "#F2F2F2"}
+  - elementId: concl-bullets
+    elementType: text
+    bounds: [154, 101, 756, 100]
+    content:
+      fontSize: 9
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <ul>
+        <li><strong>机制与规模</strong>：AttnRes 让每层以可学习伪查询 w 对嵌入与前序 block 表示做注意力（深度维的注意力）；Block 形式将显存 / 通信开销从 O(Ld) 降为 O(Nd) —— K3：96 层 → 8 blocks × 12 层，含嵌入共 9 个 block 表示</li>
+        <li style="margin-top:4px"><strong>两阶段 kernel</strong>：inter-block pass 对每个 block 批量读一次缓存的 block 表示；intra-block 由各层经 online-softmax 合入块内部分和 —— 两阶段开销均以访存为主，优化聚焦内存效率</li>
+        <li style="margin-top:4px"><strong>Prefill（SP）</strong>：TP 下每 rank 物化 block 表示冗余 N 倍显存 → TP all-reduce 拆为 reduce-scatter + all-gather，intra-block kernel 插入两次集合通信之间、在序列分片 hidden 上物化 → 每 token 表示只在一个 rank 物化</li>
+        <li style="margin-top:4px"><strong>Decode</strong>：inter-block kernel 放 side stream 与主流计算交叠；intra-block 合并 + 部分和更新 + RMSNorm 融合进前序 TP all-reduce，隐藏延迟、零独立 kernel</li>
+        </ul>
+
+  # ===== 左：机制与调度 =====
+  - elementId: arch-label
+    elementType: text
+    bounds: [44, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 深度维注意力机制与执行调度
+  - elementId: module-border
+    elementType: shape
+    bounds: [36, 228, 428, 222]
+    shapeName: roundRect
+    adjustments: [6000]
+    border: {style: dash, width: 1, color: "#404040"}
+
+  # 机制：block 表示 + 伪查询
+  - elementId: mech-label
+    elementType: text
+    bounds: [56, 240, 280, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: 机制：对 block 表示做深度维注意力}
+  - elementId: mech-b0
+    elementType: shape
+    bounds: [56, 262, 36, 16]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-b0-t
+    elementType: text
+    bounds: [56, 262, 36, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: b0}
+  - elementId: mech-b1
+    elementType: shape
+    bounds: [96, 262, 36, 16]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-b1-t
+    elementType: text
+    bounds: [96, 262, 36, 16]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: b1}
+  - elementId: mech-b2
+    elementType: shape
+    bounds: [136, 262, 36, 16]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-b2-t
+    elementType: text
+    bounds: [136, 262, 36, 16]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: b2}
+  - elementId: mech-dots
+    elementType: text
+    bounds: [176, 262, 36, 16]
+    content: {fontSize: 9, color: "$gray", fontFamily: 黑体, wrap: false, align: [center, middle], text: …}
+  - elementId: mech-b8
+    elementType: shape
+    bounds: [216, 262, 36, 16]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-b8-t
+    elementType: text
+    bounds: [216, 262, 36, 16]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: b8}
+  - elementId: mech-w
+    elementType: shape
+    bounds: [270, 262, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-w-t
+    elementType: text
+    bounds: [270, 262, 16, 16]
+    content: {fontSize: 7.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: w}
+  - elementId: mech-w-lab
+    elementType: text
+    bounds: [290, 264, 120, 12]
+    content: {fontSize: 7, color: "$gray", fontFamily: 黑体, wrap: false, align: [left, middle], text: 伪查询（逐层可学习）}
+  - elementId: mech-a1
+    elementType: line
+    bounds: [130, 278, 90, 18]
+    viewBox: [90, 18]
+    points: "0,0 90,18"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: mech-a2
+    elementType: line
+    bounds: [222, 278, 60, 18]
+    viewBox: [60, 18]
+    points: "60,0 0,18"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: mech-sum
+    elementType: shape
+    bounds: [213, 296, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: mech-sum-t
+    elementType: text
+    bounds: [213, 296, 16, 16]
+    content: {fontSize: 9, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Σ}
+  - elementId: mech-out
+    elementType: text
+    bounds: [236, 298, 200, 12]
+    content: {fontSize: 7.5, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: h<sub>l</sub> = Σ α<sub>i</sub>·b<sub>i</sub>（online softmax 合并）}
+
+  # Prefill SP 流水线
+  - elementId: sp-label
+    elementType: text
+    bounds: [56, 322, 380, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: Prefill：all-reduce 拆为 RS + AG，kernel 插入其间}
+  - elementId: sp-rs
+    elementType: shape
+    bounds: [56, 340, 100, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: sp-rs-t
+    elementType: text
+    bounds: [56, 340, 100, 20]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: Reduce-Scatter}
+  - elementId: sp-a1
+    elementType: line
+    bounds: [156, 348, 12, 4]
+    viewBox: [12, 4]
+    points: "0,2 12,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: sp-kernel
+    elementType: shape
+    bounds: [168, 340, 150, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: sp-kernel-t
+    elementType: text
+    bounds: [168, 340, 150, 20]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: intra-block kernel（序列分片上物化）}
+  - elementId: sp-a2
+    elementType: line
+    bounds: [318, 348, 12, 4]
+    viewBox: [12, 4]
+    points: "0,2 12,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: sp-ag
+    elementType: shape
+    bounds: [330, 340, 90, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: sp-ag-t
+    elementType: text
+    bounds: [330, 340, 90, 20]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: All-Gather}
+
+  # Decode side stream
+  - elementId: dec-label
+    elementType: text
+    bounds: [56, 372, 380, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: Decode：inter-block 放 side stream 交叠}
+  - elementId: dec-m1
+    elementType: shape
+    bounds: [56, 390, 100, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: dec-m1-t
+    elementType: text
+    bounds: [56, 390, 100, 18]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: 主流计算}
+  - elementId: dec-m2
+    elementType: shape
+    bounds: [160, 390, 100, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: dec-m2-t
+    elementType: text
+    bounds: [160, 390, 100, 18]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: 主流计算}
+  - elementId: dec-m3
+    elementType: shape
+    bounds: [264, 390, 60, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: dec-m3-t
+    elementType: text
+    bounds: [264, 390, 60, 18]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: …}
+  - elementId: dec-side
+    elementType: shape
+    bounds: [104, 414, 120, 16]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: dec-side-t
+    elementType: text
+    bounds: [104, 414, 120, 16]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: inter-block kernel（side stream）}
+  - elementId: dec-side-note
+    elementType: text
+    bounds: [232, 415, 200, 14]
+    content: {fontSize: 7, color: "$gray", fontFamily: 黑体, wrap: false, align: [left, middle], text: 与主流独立计算交叠，隐藏延迟}
+
+  # ===== 右：参数与 FLOPs 表 =====
+  - elementId: param-label
+    elementType: text
+    bounds: [488, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 各阶段负载与昇腾诉求
+  - elementId: param-table
+    elementType: table
+    bounds: [488, 240, 436, 196]
+    columnWidths: [0.26, 0.26, 0.16, 0.32]
+    rowHeights: [0.1, 0.18, 0.18, 0.18, 0.18, 0.18]
+    style: "$param"
+    rows:
+      - - text: 阶段
+        - text: 张量形状
+        - text: FLOPs
+        - text: 负载特征 → 昇腾诉求
+      - - text: Inter-block pass
+        - text: "读 N 个 block 表示 [N,d]"
+        - text: O(N·d) / 层
+        - text: 访存为主；批量读一次；decode 放 side stream 交叠
+      - - text: Intra-block 合并
+        - text: "online softmax merge，[d]"
+        - text: O(d) / 层
+        - text: 融合进 TP all-reduce epilogue → 零独立 kernel
+      - - text: 伪查询与权重
+        - text: w∈R<sup>d</sup>；α = softmax(w·RMSNorm(b))
+        - text: O(N·d)
+        - text: 小 GEMV → Vector；N = 9，计算量极小
+      - - text: Block 表示缓存
+        - text: N×d×2B / 序列
+        - text: —
+        - text: 96 层 → 9 个表示 ≈126KB（BF16）；显存降一个量级
+      - - text: Prefill 通信
+        - text: RS + AG（序列分片）
+        - text: —
+        - text: 通信量 ≈ all-reduce；消除冗余物化与 I/O
+  - elementId: param-note
+    elementType: text
+    bounds: [488, 442, 436, 24]
+    content:
+      fontSize: 7.5
+      color: "$gray"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>按 d = 7168、N = 9：block 表示 ≈ 9×7168×2B ≈ 126KB / 序列；朴素 TP8 每 rank 物化则冗余 8 倍。</p>
+        <p>注：FLOPs 占比极小，访存与通信结构是主要矛盾；N = 8 blocks + 嵌入（报告 §2.2）。</p>
+
+  # ===== 底部：开发需求与趋势 =====
+  - elementId: dev-label
+    elementType: text
+    bounds: [44, 452, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 开发需求与趋势思考
+  - elementId: dev-bullets
+    elementType: text
+    bounds: [44, 468, 876, 68]
+    content:
+      fontSize: 8
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <ul>
+        <li><strong>算子层</strong>：online-softmax merge + 部分和更新 + RMSNorm 融合进 TP all-reduce epilogue —— 依赖通信算子的 epilogue 融合能力（HCCL + AICore 协同），为昇腾侧新增需求</li>
+        <li style="margin-top:3px"><strong>框架层（prefill）</strong>：SP 排布下 RS / AG 拆分与 kernel 插入点调度；vllm-ascend 需支持 AttnRes 的序列并行路径与分片物化</li>
+        <li style="margin-top:3px"><strong>框架层（decode）</strong>：side stream 生命周期管理（inter-block kernel 与主流同步点）；block 表示缓存（9 个 / 序列）的跨层管理与 PP 切分交互</li>
+        <li style="margin-top:3px"><strong>趋势</strong>：深度维注意力引入“跨层状态”新访存模式；RS / AG 之间插入 kernel 的通信-计算融合手法通用，可复用于 MoE 等模块</li>
+        </ul>

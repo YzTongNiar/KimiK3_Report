@@ -1,0 +1,387 @@
+pageType: content
+background:
+  type: solid
+  color: "#FFFFFF"
+elements:
+  # ===== 页眉 =====
+  - elementId: kicker
+    elementType: text
+    bounds: [44, 14, 300, 14]
+    content:
+      fontSize: 9
+      color: "$gray"
+      fontFamily: 黑体
+      letterSpacing: 3
+      wrap: false
+      align: [left, middle]
+      text: INFRASTRUCTURE · 02
+  - elementId: source-note
+    elementType: text
+    bounds: [370, 14, 554, 14]
+    content:
+      fontSize: 8
+      color: "$gray"
+      fontFamily: 黑体
+      wrap: false
+      align: [right, middle]
+      text: 资料来源：Kimi K3 Technical Report §5.4.2（KDA）；ReplaySSM [25]；vllm-ascend ops/triton/kda
+  - elementId: title
+    elementType: text
+    bounds: [44, 30, 880, 30]
+    content:
+      fontSize: 21
+      bold: true
+      color: "$primary"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: KDA Decoding：可回滚的投机解码融合递归算子
+  - elementId: title-bar
+    elementType: shape
+    bounds: [44, 66, 64, 3]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+
+  # ===== 分析结论 =====
+  - elementId: concl-label-bg
+    elementType: shape
+    bounds: [44, 96, 88, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$primary"}
+  - elementId: concl-label
+    elementType: text
+    bounds: [44, 96, 88, 110]
+    content:
+      fontSize: 14
+      bold: true
+      color: "#FFFFFF"
+      fontFamily: 黑体
+      align: [center, middle]
+      text: 分析结论
+  - elementId: concl-body-bg
+    elementType: shape
+    bounds: [140, 96, 784, 110]
+    shapeName: rect
+    fill: {type: solid, color: "#F2F2F2"}
+  - elementId: concl-bullets
+    elementType: text
+    bounds: [154, 101, 756, 100]
+    content:
+      fontSize: 9
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <ul>
+        <li><strong>瓶颈转移</strong>：decode 每步原地更新状态 S；MTP 投机解码若拒绝部分草稿，S 已越过最后接受 token、无法直接回滚 —— 为每个草稿位置保存状态快照，在大 batch 下状态流量不可承受</li>
+        <li style="margin-top:4px"><strong>方案</strong>：只缓存草稿 token 的投影输入（远小于状态），验证后在片上重建已接受 token 的状态，写回 verified + bonus token 的状态（与同期工作 ReplaySSM 独立同思路）</li>
+        <li style="margin-top:4px"><strong>单融合 kernel</strong>：重放 token + bonus token + 下一草稿窗口共享一个递归循环，覆盖 短卷积 / 输入归一化 / 门控 / KDA 递归 / 输出归一化；验证延迟随验证 token 数亚线性增长，优于状态缓存基线</li>
+        <li style="margin-top:4px"><strong>部署亲和</strong>：投影缓存不离开 decode 阶段 → prefix caching 与 prefill-decode 分离的负载和非投机服务完全一致</li>
+        </ul>
+
+  # ===== 左：融合 kernel 与回滚 =====
+  - elementId: arch-label
+    elementType: text
+    bounds: [44, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 融合算子构成与状态回滚
+  - elementId: module-border
+    elementType: shape
+    bounds: [36, 228, 428, 222]
+    shapeName: roundRect
+    adjustments: [6000]
+    border: {style: dash, width: 1, color: "#404040"}
+
+  # 融合 kernel 范围框
+  - elementId: fused-box
+    elementType: shape
+    bounds: [56, 240, 364, 104]
+    shapeName: roundRect
+    adjustments: [10000]
+    fill: {type: solid, color: "#F7F7F7"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fused-title
+    elementType: text
+    bounds: [64, 246, 348, 14]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: 单融合 kernel：重放 + bonus + 下一草稿共享一个递归循环}
+  - elementId: fk-b1
+    elementType: shape
+    bounds: [64, 290, 64, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-b1-t
+    elementType: text
+    bounds: [64, 290, 64, 20]
+    content: {fontSize: 6.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: 短卷积 k=4}
+  - elementId: fk-a12
+    elementType: line
+    bounds: [128, 298, 8, 4]
+    viewBox: [8, 4]
+    points: "0,2 8,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-b2
+    elementType: shape
+    bounds: [136, 290, 64, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-b2-t
+    elementType: text
+    bounds: [136, 290, 64, 20]
+    content: {fontSize: 6.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: 输入归一化}
+  - elementId: fk-a23
+    elementType: line
+    bounds: [200, 298, 8, 4]
+    viewBox: [8, 4]
+    points: "0,2 8,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-b3
+    elementType: shape
+    bounds: [208, 290, 64, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-b3-t
+    elementType: text
+    bounds: [208, 290, 64, 20]
+    content: {fontSize: 6.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: 门控 σ}
+  - elementId: fk-a34
+    elementType: line
+    bounds: [272, 298, 8, 4]
+    viewBox: [8, 4]
+    points: "0,2 8,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-b4
+    elementType: shape
+    bounds: [280, 290, 64, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-b4-t
+    elementType: text
+    bounds: [280, 290, 64, 20]
+    content: {fontSize: 6.5, color: "#1F2A36", fontFamily: 黑体, wrap: false, align: [center, middle], text: KDA 递归 S}
+  - elementId: fk-a45
+    elementType: line
+    bounds: [344, 298, 8, 4]
+    viewBox: [8, 4]
+    points: "0,2 8,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-b5
+    elementType: shape
+    bounds: [352, 290, 64, 20]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: fk-b5-t
+    elementType: text
+    bounds: [352, 290, 64, 20]
+    content: {fontSize: 6.5, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: 输出归一化}
+  - elementId: fk-loop
+    elementType: line
+    bounds: [96, 310, 288, 14]
+    viewBox: [288, 14]
+    points: "288,0 288,14 0,14 0,0"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: fk-loop-t
+    elementType: text
+    bounds: [200, 314, 80, 10]
+    content: {fontSize: 7, color: "$gray", fontFamily: 黑体, wrap: false, align: [center, middle], text: 递归循环}
+
+  # 回滚示意
+  - elementId: rb-label
+    elementType: text
+    bounds: [56, 356, 300, 13]
+    content: {fontSize: 8.5, bold: true, color: "$text", fontFamily: 黑体, wrap: false, align: [left, middle], text: MTP 验证拒绝时的状态回滚}
+  - elementId: rb-d1
+    elementType: shape
+    bounds: [64, 374, 40, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: rb-d1-t
+    elementType: text
+    bounds: [64, 374, 40, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: d1 ✓}
+  - elementId: rb-d2
+    elementType: shape
+    bounds: [108, 374, 40, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: rb-d2-t
+    elementType: text
+    bounds: [108, 374, 40, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: d2 ✓}
+  - elementId: rb-d3
+    elementType: shape
+    bounds: [152, 374, 40, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "$primary"}
+  - elementId: rb-d3-t
+    elementType: text
+    bounds: [152, 374, 40, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: d3 ✗}
+  - elementId: rb-d4
+    elementType: shape
+    bounds: [196, 374, 40, 18]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 1, color: "$primary"}
+  - elementId: rb-d4-t
+    elementType: text
+    bounds: [196, 374, 40, 18]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, wrap: false, align: [center, middle], text: d4 ✗}
+  - elementId: rb-a1
+    elementType: line
+    bounds: [236, 381, 24, 4]
+    viewBox: [24, 4]
+    points: "0,2 24,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: rb-rebuild
+    elementType: shape
+    bounds: [260, 368, 84, 26]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: rb-rebuild-t
+    elementType: text
+    bounds: [260, 368, 84, 26]
+    content: {fontSize: 7, color: "$text", fontFamily: 黑体, lineHeight: 1.2, align: [center, middle], text: "片上重建 S（仅 d1, d2）"}
+  - elementId: rb-a2
+    elementType: line
+    bounds: [344, 381, 12, 4]
+    viewBox: [12, 4]
+    points: "0,2 12,2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 1, color: "#404040"}
+  - elementId: rb-write
+    elementType: shape
+    bounds: [356, 368, 64, 26]
+    shapeName: roundRect
+    adjustments: [20000]
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 1, color: "#262626"}
+  - elementId: rb-write-t
+    elementType: text
+    bounds: [356, 368, 64, 26]
+    content: {fontSize: 7, color: "#1F2A36", fontFamily: 黑体, lineHeight: 1.2, align: [center, middle], text: 写回 S_verified +S_bonus}
+  - elementId: rb-note
+    elementType: text
+    bounds: [56, 404, 364, 36]
+    content:
+      fontSize: 7.5
+      color: "$gray"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>状态快照方案需为每个草稿位置保存 S（H·dk·dv×2B / 层），大 batch 下流量不可承受；投影输入缓存 D×(4dk+1)·H 小约 dv/4 倍，且不离开 decode 阶段 → prefix caching / PD 分离负载与非投机一致。</p>
+
+  # ===== 右：参数与 FLOPs 表 =====
+  - elementId: param-label
+    elementType: text
+    bounds: [488, 208, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 各阶段负载与昇腾诉求
+  - elementId: param-table
+    elementType: table
+    bounds: [488, 240, 436, 196]
+    columnWidths: [0.26, 0.26, 0.16, 0.32]
+    rowHeights: [0.1, 0.18, 0.18, 0.18, 0.18, 0.18]
+    style: "$param"
+    rows:
+      - - text: 阶段
+        - text: 张量形状
+        - text: FLOPs
+        - text: 负载特征 → 昇腾诉求
+      - - text: 短卷积（causal，k=4）
+        - text: "[B,H,dk]×4"
+        - text: ≈4dk·H / token
+        - text: 小卷积 → Vector；独立 kernel 不划算，必须融合
+      - - text: 门控（safe-gate）
+        - text: g = −5·σ(e<sup>A</sup>·z)
+        - text: O(H·dk)
+        - text: 纯 Vector；当前 NPU kernel 未融合（host 侧预处理，多一次显存往返）
+      - - text: KDA 递归（rank-1 更新）
+        - text: "S: [H,dk,dv]，逐 token 串行"
+        - text: ≈3H·dk·dv / token
+        - text: 小矩阵、并行度仅 B×H 维 → 状态驻留片上是关键
+      - - text: 状态重建（replay）
+        - text: D 个草稿的投影输入
+        - text: D×3H·dk·dv
+        - text: 片上重建，免去 D 份状态快照的 HBM 读写
+      - - text: 投影输入缓存
+        - text: D×(4dk+1)·H×2B
+        - text: —
+        - text: 仅为状态快照的 ≈4/dv（dv = 128 → ≈1/32）；显存与带宽双省
+  - elementId: param-note
+    elementType: text
+    bounds: [488, 442, 436, 24]
+    content:
+      fontSize: 7.5
+      color: "$gray"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>估算（dk = dv = 128、H = 96）：单层状态 3.0MB（BF16）；D = 4 时快照方案读写 ≈12MB / 层 / step，投影缓存 ≈0.4MB / 层。</p>
+        <p>注：dk / dv / H 以 checkpoint config 为准；FLOPs 为推算；验证延迟随验证 token 数亚线性增长（报告实测结论）。</p>
+
+  # ===== 底部：开发需求与趋势 =====
+  - elementId: dev-label
+    elementType: text
+    bounds: [44, 452, 300, 15]
+    content:
+      style: "$sectitle"
+      wrap: false
+      align: [left, middle]
+      text: 开发需求与趋势思考
+  - elementId: dev-bullets
+    elementType: text
+    bounds: [44, 468, 876, 68]
+    content:
+      fontSize: 8
+      color: "$text"
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <ul>
+        <li><strong>算子层</strong>：需 Ascend C 融合递归 kernel（短卷积 + 归一化 + 门控 + 递归 + 输出归一化单 kernel，含 replay 路径）；vllm-ascend 现有 Triton fused_recurrent_kda，MTP 回滚未实现</li>
+        <li style="margin-top:3px"><strong>门控融合</strong>：safe-gate 计算下沉进 kernel —— 现状 gate.py 在 host 侧 apply_kda_gate 预处理，多一次显存往返且阻断全链路融合</li>
+        <li style="margin-top:3px"><strong>框架层</strong>：草稿投影输入缓存的生命周期管理（仅存在于 decode 阶段），与 vllm-ascend spec_decode 各 proposer（mtp / dflash / dspark）对接</li>
+        <li style="margin-top:3px"><strong>趋势</strong>：投机解码 × 线性注意力使“状态可重建性”成为算子设计约束；片上 SRAM 容量决定可融合的草稿窗口长度</li>
+        </ul>

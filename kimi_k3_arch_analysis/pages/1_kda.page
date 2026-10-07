@@ -1,0 +1,185 @@
+pageType: content
+background:
+  type: solid
+  color: "#FFFFFF"
+elements:
+  - elementId: kicker
+    elementType: text
+    bounds: [44, 14, 300, 14]
+    content:
+      fontSize: 9
+      color: $gray
+      fontFamily: 黑体
+      letterSpacing: 3
+      wrap: false
+      align: [left, middle]
+      text: HYBRID ATTENTION · 01
+  - elementId: source-note
+    elementType: text
+    bounds: [400, 14, 524, 14]
+    content:
+      fontSize: 8
+      color: $gray
+      fontFamily: 黑体
+      wrap: false
+      align: [right, middle]
+      text: 资料来源：Kimi K3 Technical Report §2.1.1 / §5.1；vllm / vllm-ascend 代码仓
+  - elementId: title
+    elementType: text
+    bounds: [44, 30, 880, 30]
+    content:
+      fontSize: 21
+      bold: true
+      color: $primary
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: Kimi Delta Attention（KDA）：逐通道遗忘门 × Delta 规则的线性注意力
+  - elementId: title-bar
+    elementType: shape
+    bounds: [44, 66, 64, 3]
+    shapeName: rect
+    fill: {type: solid, color: $primary}
+  - elementId: concl-label-bg
+    elementType: shape
+    bounds: [44, 81, 88, 110]
+    shapeName: rect
+    fill: {type: solid, color: $primary}
+  - elementId: concl-label
+    elementType: text
+    bounds: [44, 81, 88, 110]
+    content:
+      fontSize: 14
+      bold: true
+      color: "#FFFFFF"
+      fontFamily: 黑体
+      align: [center, middle]
+      text: 分析结论
+  - elementId: concl-body-bg
+    elementType: shape
+    bounds: [140, 81, 784, 110]
+    shapeName: rect
+    fill: {type: solid, color: "#F2F2F2"}
+  - elementId: concl-bullets
+    elementType: text
+    bounds: [154, 86, 756, 100]
+    content:
+      fontSize: 9
+      color: $text
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, middle]
+      text: |
+        <ul>
+        <li><strong>结构定位</strong>：Delta 规则 + 逐通道遗忘门；每 block = 3×KDA + 1×Gated MLA，69 层 KDA（占 74%）；定长状态 S(dk×dv) 替代 KV Cache —— 1M 上下文的内存基础</li>
+        <li style="margin-top:4px"><strong>改动① 有界衰减</strong>：g = −5·σ(e<sup>A</sup>·z) 替代无下界的 −e<sup>A</sup>·Softplus(z)；16-token 子块累计衰减 ∈(−80, 0)，重标定因子 &lt; e<sup>80</sup> ≈ 5.5×10<sup>34</sup>，落入 BF16 动态范围 → 对角块改用稠密 matmul，消除 position-pair 标量路径</li>
+        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：y = W<sub>o</sub>[σ(W<sub>g</sub>·x) ⊙ RMSNorm(õ)] 替代低秩门，新增 d×H·dv 稠密 GEMM；计算形态推向“全稠密 matmul”，CUBE 依赖上升</li>
+        <li style="margin-top:4px"><strong>负载特征</strong>：chunk 内并行（C = 64）+ chunk 间串行；prefill 每 token 注意力 FLOPs 由 O(L) 降为 O(C)；decode 瓶颈转为原地状态更新与回滚</li>
+        </ul>
+  - elementId: arch-label
+    elementType: text
+    bounds: [44, 193, 200, 15]
+    content:
+      style: $sectitle
+      wrap: false
+      align: [left, middle]
+      text: 模块结构与数据流
+  - elementId: legend-box
+    elementType: shape
+    bounds: [230, 196, 10, 10]
+    shapeName: rect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 1, color: $primary}
+  - elementId: legend-text
+    elementType: text
+    bounds: [244, 193, 220, 14]
+    content:
+      fontSize: 8
+      color: $gray
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: 红框 = K3 相对 Kimi Linear 的改动
+  - elementId: arch-figure
+    elementType: image
+    bounds: [38, 212, 424, 218]
+    src: media/kda_arch.png
+  - elementId: param-label
+    elementType: text
+    bounds: [488, 193, 300, 15]
+    content:
+      style: $sectitle
+      wrap: false
+      align: [left, middle]
+      text: 参数、FLOPs 与昇腾诉求
+  - elementId: param-table
+    elementType: table
+    bounds: [488, 223, 436, 196]
+    columnWidths: [0.24, 0.26, 0.17, 0.33]
+    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    style: $param
+    rows:
+      - - text: 组件
+        - text: 张量形状
+        - text: FLOPs/token
+        - text: 负载特征 → 昇腾诉求
+      - - text: q/k/v 投影 + ShortConv（k=4）
+        - text: x∈R<sup>7168</sup> → q,k∈R<sup>H·dk</sup>，v∈R<sup>H·dv</sup>
+        - text: 2d·H(2dk+dv)
+        - text: 稠密 GEMM → CUBE；decode 退化为 GEMV，访存受限
+      - - text: 遗忘门 z + 写入强度 β
+        - text: 低秩 d→r→H·dk；d→H
+        - text: ≈2d·r（占比小）
+        - text: 小 GEMM + σ/exp 逐元素 → Vector 核
+      - - text: 有界衰减 <span style="color:$primary">①</span>
+        - text: g = −5·σ(e<sup>A</sup>·z) ∈(−5, 0)
+        - text: O(H·dk)，逐元素
+        - text: 纯 Vector；使对角块可上 CUBE，消除 position-pair 标量路径
+      - - text: Chunk 内注意力
+        - text: A = Tril((Q⊙Γ)(K/Γ)<sup>⊤</sup>)；C = 64
+        - text: 2C(dk+dv)，与 L 无关
+        - text: 全稠密 matmul → CUBE 占比↑（原对角块为 chunk 内主要瓶颈）
+      - - text: 跨 chunk 状态传播
+        - text: S ∈ R<sup>dk×dv</sup>，chunk 间串行
+        - text: 2·dk·dv
+        - text: 小矩阵 + 串行依赖 → 并行度低，需 kernel 内流水掩盖
+      - - text: 全秩输出门 + W<sub>o</sub> <span style="color:$primary">②</span>
+        - text: "W<sub>g</sub>: d×H·dv；W<sub>o</sub>: H·dv×d"
+        - text: 4d·H·dv
+        - text: 新增标准稠密 GEMM → CUBE 友好；参数量 +d·H·dv
+  - elementId: param-note
+    elementType: text
+    bounds: [488, 425, 436, 24]
+    content:
+      fontSize: 7.5
+      color: $gray
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <p>显存：KDA 每层状态 H·dk·dv×2B（定长，与 L 无关）；24 层 MLA 的 KV Cache 随 L 线性增长，1M 上下文下为主要显存项。</p>
+        <p>注：d = 7168、H = 96（报告 Table 1）；dk / dv 以 checkpoint config 为准；FLOPs 按 chunkwise 公式推算。</p>
+  - elementId: dev-label
+    elementType: text
+    bounds: [44, 435, 300, 15]
+    content:
+      style: $sectitle
+      wrap: false
+      align: [left, middle]
+      text: 开发需求与趋势思考
+  - elementId: dev-bullets
+    elementType: text
+    bounds: [44, 457, 876, 68]
+    content:
+      fontSize: 8
+      color: $text
+      fontFamily: 黑体
+      lineHeight: 1.35
+      align: [left, top]
+      text: |
+        <ul>
+        <li><strong>算子层</strong>：FlashKDA 为 CUTLASS 实现（CUDA 专用），昇腾需对等 Ascend C 融合算子 —— chunkwise prefill（intra-chunk matmul 上 CUBE + 跨 chunk 状态传播流水交叠）、fused recurrent decode；vllm-ascend 现状为 Triton 版（ops/triton/kda/，12+ kernel，约 3,000 行），CUBE 调度深度受限</li>
+        <li style="margin-top:3px"><strong>门控融合</strong>：NPU recurrent kernel 未融合衰减门计算（vllm-ascend gate.py 需 host 侧 apply_kda_gate 预处理），safe-gate 路径应下沉融合进 kernel，消除显存往返</li>
+        <li style="margin-top:3px"><strong>框架层</strong>：vllm-ascend 已注册 kimi_k3 模型适配；待补 KDA state 的 MTP 投机解码回滚（只缓存投影输入、片上重建）、KDA checkpoint 与 MLA KV 统一分页的 prefix cache</li>
+        <li style="margin-top:3px"><strong>趋势</strong>：竞争点从“并行度”转向“状态管理”——大容量片上状态驻留 + 高效小矩阵乘 + Vector/Cube 异构流水；稠密化使 CUBE 占比持续上升</li>
+        </ul>
