@@ -214,7 +214,7 @@ for cy, rx in alphas:
             ha="center", va="center")
 # 三条纵向通道：Block n−1 / n−2 / Embedding
 for x_ch, y_src in [(177, 29.25), (180, 19.25), (183, 7.75)]:
-    line([(153, y_src), (x_ch, y_src), (x_ch, 90)], color=MAROON, lw=1.0)
+    line([(153, y_src), (x_ch, y_src), (x_ch, 82.75)], color=MAROON, lw=1.0)
 for cy, _ in alphas:
     line([(163.4, cy), (183, cy)], color=MAROON, lw=1.0)
 
