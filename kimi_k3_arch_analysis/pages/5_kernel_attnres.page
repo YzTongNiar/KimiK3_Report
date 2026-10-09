@@ -28,12 +28,12 @@ elements:
   # ===== 分析结论 =====
   - elementId: concl-label-bg
     elementType: shape
-    bounds: [44, 96, 88, 110]
+    bounds: [44, 58, 88, 110]
     shapeName: rect
     fill: {type: solid, color: "$primary"}
   - elementId: concl-label
     elementType: text
-    bounds: [44, 96, 88, 110]
+    bounds: [44, 58, 88, 110]
     content:
       fontSize: 14
       bold: true
@@ -45,12 +45,12 @@ elements:
         <p>结论</p>
   - elementId: concl-body-bg
     elementType: shape
-    bounds: [140, 96, 784, 110]
+    bounds: [140, 58, 784, 110]
     shapeName: rect
     fill: {type: solid, color: "#F2F2F2"}
   - elementId: concl-bullets
     elementType: text
-    bounds: [154, 101, 756, 100]
+    bounds: [154, 63, 756, 100]
     content:
       fontSize: 9
       color: "$text"
@@ -68,7 +68,7 @@ elements:
   # ===== 左：机制与调度 =====
   - elementId: arch-label
     elementType: text
-    bounds: [44, 208, 300, 15]
+    bounds: [44, 180, 300, 15]
     content:
       style: "$sectitle"
       wrap: false
@@ -76,11 +76,11 @@ elements:
       text: 深度维注意力机制与执行调度
   - elementId: arch-figure
     elementType: image
-    bounds: [38, 229, 424, 218]
+    bounds: [38, 198, 424, 218]
     src: media/attnres.png
   - elementId: param-label
     elementType: text
-    bounds: [488, 208, 300, 15]
+    bounds: [488, 180, 300, 15]
     content:
       style: "$sectitle"
       wrap: false
@@ -88,7 +88,7 @@ elements:
       text: 各阶段负载与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 240, 436, 196]
+    bounds: [488, 208, 436, 196]
     columnWidths: [0.26, 0.26, 0.16, 0.32]
     rowHeights: [0.1, 0.18, 0.18, 0.18, 0.18, 0.18]
     style: "$param"
@@ -119,7 +119,7 @@ elements:
         - text: 通信量 ≈ all-reduce；消除冗余物化与 I/O
   - elementId: param-note
     elementType: text
-    bounds: [488, 442, 436, 24]
+    bounds: [488, 410, 436, 24]
     content:
       fontSize: 7.5
       color: "$gray"
@@ -133,7 +133,7 @@ elements:
   # ===== 底部：开发需求与趋势 =====
   - elementId: dev-label
     elementType: text
-    bounds: [44, 452, 300, 15]
+    bounds: [44, 446, 300, 15]
     content:
       style: "$sectitle"
       wrap: false
@@ -141,7 +141,7 @@ elements:
       text: 开发需求与趋势思考
   - elementId: dev-bullets
     elementType: text
-    bounds: [44, 468, 876, 68]
+    bounds: [44, 466, 876, 68]
     content:
       fontSize: 8
       color: "$text"

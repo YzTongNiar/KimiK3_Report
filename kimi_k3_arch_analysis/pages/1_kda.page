@@ -26,12 +26,12 @@ elements:
       text: Kimi Delta Attention（KDA）：逐通道遗忘门 × Delta 规则的线性注意力
   - elementId: concl-label-bg
     elementType: shape
-    bounds: [44, 81, 88, 110]
+    bounds: [44, 58, 88, 110]
     shapeName: rect
     fill: {type: solid, color: $primary}
   - elementId: concl-label
     elementType: text
-    bounds: [44, 81, 88, 110]
+    bounds: [44, 58, 88, 110]
     content:
       fontSize: 14
       bold: true
@@ -43,12 +43,12 @@ elements:
         <p>结论</p>
   - elementId: concl-body-bg
     elementType: shape
-    bounds: [140, 81, 784, 110]
+    bounds: [140, 58, 784, 110]
     shapeName: rect
     fill: {type: solid, color: "#F2F2F2"}
   - elementId: concl-bullets
     elementType: text
-    bounds: [154, 86, 756, 100]
+    bounds: [154, 63, 756, 100]
     content:
       fontSize: 9
       color: $text
@@ -64,7 +64,7 @@ elements:
         </ul>
   - elementId: arch-label
     elementType: text
-    bounds: [44, 193, 200, 15]
+    bounds: [44, 180, 200, 15]
     content:
       style: $sectitle
       wrap: false
@@ -72,13 +72,13 @@ elements:
       text: 模块结构与数据流
   - elementId: legend-box
     elementType: shape
-    bounds: [230, 196, 10, 10]
+    bounds: [230, 183, 10, 10]
     shapeName: rect
     fill: {type: solid, color: "#FFFFFF"}
     border: {style: solid, width: 1, color: $primary}
   - elementId: legend-text
     elementType: text
-    bounds: [244, 193, 220, 14]
+    bounds: [244, 180, 220, 14]
     content:
       fontSize: 8
       color: $gray
@@ -88,11 +88,11 @@ elements:
       text: 红框 = K3 相对 Kimi Linear 的改动
   - elementId: arch-figure
     elementType: image
-    bounds: [38, 212, 424, 218]
+    bounds: [38, 198, 424, 218]
     src: media/kda_arch.png
   - elementId: param-label
     elementType: text
-    bounds: [488, 193, 300, 15]
+    bounds: [488, 180, 300, 15]
     content:
       style: $sectitle
       wrap: false
@@ -100,7 +100,7 @@ elements:
       text: 参数、FLOPs 与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 223, 436, 196]
+    bounds: [488, 208, 436, 196]
     columnWidths: [0.24, 0.26, 0.17, 0.33]
     rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
     style: $param
@@ -135,7 +135,7 @@ elements:
         - text: 新增标准稠密 GEMM → CUBE 友好；参数量 +d·H·dv
   - elementId: param-note
     elementType: text
-    bounds: [488, 425, 436, 24]
+    bounds: [488, 410, 436, 24]
     content:
       fontSize: 7.5
       color: $gray
@@ -147,7 +147,7 @@ elements:
         <p>注：d = 7168、H = 96（报告 Table 1）；dk / dv 以 checkpoint config 为准；FLOPs 按 chunkwise 公式推算。</p>
   - elementId: dev-label
     elementType: text
-    bounds: [44, 435, 300, 15]
+    bounds: [44, 446, 300, 15]
     content:
       style: $sectitle
       wrap: false
@@ -155,7 +155,7 @@ elements:
       text: 开发需求与趋势思考
   - elementId: dev-bullets
     elementType: text
-    bounds: [44, 457, 876, 68]
+    bounds: [44, 466, 876, 68]
     content:
       fontSize: 8
       color: $text
