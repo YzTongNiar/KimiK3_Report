@@ -14,28 +14,28 @@ theme:
       fontSize: 12
       bold: true
       color: "$primary"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
     body:
       fontSize: 10
       color: "$text"
       lineHeight: 1.45
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
     small:
       fontSize: 8
       color: "$gray"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
   tableStyles:
     param:
       cellStyle:
         fontSize: 8
         color: "$text"
-        fontFamily: 黑体
+        fontFamily: 微软雅黑
         align: [left, middle]
         border: [null, null, {style: solid, width: 0.75, color: "$line"}, null]
       firstRowStyle:
         bold: true
         color: "$text"
-        fontFamily: 黑体
+        fontFamily: 微软雅黑
         fill: {type: solid, color: "$lightgray"}
         border: [null, null, {style: solid, width: 1, color: "$gray"}, null]
 pages:

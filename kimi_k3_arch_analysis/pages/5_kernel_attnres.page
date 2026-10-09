@@ -4,44 +4,27 @@ background:
   color: "#FFFFFF"
 elements:
   # ===== 页眉 =====
-  - elementId: kicker
-    elementType: text
-    bounds: [44, 14, 300, 14]
-    content:
-      fontSize: 9
-      color: "$gray"
-      fontFamily: 黑体
-      letterSpacing: 3
-      wrap: false
-      align: [left, middle]
-      text: INFRASTRUCTURE · 03
   - elementId: source-note
     elementType: text
     bounds: [370, 14, 554, 14]
     content:
       fontSize: 8
       color: "$gray"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       wrap: false
       align: [right, middle]
       text: 资料来源：Kimi K3 Technical Report §2.2 / §5.4.2（Block AttnRes）
   - elementId: title
     elementType: text
-    bounds: [44, 30, 880, 30]
+    bounds: [44, 18, 880, 30]
     content:
-      fontSize: 21
+      fontSize: 18
       bold: true
       color: "$primary"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       wrap: false
       align: [left, middle]
       text: Block AttnRes：两阶段调度与通信融合
-  - elementId: title-bar
-    elementType: shape
-    bounds: [44, 66, 64, 3]
-    shapeName: rect
-    fill: {type: solid, color: "$primary"}
-
   # ===== 分析结论 =====
   - elementId: concl-label-bg
     elementType: shape
@@ -55,9 +38,11 @@ elements:
       fontSize: 14
       bold: true
       color: "#FFFFFF"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       align: [center, middle]
-      text: 分析结论
+      text: |
+        <p>分析</p>
+        <p>结论</p>
   - elementId: concl-body-bg
     elementType: shape
     bounds: [140, 96, 784, 110]
@@ -69,7 +54,7 @@ elements:
     content:
       fontSize: 9
       color: "$text"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, middle]
       text: |
@@ -138,7 +123,7 @@ elements:
     content:
       fontSize: 7.5
       color: "$gray"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, top]
       text: |
@@ -160,7 +145,7 @@ elements:
     content:
       fontSize: 8
       color: "$text"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, top]
       text: |

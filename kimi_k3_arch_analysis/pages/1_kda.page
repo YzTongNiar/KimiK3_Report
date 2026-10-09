@@ -3,43 +3,27 @@ background:
   type: solid
   color: "#FFFFFF"
 elements:
-  - elementId: kicker
-    elementType: text
-    bounds: [44, 14, 300, 14]
-    content:
-      fontSize: 9
-      color: $gray
-      fontFamily: 黑体
-      letterSpacing: 3
-      wrap: false
-      align: [left, middle]
-      text: HYBRID ATTENTION · 01
   - elementId: source-note
     elementType: text
     bounds: [400, 14, 524, 14]
     content:
       fontSize: 8
       color: $gray
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       wrap: false
       align: [right, middle]
       text: 资料来源：Kimi K3 Technical Report §2.1.1 / §5.1；vllm / vllm-ascend 代码仓
   - elementId: title
     elementType: text
-    bounds: [44, 30, 880, 30]
+    bounds: [44, 18, 880, 30]
     content:
-      fontSize: 21
+      fontSize: 18
       bold: true
       color: $primary
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       wrap: false
       align: [left, middle]
       text: Kimi Delta Attention（KDA）：逐通道遗忘门 × Delta 规则的线性注意力
-  - elementId: title-bar
-    elementType: shape
-    bounds: [44, 66, 64, 3]
-    shapeName: rect
-    fill: {type: solid, color: $primary}
   - elementId: concl-label-bg
     elementType: shape
     bounds: [44, 81, 88, 110]
@@ -52,9 +36,11 @@ elements:
       fontSize: 14
       bold: true
       color: "#FFFFFF"
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       align: [center, middle]
-      text: 分析结论
+      text: |
+        <p>分析</p>
+        <p>结论</p>
   - elementId: concl-body-bg
     elementType: shape
     bounds: [140, 81, 784, 110]
@@ -66,7 +52,7 @@ elements:
     content:
       fontSize: 9
       color: $text
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, middle]
       text: |
@@ -96,7 +82,7 @@ elements:
     content:
       fontSize: 8
       color: $gray
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       wrap: false
       align: [left, middle]
       text: 红框 = K3 相对 Kimi Linear 的改动
@@ -153,7 +139,7 @@ elements:
     content:
       fontSize: 7.5
       color: $gray
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, top]
       text: |
@@ -173,7 +159,7 @@ elements:
     content:
       fontSize: 8
       color: $text
-      fontFamily: 黑体
+      fontFamily: 微软雅黑
       lineHeight: 1.35
       align: [left, top]
       text: |
