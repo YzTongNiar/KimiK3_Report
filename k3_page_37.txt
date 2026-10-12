@@ -1,0 +1,55 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+[59] Kimi Team.Kimi K2: Open Agentic Intelligence. 2025. arXiv:2507.20534 [cs.LG].
+[60] Kimi Team. “Kimi K2.5: Visual Agentic Intelligence”. In:arXiv preprint arXiv:2602.02276(2026).
+[61] Kimi Team.Kimi K3: Open Frontier Intelligence. Moonshot AI. July 16, 2026.URL: https://www.kimi.
+com/blog/kimi-k3.
+[62] Kimi Team. “Kimi-vl technical report”. In:arXiv preprint arXiv:2504.07491(2025).
+[63] Kimi Team.PerceptionBench: Evaluating Atomic Visual Perception in Multimodal Large Language Models.
+2026. arXiv:2607.24957 [cs.CV].URL:https://arxiv.org/abs/2607.24957.
+[64] Kimi Team et al.Kimi Linear: An Expressive, Efficient Attention Architecture. 2025. arXiv: 2510.26692
+[cs.CL].
+[65] Chris Lattner et al. “MLIR: Scaling Compiler Infrastructure for Domain Specific Computation”. In:2021
+IEEE/ACM International Symposium on Code Generation and Optimization (CGO). 2021, pp. 2–14.DOI:
+10.1109/CGO51591.2021.9370308.
+[66]Legal Research Bench. Vals AI. 2026.URL:https://www.vals.ai/benchmarks/legal_research.
+[67] Dmitry Lepikhin et al. “Gshard: Scaling giant models with conditional computation and automatic sharding”.
+In:arXiv preprint arXiv:2006.16668(2020).
+[68] Mike Lewis et al. “BASE Layers: Simplifying Training of Large, Sparse Models”. In:Proceedings of ICML.
+2021.
+[69] Huiba Li et al. “DADI: Block-Level Image Service for Agile and Elastic Application Deployment”. In:2020
+USENIX Annual Technical Conference (USENIX ATC). 2020, pp. 727–740.
+[70] Junlong Li et al.The Tool Decathlon: Benchmarking Language Agents for Diverse, Realistic, and Long-Horizon
+Task Execution. ICLR 2026. 2025. arXiv:2510.25726 [cs.CL].
+[71] Yuetai Li et al. “JobBench: Aligning Agent Work With Human Will”. In: (2026). arXiv:2605.26329 [cs.AI].
+[72] Yuhui Li et al.EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test.
+2025. arXiv:2503.01840 [cs.CL].URL:https://arxiv.org/abs/2503.01840.
+[73] Hao Liu, Matei Zaharia, and Pieter Abbeel. “Ring Attention with Blockwise Transformers for Near-Infinite
+Context”. In: (2023). arXiv:2310.01889 [cs.CL].URL:https://arxiv.org/abs/2310.01889.
+[74] Jingyuan Liu et al.Muon is Scalable for LLM Training. 2025. arXiv: 2502.16982 [cs.LG] .URL: https:
+//arxiv.org/abs/2502.16982.
+[75]LMArena Leaderboard. LMArena. 2026.URL:https://lmarena.ai/leaderboard.
+[76] Kevin Lu and Thinking Machines Lab.On-policy distillation. Thinking Machines Lab: Connectionism. 2025.
+URL:https://thinkingmachines.ai/blog/on-policy-distillation/.
+[77] Bohan Lyu et al. “MLS-Bench: A Holistic and Rigorous Assessment of AI Systems on Building Better AI”. In:
+(2026). arXiv:2605.08678 [cs.LG].
+[78] Eric Martin and Chris Cundy. “Parallelizing Linear Recurrent Neural Nets Over Sequence Length”. In:Pro-
+ceedings of ICLR. 2018.URL:https://openreview.net/forum?id=HyUNwulC-.
+[79] Mike A Merrill et al. “Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line
+Interfaces”. In:arXiv preprint arXiv:2601.11868(2026).
+[80] Maxim Milakov and Natalia Gimelshein.Online normalizer calculation for softmax. 2018. arXiv: 1805.02867
+[cs.PF].URL:https://arxiv.org/abs/1805.02867.
+[81] Nangate, Inc.Nangate 45nm Open Cell Library. https : / / si2 . org / open - cell - library/. Version
+PDKv1_3_v2010_12. Donated to and distributed by the Silicon Integration Initiative (Si2). 2010. (Visited on
+07/27/2026).
+[82] Deepak Narayanan et al. “Efficient large-scale language model training on gpu clusters using megatron-lm”. In:
+Proceedings of the international conference for high performance computing, networking, storage and analysis.
+2021, pp. 1–15.
+[83] NCCL: The NVIDIA Collective Communications Library. NVIDIA. 2026.URL: https://developer.nvidia.
+com/nccl.
+[84] OpenAI.Introducing OpenAI o3 and o4-mini. Apr. 2025.URL: https://openai.com/index/introducing-
+o3-and-o4-mini/.
+[85] OpenAI.Learning to Reason with LLMs. https://openai.com/index/learning- to- reason- with-
+llms/. Accessed: 2026-07-23. 2024.
+[86]OpenAI Harmony Response Format. OpenAI. 2025.URL:https://github.com/openai/harmony.
+[87]OpenClaw. OpenClaw. 2026.URL:https://docs.openclaw.ai/.
+37

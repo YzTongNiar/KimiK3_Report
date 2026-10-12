@@ -1,0 +1,52 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+shapes before launching the expert computation, stalling the pipeline between layers. With perfect balance, every
+rank receives exactly S×K tokens and the computation shapes of all layers are statically known. This eliminates the
+per-layer MoE host synchronization and alleviates the host-side kernel-launch overhead.
+Expert-GEMM scheduling and overlapEven with the aggregate load perfectly balanced across ranks, the per-expert
+token counts within each rank remain skewed, and a fixed-order, workload-oblivious schedule turns this skew into an
+imbalanced makespan across SM workers. We therefore schedule the routed-expert GEMM with a workload-aware
+scheduler that adapts its parameters to the current token distribution before launch and keeps them fixed during execution.
+A lightweight heuristic selects these parameters using an analytical cost model of hardware metrics, with key coefficients
+calibrated through offline autotuning. For the shared experts, we dispatch their GEMMs to a separate stream so that
+they overlap with other kernels.
+5.2.2 Memory-Efficient Training
+Unified activation managerWe design a unified storage abstraction for activations, in which every tensor saved for
+the backward pass is associated with a pluggable storage backend. Recomputation, quantization, and offload/remote-
+offload are merely storage policies under this abstraction and can be freely composed at tensor granularity; policies are
+declared via lightweight annotations on tensors, fully decoupled from the model code. Recomputation is performed at
+function granularity, which supports cross-layer recomputation. In our implementation, all GPU memory is allocated
+on the main compute stream and managed within a single memory pool, avoiding multi-stream fragmentation and
+host-bound overhead; activations are prefetched back at layer granularity and overlapped with computation, introducing
+negligible extra overhead. In Kimi K3, most activations use block-wise FP8 quantization [59, 30] combined with
+offload/remote-offload, and element-wise operators are configured with recomputation.
+Memory-efficient MoEIn the native MoE implementation, the gradient computation of permuted probs depends
+on the forward output output. Inspired by SonicMoE [42], we rewrite this gradient through a mathematical transfor-
+mation into a form that depends only on the intermediate activation act_output and the upstream gradient doutput,
+eliminating the backward dependency on output at the cost of an additional lightweight element-wise computation.
+Furthermore, in the forward pass of the group GEMM, we save only the input of the dispatch operation; during the
+backward pass, the input of the group GEMM is recovered by recomputing dispatch. As shown in Fig. 11, the commu-
+nication introduced by this recomputation can be overlapped with part of the group-GEMM backward computation,
+eliminating this portion of activation storage at a negligible cost.
+Memory-efficient Attention residualFor the attention residual, we design a companion optimization based on Block
+AttnRes. The block representation is generated once at the boundary layer and shared by all subsequent layers, residing
+directly on the GPU. The AttnRes computation is entirely wrapped with checkpointing, so the activation saved for the
+backward pass at each layer is identical to that of the standard residual architecture. For pipeline parallelism, we adopt
+cache-based pipeline communication [58], in which only newly generated blocks are incrementally transferred between
+stages and released as soon as the micro-batch finishes, reaching the theoretical lower bound on memory footprint.
+Balancing activations across PP ranksUnder interleaved 1F1B pipeline parallelism, activations are unevenly
+distributed across PP ranks due to pipeline warmup, and the number of resident activations decreases as the PP rank
+increases. To avoid out-of-memory (OOM) errors, we remotely offload activations to the memory of other PP ranks
+using the Mooncake Transfer Engine [97], achieving balanced activation memory across PP ranks.
+Pipeline ZeRO-2 gradient sharding and offloadingBeyond activations, we use Pipeline ZeRO-2 gradient shard-
+ing [147] to shard gradients across data-parallel (DP) ranks. Furthermore, we store the sharded gradients in CPU
+memory to reduce peak GPU memory usage, while keeping the double grad buffer on the GPU. After gradients are
+reduced across DP ranks into the double grad buffer, they are accumulated into the CPU shards.
+P2P-based Muon orthogonalizationThe distributed optimizer shards parameters evenly across DP ranks, whereas
+the Newton–Schulz orthogonalization in Muon requires the full parameter matrix, necessitating a communication
+step to gather complete parameters before each update. The naive approach performs an all-gather over the entire
+parameter buffer on every rank [74], which incurs a substantial memory footprint on top of making communication the
+primary bottleneck at scale. Instead, each rank retrieves only the shards of its locally owned parameters via peer-to-peer
+(P2P) communication with the corresponding owner ranks, eliminating the full-parameter buffer and reducing both
+memory usage and communication volume. Communication and computation are further pipelined at the granularity of
+model-chunk buffers, hiding the communication overhead.
+20

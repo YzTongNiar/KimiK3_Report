@@ -1,0 +1,143 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+10− 2 10− 1 100 101 102 103 104
+Arithmetic intensity (FLOP/byte)
+101
+102
+103
+104
+105
+Achieved performance (GFLOP/s)
+MiniTriton CUDA-core roofline — NVIDIA L20 (sm_89), fp32
+method
+torch eager
+torch.compile
+triton
+minitriton
+kernel
+matmul
+softmax
+flash_attn
+kda
+solve_tril
+gpt50m_step
+spec sheet (theoretical boost): 59.8 TFLOP/s
+DRAM 650 GB/s (measured)864 GB/s (spec)
+measured peak: 38.1 TFLOP/s (cuBLAS 8192³)
+5123
+10243
+20483 40963
+BT=16
+BT=32
+BT=64
+T=256
+T=512 T=1024 T=2048
+kda T=512
+kda T=4096
+1024×1024
+65536×1024
+1048576×1024
+4096×4096
+(almost coincide)
+gpt50m step (fwd+bwd, e2e)
+(a) CUDA-core roofline, fp32
+102 103
+Arithmetic intensity (FLOP/byte)
+104
+105
+Achieved performance (GFLOP/s)
+method
+torch eager
+torch.compile
+triton
+minitriton
+method
+torch eager
+torch.compile
+triton
+minitriton
+56.9 TFLOP/s
+(cuBLAS 8192³)
+spec sheet (theoretical boost): 59.8 TFLOP/s
+650 GB/s (measured)
+864 GB/s (spec)
+5123
+10243
+20483
+40963
+KDA T=512
+KDA T=4096
+tf32 tier
+102 103
+Arithmetic intensity (FLOP/byte)
+104
+105
+kernel
+matmul
+flash_attn
+kda
+gpt50m_step
+115.9 TFLOP/s
+(cuBLAS 8192³)
+spec sheet (theoretical boost): 119.5 TFLOP/s
+650 GB/s (measured)
+864 GB/s (spec)
+5123
+10243
+20483
+40963
+KDA T=512
+KDA T=4096
+bf16 tier
+MiniTriton tensor-core roofline — NVIDIA L20 (sm_89) (b) Tensor-core rooflines, tf32/bf16
+0 20 40 60 80 100
+Step
+2.5
+3.0
+3.5
+4.0
+4.5
+5.0
+5.5Training loss
+ln(vocab) = 4.63
+train_gpt convergence — minitriton vs torch eager
+torch eager
+minitriton
+(c) Convergence vs. torch eager
+0 20 40 60 80 100 120
+Step
+2.5
+3.0
+3.5
+4.0
+4.5
+5.0
+5.5Cross entropy
+same init / global batch / LR schedule · 120 steps
+train_gpt fp32 — single GPU vs DDP ×2
+single GPU (1x L20), final 2.4876
+DDP 2x L20 (NCCL), final 2.4870
+max |diff| 0.0033, mean |diff| 0.0003 (d) Two-GPU DDP vs. single GPU
+Figure 15: Case study: GPU compiler development with MiniTriton. (a) CUDA-core and (b) tensor-core rooflines of MiniTriton
+kernels on an NVIDIA L20 (sm_89) against torch eager, torch.compile, Triton, and cuBLAS baselines (losing points included); (c)
+training-loss curves of the character-level GPT trained with MiniTriton versus torch eager; (d) two-GPU data-parallel training built
+on MiniTriton’s own distributed primitives (NCCL) versus single-GPU training.
+Coding for researchTo reproduce the I–Love–Q universal relations in computational astrophysics, Kimi K3 reviewed
+more than 20 papers and cross-validated their results, implemented the full numerical pipeline, evaluated over 300
+equations of state, identified inconsistencies in published formulas, wrote more than 3,000 lines of Python, and produced
+an interactive HTML dashboard — in about two hours, versus a typical one to two weeks for an experienced researcher.
+Knowledge workIn Kimi Work, Kimi K3 produced an interactive research website covering 42 years of the AI
+ASIC industry. The model completed more than 120 rounds of iterative refinement, drawing on a corpus of 87 quarterly
+reports and 99 original PDFs (more than 11,000 pages) through over 2,800 web searches and over 1,100 terminal
+queries. In a second case, Kimi K3 analyzed 391 gravitational-wave events in GWTC-5 using more than 20 concurrent
+subagents, producing seven scientific visualizations, two summary tables, and a literature synthesis of over ten papers.
+Video editing and motion designLeveraging its native multimodal architecture, Kimi K3 created a 3Blue1Brown-
+style motion-graphics explainer of its own architecture, and edited its teaser video from 56 source clips. This involved
+clip selection, motion-matched cuts, frame-accurate beat synchronization, audio processing, and multiple rounds of
+revision. Producing a comparable high-density short video would typically take an experienced editor one to two days.
+8 Conclusion
+We present Kimi K3, an open 2.8-trillion-parameter Mixture-of-Experts model with native vision capabilities and a
+1-million-token context window, built on Kimi Delta Attention and Attention Residuals. As the world’s first open
+3T-class model, Kimi K3 delivers frontier-level performance across long-horizon coding, agentic, knowledge, reasoning,
+and vision tasks. Although gaps to the strongest proprietary models remain, Kimi K3 establishes a new open frontier
+within everyone’s reach. We hope it will empower the broader community in research, deployment, and innovation.
+34

@@ -1,0 +1,64 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Table 3: Results on our in-house benchmarks.Bolddenotes the best reported result per benchmark; “-” denotes scores not yet
+included in this report. Unless otherwise noted, models are evaluated at maximum reasoning effort (GPT-5.5 at xhigh); harness
+assignments are shown in the Harness column. a13 fallbacks and 1 refusal out of 80 tasks. b10 refusals out of 80 tasks. c3 refusals
+out of 80 tasks. dIncludes 2 tasks that Claude Fable 5 refused to answer. eIncludes 14 tasks that Claude Fable 5 refused to answer. f6
+refusals out of 95 tasks. g Reported metric is 1−hallucination rate; higher is better.
+Proprietary Open Weight
+Benchmark Harness Kimi K3
+(max)
+Claude Fable
+5 (max)
+GPT-5.6 Sol
+(max)
+Claude
+Opus 4.8
+(max)
+GPT-5.5
+(xhigh)
+GLM-5.2
+(max)
+Coding Experience
+Kimi Code Bench 2.0 Claude Code 73.7 76.9a - 71.7 - 64.2
+Kimi Code 72.9 - - - 66.0 -
+Codex - - 64.8 b - 69.0 c -
+Coding Experience Claude Code 59.9 59.8 - 58.0 - 53.3
+Kimi Code 56.6 - - - - -
+Codex - - 59.3 - 56.8 -
+General Agent Experience
+24/7 ClawBench 2.0 OpenClaw 48.3 47.4d 52.047.2 48.5 43.2
+MIRA Bench MIRA 64.1 72.962.2 59.8 54.6 -
+KAET Kimi Code 83.5 -85.478.7 79.7 74.7
+CLIF Bench Kimi Code 52.4 - 50.6 48.8 52.3 39.2
+Agentic Vision Bench Kimi Code 78.3 81.182.982.8 76.9 -
+Swarm Bench Kimi Agent 76.3 - 73.2 72.6 61.8 58.5
+Online Experience Kimi Agent 77.9 74.2e 84.069.4 73.7 64.0
+Deep Research Bench Kimi Agent 90.0 - 85.3 87.2 81.9 84.0
+Finance Bench N/A 62.6 -62.760.7 58.4 55.4
+KWV Bench N/A 64.7 63.666.961.7 65.8 -
+DECK Bench N/A 73.5 73.074.766.9 68.2 68.6
+Agent Behavior Bench Kimi Work 65.0 75.5f 76.465.7 70.1 -
+Conversational Experience
+Faithfulness g N/A 85.5 - 84.8 83.686.5 74.8
+Chat All-in-One Bench Kimi Work 85.2 88.079.0 83.8 71.8 -
+Table 4: Results on the in-house Kimi Webdev Bench: Kimi K3 (max) against Claude Opus 4.8 (max), both run with the Claude
+Code harness. The comparison is performed under blind expert judging, where experts score each output on code quality, feature
+completeness, visual fidelity, and interaction experience without knowing which model produced it. Win, Tie, and Lose report the
+percentage of prompts where Kimi K3’s output is preferred, rated comparable, or dispreferred, respectively.
+Domain Win Tie Lose Win−Lose
+Games 55.6% 3.7% 40.7% +14.9%
+3D / WebGL / Shader 72.7% 13.7% 13.6% +59.1%
+Website / UI Clone 52.6% 21.1% 26.3% +26.3%
+Overall 58.6% 13.8% 27.6%+31.0%
+• Deep Research Bench: evaluates models on deep-research-style queries curated by domain experts and graded with
+expert-aligned rubrics.
+• Finance Bench: evaluates models on realistic financial work that requires end-to-end execution of complete
+workflows, from source materials to reviewable deliverables.
+• Knowledge Work Vision (KWV) Bench: evaluates atomic visual capabilities extracted from tasks distilled from
+real knowledge-work scenarios.
+• DECK Bench: measures the capability to produce high-quality presentation decks from task descriptions drawn
+from real usage scenarios.
+• Agent Behavior Bench: extends agent evaluation from outcome correctness to process quality, scoring tool-use
+behavior, efficiency, and discipline alongside task completion.
+Conversational Experience
+29

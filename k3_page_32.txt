@@ -1,0 +1,118 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Table 5: Headline independent third-party evaluations of Kimi K3 (as of July 23, 2026).Bolddenotes the best result per benchmark
+and underline the second best. Baseline scores are as reported by each source under its own evaluation setup aText Arena entry is the
+xhigh variant listed on the leaderboard. bText Arena entry is the high variant listed on the leaderboard. Numbers in parentheses are
+Kimi K3’s rank on that leaderboard. Elo-style scores drift as additional matches accumulate.
+Proprietary Open Weight
+Benchmark Kimi K3
+(max)
+Claude Fable 5
+(max)
+GPT-5.6 Sol
+(max)
+Claude Opus
+4.8 (max)
+GPT-5.5
+(xhigh)
+GLM-5.2
+(max)
+Artificial Analysis
+Intelligence Index v4.1 (#4/580) 57.1 59.9 58.9 55.7 55.0 51.1
+Vals AI
+Vals Index (#2/39) 74.7 75.173.1 70.4 68.0 65.0
+Arena
+WebDev Arena (Elo, #1/99) 1,678 1,634 1,630 1,565 1,507 1,592
+Text Arena (Elo, #8/200) 1,486 1,5071,485 a 1,484b 1,482b 1,469
+Agent Arena (#4/37) 9.1 12.7 10.1 9.8 8.8 6.5
+the best score (91.2%) at $2.03 per task — half the cost of GPT-5.6 Sol (90.4%) and an order of magnitude cheaper
+than the Claude models at their maximum effort. On GDPval-AA v2, Kimi K3 is within 50 Elo of GPT-5.6 Sol at 13%
+lower cost, and 2.6× cheaper than Claude Fable 5. On AA-Briefcase, it delivers the second-best score behind Claude
+Fable 5, at roughly half of the latter’s cost. Figure 13 summarizes the comparison.
+$0 $2 $4 $6 $8 $10 $12
+Cost per task (USD)
+60%
+62%
+65%
+68%
+70%
+72%
+75%
+78%
+80%Score (%)
+Kimi Code Bench 2.0 · Score vs Cost per Task
+Kimi K3 @ Kimi Code
+GLM-5.2 (max) @ Claude Code
+Claude Opus 4.8 (max) @ Claude Code
+Claude Fable 5 (max) @ Claude Code
+low
+high
+max
+Kimi K3
+GLM-5.2 (max)
+Claude Opus 4.8 (max)
+Claude Fable 5 (max)
+(a) Kimi Code Bench 2.0
+$0 $5 $10 $15 $20 $25 $30
+Cost per task (USD)
+70%
+75%
+80%
+85%
+90%
+95%Score (%)
+BrowseComp · Score vs Cost per Task
+Kimi K3 (max)
+medium
+high
+max
+GPT-5.6 Sol
+1M tokens
+3M tokens
+10M tokens
+Claude Mythos 5 (max)
+medium
+high
+max
+Claude Sonnet 5
+medium
+high
+max
+Claude Opus 4.8 (b) BrowseComp
+$0 $2 $4 $6 $8
+Cost per task (USD)
+1450
+1500
+1550
+1600
+1650
+1700
+1750
+1800Elo
+GDPval-AA v2 · Elo vs Cost per Task
+Claude Fable 5 (max)
+GPT-5.6 Sol (max)
+Kimi K3 (max)
+Claude Sonnet 5 (max)
+Claude Opus 4.8 (max)
+GPT-5.5 (xhigh)
+(c) GDPval-AA v2
+$0 $5 $10 $15 $20 $25
+Cost per task (USD)
+1100
+1200
+1300
+1400
+1500
+1600Elo
+AA-Briefcase · Elo vs Cost per Task
+Claude Fable 5 (max)
+Kimi K3 (max)
+GPT-5.6 Sol (max)
+Claude Sonnet 5 (max)
+Claude Opus 4.8 (max)
+GPT-5.5 (xhigh) (d) AA-Briefcase
+Figure 13: Score vs. per-task inference cost on Kimi Code Bench 2.0, BrowseComp, GDPval-AA v2, and AA-Briefcase. Kimi K3 is
+marked with a star.
+Overall, Kimi K3 sits on or near the cost-efficiency frontier across all four suites, delivering near-top scores at a fraction
+of the cost of Claude Fable 5 in particular.
+32

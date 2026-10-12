@@ -1,0 +1,61 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+the(1−k/n)-quantile of the margins across tokens, giving the QB update
+bb(t+1)
+j ← −quantile 1−k/n
+
+s:,j −α (t)
+
+,
+b(t+1) ←bb(t+1) −mean
+
+bb(t+1)
+
+1.(14)
+The margins subtract the biased cutoff α(t)
+i from the raw score si,j, so the old bias enters the update only through the
+cutoffs, and the second line removes a common offset that leaves Top-k selection unchanged. For causality, the update
+takes effect only in the next step [30], i.e., a batch is never routed with a bias derived from itself. Fig. 5 illustrates the
+case m= 8 , n= 4 , and k= 1 , where each expert receives the target load q= 2 . The final bias is frozen at inference.
+The balanced-assignment derivation is given in § C.
+Histogram estimationAt scale, the quantile in Eq. 14 spans the full global batch, whose margins number in the
+millions and are spread across ranks and accumulation steps, so gathering them for an exact quantile is not viable at
+training time. We instead read each expert’s quantile from a histogram of its margins: a single all-reduce sums the
+per-rank bin counts, and the quantile is recovered from the pooled counts. Because counts are additive, the histogram
+represents the pooled global batch regardless of how tokens are sharded, so the estimate reflects the whole-batch
+quantile up to the bin width, at a communication cost of only a few hundred bins per expert. This histogram estimator is
+the method we use in practice; we give more detailed descriptions of it and its error bound in § D.
+2.4 Native Vision
+Kimi K3 is natively multimodal: text, images, and videos are processed by a single shared backbone within one
+context, with no post-hoc modality-alignment stage. This design is the architectural foundation of the long-horizon,
+vision-in-the-loop behavior described in §1. Rendered outputs and the code that produced them live in the same
+token stream, the model can write code, inspect screenshots or video frames of the result, and iteratively refine visual
+artifacts—user interfaces, graphics, video—with no cross-model hand-off.
+MoonViT-V2A key departure from Kimi K2.5 is that we train Kimi K3 vision encoder,MoonViT-V2, entirely from
+scratch with next-token prediction. Prior practice, including Kimi K2.5 itself, initializes the vision encoder from a
+contrastively pre-trained model such as SigLIP, under the premise that pre-trained visual knowledge gives the model a
+head start. We depart from this practice primarily for training stability. When a pre-trained encoder is attached to the
+LLM, joint optimization becomes unstable: the SigLIP-initialized MoonViT-3D shows persistently higher gradient
+norms with frequent spikes, while MoonViT-V2 remains stable throughout training (Fig. 6). Training with next-token
+prediction also allows the encoder’s representations to be shaped directly by the language-modeling objective, rather
+than by a contrastive loss that favors global semantics over fine-grained textual and structural cues. Notably, we find
+MoonViT-V2 matches the SigLIP-initialized baseline across vision evaluations, indicating that contrastive pre-training
+is unnecessary as an initialization for multimodal language models at scale.
+7 10 15 20 25 30
+0
+0.2
+0.4
+0.6
+Training step (×103)
+Vision-tower gradient norm
+(a) Full training trajectory
+MoonViT-3D (SigLIP init.)
+MoonViT-V2 (from scratch)
+14 14.5 15 15.5 16
+0
+0.05
+0.1
+0.15
+(b) Zoomed view (14k–16k)
+Figure 6: Vision-tower gradient norms in our pre-training ablations. Compared with the SigLIP-initialized MoonViT-3D, the
+from-scratch MoonViT-V2 maintains lower gradient norms with fewer spikes, indicating more stable optimization.
+9

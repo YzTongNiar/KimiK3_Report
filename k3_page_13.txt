@@ -1,0 +1,60 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Avg. stepsAvg. steps
+RL FLOPs
+Score (%)
+Coding Experience
+Score
+Avg. steps
+RL FLOPs
+General Tool Use
+RL FLOPs
+Web Development
+RL FLOPs
+Agentic Search
+RL FLOPs
+Score (%)
+Professional Workflows
+RL FLOPs
+Office Deliverables
+RL FLOPs
+Agentic Chart Understanding
+RL FLOPs
+Agentic Visual Puzzles
+Figure 8: Scores and the average assistant steps across a variety of public and in-house evaluations during RL. By scaling RL FLOPs,
+tool-call steps scale up consistently, accompanied by a comprehensive improvement in the model’s overall capability.
+AlgorithmTo mitigate the long-tail latency that intensifies in long-horizon tasks, we extend thepartial rolloutscheme
+from our synchronous RL framework [120, 60]. During the rollout phase of each iteration, we sampleKcompletions
+for each of N prompts, maintaining an active workload of N×K trajectories. Rather than waiting for all rollouts to
+terminate, the generation phase pauses as soon as a fraction λ∈(0,1) of trajectories completes (i.e., λN K), allowing
+policy optimization to proceed without execution stragglers. Paused rollouts are enqueued and prioritized for resumption
+at the start of the next iteration, powered by our sandbox infrastructure (§ 5.3.2). Once all K responses for a prompt
+complete, they are immediately dispatched for policy optimization, which follows the algorithm in Kimi K2.5 [60].
+Under our partial rollout scheme, an individual long-horizon trajectory naturally spans multiple iterations, introducing
+data staleness that threatens training stability. Our policy optimization algorithm inherently tolerates such an extreme
+off-policy regime through a per-token regularization. By constraining policy updates within a localized neighborhood,
+this regularization enables the algorithm to robustly handle highly stale data and sustains training stability.
+Reasoning Effort RLTo fine-tune reasoning effort while maximizing token efficiency, we implement a per-problem
+budget control mechanism during RL [60]. We associate each problem x with an initial token budget b0(x) estimated
+from the cold-start model, and override the task reward with −1 for trajectories whose total token budget T(y) exceeds
+a scaled threshold τ·b 0(x). For general tasks, T(y) measures the number of thinking tokens, whereas for agentic tasks,
+T(y) accounts for the cumulative output tokens, including both reasoning traces and tool-call arguments. Training
+follows a stage-wise curriculum over the budget multiplier τ. We first train amax-budgetvariant with a relatively large
+τ, while still capping the maximum budget to suppress excessive overthinking. We then anneal τ to smaller values to
+obtain thehigh- andlow-effort expert models. The adjustment of τ is configured per domain under human-in-the-loop
+guidance. Trajectories produced by the resulting experts at all reasoning levels are jointly collected for supervised
+fine-tuning and multi-teacher on-policy distillation.
+Agentic Generative Reward ModelFor non-verifiable general tasks, we adopt an Agentic Generative Reward Model
+(GRM), retaining the tournament-style group reward with binary comparisons as in Kimi K2.5 [59, 60]. Beyond generic
+agentic capabilities for enhanced judgment, the agentic judge is required to follow a mandatory protocol: (1) read the
+outcome, product, or text output; (2) generate a rubric; (3) score each candidate against the rubric; and (4) record the
+rubric-assigned scores in a scorepad. To mitigate reward hacking toward increasingly verbose outputs, we apply a
+budget-based verbosity control analogous to the reasoning-effort control above: given an initial verbosity ℓ0 estimated
+from the cold-start model and a multiplier σ, a candidate whose output length exceeds σ·ℓ 0 automatically loses the
+binary comparison.
+4.1.3 Multi-Teacher On-Policy Distillation
+We adopt Multi-Teacher On-Policy Distillation (MOPD) to consolidate these domain-specialized capabilities across
+varying reasoning efforts into a unified model [76, 136, 29]. During training, for a given domain d and a sampled
+reasoning effort level e∈ {low,high,max} , optimization is guided by the corresponding teacher model π(d,e)
+teacher among
+the nine experts. Given an input query x and the prefix response y<t, the per-token OPD reward evaluated onyt between
+13

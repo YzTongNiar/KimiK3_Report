@@ -59,10 +59,10 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>机制与规模</strong>：AttnRes 让每层以可学习伪查询 w 对嵌入与前序 block 表示做注意力（深度维的注意力）；Block 形式将显存 / 通信开销从 O(Ld) 降为 O(Nd) —— K3：96 层 → 8 blocks × 12 层，含嵌入共 9 个 block 表示</li>
-        <li style="margin-top:4px"><strong>两阶段 kernel</strong>：inter-block pass 对每个 block 批量读一次缓存的 block 表示；intra-block 由各层经 online-softmax 合入块内部分和 —— 两阶段开销均以访存为主，优化聚焦内存效率</li>
-        <li style="margin-top:4px"><strong>Prefill（SP）</strong>：TP 下每 rank 物化 block 表示冗余 N 倍显存 → TP all-reduce 拆为 reduce-scatter + all-gather，intra-block kernel 插入两次集合通信之间、在序列分片 hidden 上物化 → 每 token 表示只在一个 rank 物化</li>
-        <li style="margin-top:4px"><strong>Decode</strong>：inter-block kernel 放 side stream 与主流计算交叠；intra-block 合并 + 部分和更新 + RMSNorm 融合进前序 TP all-reduce，隐藏延迟、零独立 kernel</li>
+        <li><strong>机制与规模</strong>：以可学习伪查询对前序 block 表示做深度维注意力 → 显存 / 通信开销由 \(O(Ld)\) 降为 \(O(Nd)\)（96 层 → 9 个 block 表示）</li>
+        <li style="margin-top:4px"><strong>两阶段 kernel</strong>：inter-block 批量读一次缓存表示，intra-block 经 online-softmax 合入 → 开销以访存为主，优化聚焦内存效率</li>
+        <li style="margin-top:4px"><strong>Prefill（SP）</strong>：all-reduce 拆为 reduce-scatter + all-gather，kernel 插入两次通信之间 → 每 token 表示只在一个 rank 物化</li>
+        <li style="margin-top:4px"><strong>Decode</strong>：inter-block 放 side stream 交叠，intra-block 融合进 TP all-reduce → 隐藏延迟、零独立 kernel</li>
         </ul>
 
   # ===== 左：机制与调度 =====
@@ -88,9 +88,9 @@ elements:
       text: 各阶段负载与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 208, 436, 196]
-    columnWidths: [0.26, 0.26, 0.16, 0.32]
-    rowHeights: [0.1, 0.18, 0.18, 0.18, 0.18, 0.18]
+    bounds: [488, 208, 436, 216]
+    columnWidths: [0.20, 0.25, 0.16, 0.39]
+    rowHeights: [0.08, 0.184, 0.184, 0.184, 0.184, 0.184]
     style: "$param"
     rows:
       - - text: 阶段
@@ -98,28 +98,56 @@ elements:
         - text: FLOPs
         - text: 负载特征 → 昇腾诉求
       - - text: Inter-block pass
-        - text: "读 N 个 block 表示 [N,d]"
-        - text: O(N·d) / 层
-        - text: 访存为主；批量读一次；decode 放 side stream 交叠
+        - text: |
+            读 N 个 block 表示 \([N,d]\)
+        - text: |
+            \(O(Nd)\) / 层
+        - text: |
+            <ul>
+            <li>• 访存为主 → 批量读一次</li>
+            <li>• Decode 放 side stream 交叠 → 隐藏延迟</li>
+            </ul>
       - - text: Intra-block 合并
-        - text: "online softmax merge，[d]"
-        - text: O(d) / 层
-        - text: 融合进 TP all-reduce epilogue → 零独立 kernel
+        - text: |
+            online softmax merge，\([d]\)
+        - text: |
+            \(O(d)\) / 层
+        - text: |
+            <ul>
+            <li>• 逐元素 → Vector</li>
+            <li>• 融合进 TP all-reduce epilogue → 零独立 kernel</li>
+            </ul>
       - - text: 伪查询与权重
-        - text: w∈R<sup>d</sup>；α = softmax(w·RMSNorm(b))
-        - text: O(N·d)
-        - text: 小 GEMV → Vector；N = 9，计算量极小
+        - text: |
+            \(w\in\mathbb{R}^{d}\)；\(\alpha=\mathrm{softmax}(w\cdot\mathrm{RMSNorm}(b))\)
+        - text: |
+            \(O(Nd)\)
+        - text: |
+            <ul>
+            <li>• 小 GEMV → Vector</li>
+            <li>• N = 9 → 计算量极小</li>
+            </ul>
       - - text: Block 表示缓存
-        - text: N×d×2B / 序列
+        - text: |
+            \(N\times d\times 2\mathrm{B}\) / 序列
         - text: —
-        - text: 96 层 → 9 个表示 ≈126KB（BF16）；显存降一个量级
+        - text: |
+            <ul>
+            <li>• 96 层 → 9 个表示 ≈126KB（BF16）</li>
+            <li>• 显存降一个量级</li>
+            </ul>
       - - text: Prefill 通信
-        - text: RS + AG（序列分片）
+        - text: |
+            RS + AG（序列分片）
         - text: —
-        - text: 通信量 ≈ all-reduce；消除冗余物化与 I/O
+        - text: |
+            <ul>
+            <li>• 通信量 ≈ all-reduce</li>
+            <li>• 消除冗余物化与 I/O</li>
+            </ul>
   - elementId: param-note
     elementType: text
-    bounds: [488, 410, 436, 24]
+    bounds: [488, 430, 436, 22]
     content:
       fontSize: 7.5
       color: "$gray"
@@ -127,7 +155,7 @@ elements:
       lineHeight: 1.35
       align: [left, top]
       text: |
-        <p>按 d = 7168、N = 9：block 表示 ≈ 9×7168×2B ≈ 126KB / 序列；朴素 TP8 每 rank 物化则冗余 8 倍。</p>
+        <p>按 \(d=7168\)、\(N=9\)：block 表示 \(\approx 9\times 7168\times 2\mathrm{B}\approx 126\mathrm{KB}\) / 序列；朴素 TP8 每 rank 物化则冗余 8 倍。</p>
         <p>注：FLOPs 占比极小，访存与通信结构是主要矛盾；N = 8 blocks + 嵌入（报告 §2.2）。</p>
 
   # ===== 底部：开发需求与趋势 =====

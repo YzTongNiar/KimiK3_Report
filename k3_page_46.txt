@@ -1,0 +1,90 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+(a) Context layout
+global option messages
+tool-declare thinking-effort
+input messages
+system user
+tool assistant
+dynamic tool-declare
+one-shot option messages
+tool-choice response-format
+[open]think[sep] / [open]response[sep]
+generation prefix
+(b) Assistant message
+[open]message role="assistant"[sep]
+[open]think[sep]
+[close]think[sep]
+[open]response[sep]
+[close]response[sep]
+[open]tools[sep]
+· · ·
+[close]tools[sep]
+[close]message[sep][end_of_msg]
+(c) Tools channel
+[open]tools[sep]
+[open]call tool="python" index="1"[sep]
+[open]argument key="code" type="string"[sep]
+· · ·
+[close]argument[sep]
+[close]call[sep]
+[open]call tool="search" index="2"[sep]
+[open]argument key="options" type="object"[sep]
+{"timeout": 150}
+[close]argument[sep]
+[close]call[sep]
+[close]tools[sep]
+Figure 16: Structure of the Kimi K3 chat template.(a)Context layout: global option messages precede the input messages, while
+one-shot option messages follow them, so that per-request options leave the history KV cache intact; dynamically loaded tools are
+injected mid-session as input option messages (dashed).(b)Anatomy of an assistant message: the body is organized into think,
+response, and tools channels.(c)Expansion of the tools channel: parallel tool calls are indexed so that tool results can be
+matched to their calls, and arguments are typed.
+Proof of Theorem 2 (Tightness of the Upper Bound)Construct a router output I ∗ as follows: the experts on EP
+rank 0 receive no tokens, while all experts on the other R−1 ranks share all tokens evenly. Then all S×K×R
+tokens are evenly divided among E(R−1)/R experts, so each expert receives SKR 2
+E(R−1) tokens. Under any plan P ,
+rank 0 must receive S×K tokens, all of which are remote, and these tokens involve at least SK
+ SKR 2
+E(R−1) = E(R−1)
+R2
+distinct experts; taking the ceiling, rank 0 requires at least
+l
+E(R−1)
+R2
+m
+redundant experts, hence M(I ∗)≥
+l
+E(R−1)
+R2
+m
+.
+Conversely, by constructing a plan with the filling procedure from the proof of Theorem 1 and migrating tokens
+expert-wise preferentially, the number of redundant experts on every rank can be kept within this value, so equality
+holds. Since
+l
+E(R−1)
+R2
+m
+≈ E
+R when R is large, the upper bound in Theorem 1 is essentially tight: there is no general
+upper bound significantly smaller thanE/R.
+F Chat Template
+The Kimi K3 chat template is redesigned around three goals. The first isextensibility: new capabilities should be
+introduced through backward-compatible message formats rather than template revisions, so that a single template serves
+the entire model generation. The second is alow alignment tax: the format should be learnable with minimal supervised
+data, supporting a pipeline in which a lightly fine-tuned pre-trained model can proceed directly to reinforcement
+learning. The third isdecoding friendliness: the structure should admit simple encoders, streaming parsers, and
+grammar-constrained enforcers. To these ends, the template adopts XTML (eXtensible Token Markup Language), an
+XML-like markup in which the angle-bracket syntax is replaced by three reserved special tokens: [open], [sep]
+and [close], with an additional [end_of_msg] token as the generation stop marker. An element [open]tag
+attr="value"[sep] ... [close]tag[sep] is isomorphic to its XML counterpart, but every structural boundary
+is an explicit special token, which removes tokenization ambiguity at element boundaries and simplifies constrained
+decoding.
+Messages and zonesThe top-level unit of the context is the message, and messages fall into two categories by origin
+(Fig. 16a).Input messagesserialize the messages field of the request, covering the familiar system, user, assistant,
+and tool roles.Option messagestranslate request options into instructions that the model reads in context, and their
+placement reflects their scope.Global options—the tool declaration ( type="tool-declare") and the reasoning-
+effort setting—appear before all input messages: they govern the whole session and rarely change, so modifying
+them invalidates the KV cache anyway.One-shot options( tool_choice, response_format) are appended after
+the input messages, so that per-request changes leave the history KV cache intact. A third kind, theinput option
+message, is interleaved with input messages to supplement or override a global option mid-session. This mechanism
+46

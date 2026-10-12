@@ -59,10 +59,10 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>结构定位</strong>：MLA 将每 token 的 KV 压缩为低维隐向量 c<sub>t</sub> 缓存、注意力时经上投影重建 K/V；K3 每 block 保留 1 层 Gated MLA（共 24 层，骨干末尾再 +1 层），承担无限制的全局内容交互</li>
-        <li style="margin-top:4px"><strong>改动① 全面 NoPE</strong>：MLA 层不施加任何显式位置编码（K2 / K2.5 为 RoPE），位置与近因感知交由 KDA 层；扩展上下文无需重调 RoPE 基频或 YaRN；KV Cache 不含 rope 分量，单 token 缓存由 (dc+dr) 降为 dc</li>
-        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：y = W<sub>o</sub>[σ(W<sub>g</sub>·x) ⊙ õ]，与 KDA 同款门控，逐通道调节全局注意力读出；新增 d×H·dh 稠密 GEMM → CUBE 友好</li>
-        <li style="margin-top:4px"><strong>训练数值</strong>：注意力输出在训练中保持 FP32（修正 flash attention 的 biased rounding），输出 tile 片上占用翻倍 → 训练 kernel 重排为与 KV staging buffer 交叠，换取更深 KV 流水与更高吞吐</li>
+        <li><strong>结构定位</strong>：以低维隐向量缓存替代全量 KV，24+1 层承担全局内容交互 → 长上下文缓存规模降一个量级</li>
+        <li style="margin-top:4px"><strong>改动① 全面 NoPE</strong>：位置建模完全交给 KDA 递归层 → 上下文外推不受 RoPE 限制，单 token 缓存进一步减小</li>
+        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：与 KDA 同款门控，逐通道调节全局注意力读出 → 新增一次标准稠密 GEMM，CUBE 友好</li>
+        <li style="margin-top:4px"><strong>训练数值</strong>：注意力输出保持 FP32 修正舍入偏差 → 以片上 buffer 重排换精度与吞吐兼得</li>
         </ul>
 
   # ===== 左：模块结构 =====
@@ -104,42 +104,77 @@ elements:
       text: 参数、FLOPs 与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 208, 436, 196]
-    columnWidths: [0.24, 0.26, 0.17, 0.33]
-    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    bounds: [488, 208, 436, 216]
+    columnWidths: [0.20, 0.25, 0.16, 0.39]
+    rowHeights: [0.08, 0.154, 0.153, 0.153, 0.153, 0.153, 0.154]
     style: "$param"
     rows:
       - - text: 组件
         - text: 张量形状
         - text: FLOPs/token
         - text: 负载特征 → 昇腾诉求
-      - - text: 隐向量下投影 W<sub>c</sub>
-        - text: x∈R<sup>7168</sup> → c<sub>t</sub>∈R<sup>dc</sup>
-        - text: 2d·dc
-        - text: 稠密 GEMM → CUBE；decode 退化为 GEMV，访存受限
+      - - text: 隐向量下投影 \(W_c\)
+        - text: |
+            \(x\in\mathbb{R}^{d}\rightarrow c_t\in\mathbb{R}^{d_c}\)
+        - text: |
+            \(2dd_c\)
+        - text: |
+            <ul>
+            <li>• Prefill 稠密 GEMM，计算密集 → 要求 CUBE 算力</li>
+            <li>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</li>
+            </ul>
       - - text: Q/K/V 投影与上投影
-        - text: "q: d→H·dh；k,v: dc→H·dh"
-        - text: 2d·H·dh + 4dc·H·dh
-        - text: decode 可吸收（absorb）上投影、直接以 c<sub>t</sub> 计算，降低 KV 读取
+        - text: |
+            <p>\(q:d\rightarrow Hd_h\)</p>
+            <p>\(k,v:d_c\rightarrow Hd_h\)</p>
+        - text: |
+            \(2dHd_h+4d_cHd_h\)
+        - text: |
+            <ul>
+            <li>• Prefill 稠密 GEMM → CUBE</li>
+            <li>• Decode 吸收上投影、直接以 \(c_t\) 计算 → KV 读取下降</li>
+            </ul>
       - - text: 全局注意力 <span style="color:$primary">①</span>
-        - text: q,k,v∈R<sup>H·dh</sup>；L 任意
-        - text: 4L·H·dh，随 L 线性
-        - text: CUBE matmul + Vector softmax；无 RoPE → 省去旋转 kernel 与 sin/cos 表
+        - text: |
+            \(q,k,v\in\mathbb{R}^{Hd_h}\)；L 任意
+        - text: |
+            \(4LHd_h\)，随 L 线性
+        - text: |
+            <ul>
+            <li>• CUBE matmul + Vector softmax</li>
+            <li>• NoPE → 省去旋转 kernel 与 sin/cos 表</li>
+            </ul>
       - - text: KV Cache
-        - text: c<sub>t</sub>：dc×2B / token / 层
+        - text: |
+            \(c_t\)：\(d_c\times 2\mathrm{B}\) / token / 层
         - text: —
-        - text: 随 L 线性增长，1M 上下文为主要显存项；NoPE 后单 token 缓存 &lt; 标准 MLA
+        - text: |
+            <ul>
+            <li>• 随 L 线性增长 → 1M 上下文主要显存项</li>
+            <li>• NoPE 后单 token 缓存更小 → 容量诉求下降</li>
+            </ul>
       - - text: 全秩输出门 <span style="color:$primary">②</span>
-        - text: "W<sub>g</sub>: d×H·dh"
-        - text: 2d·H·dh
-        - text: 新增标准稠密 GEMM → CUBE 友好；应与注意力输出融合
+        - text: |
+            \(W_g:d\times Hd_h\)
+        - text: |
+            \(2dHd_h\)
+        - text: |
+            <ul>
+            <li>• 标准稠密 GEMM → CUBE 友好</li>
+            <li>• 应与注意力输出融合 → 避免显存往返</li>
+            </ul>
       - - text: 训练 FP32 输出
-        - text: 输出 tile：H·dh，FP32
+        - text: |
+            输出 tile：\(Hd_h\)，FP32
         - text: —
-        - text: 片上占用 ×2 → 重排 buffer 分配，与 KV staging 交叠换深流水
+        - text: |
+            <ul>
+            <li>• 片上占用 ×2 → buffer 需重排</li>
+            <li>• 与 KV staging 交叠 → 换深流水高吞吐</li>
+            </ul>
   - elementId: param-note
     elementType: text
-    bounds: [488, 410, 436, 24]
+    bounds: [488, 430, 436, 22]
     content:
       fontSize: 7.5
       color: "$gray"
@@ -147,8 +182,8 @@ elements:
       lineHeight: 1.35
       align: [left, top]
       text: |
-        <p>显存：24+1 层 MLA 的 KV Cache 随 L 线性增长，为 1M 上下文下的主要显存项；标准 MLA 缓存为 (dc+dr)×2B / token。</p>
-        <p>注：d = 7168、H = 96（报告 Table 1）；dc / dr / dh 以 checkpoint config 为准（K2 参考值 512 / 64 / 128）；FLOPs 为推算。</p>
+        <p>显存：24+1 层 MLA 的 KV Cache 随 L 线性增长，为 1M 上下文下的主要显存项；标准 MLA 缓存为 \((d_c+d_r)\times 2\mathrm{B}\) / token。</p>
+        <p>注：\(d=7168\)、\(H=96\)（报告 Table 1）；\(d_c\) / \(d_r\) / \(d_h\) 以 checkpoint config 为准（K2 参考值 512 / 64 / 128）；FLOPs 为推算。</p>
 
   # ===== 底部：开发需求与趋势 =====
   - elementId: dev-label
@@ -171,7 +206,7 @@ elements:
       text: |
         <ul>
         <li><strong>算子层（推理）</strong>：MLA 已接入 vllm-ascend mla_v1.py 后端，kimi_k3 适配层强制 use_nope=True 并透传 output gate；需回归验证 qk_rope_head_dim = 0 配置下各后端（含量化路径）的正确性</li>
-        <li style="margin-top:3px"><strong>算子层（融合）</strong>：输出门 σ(W<sub>g</sub>·x) ⊙ õ 应与注意力输出及 W<sub>o</sub> 融合，避免三次显存往返；训练侧 FP32 输出 tile 需 Ascend C 级 buffer 规划（与 KV staging 交叠）</li>
-        <li style="margin-top:3px"><strong>框架层</strong>：KV Cache 按 dc×2B / token 分页，与 KDA checkpoint 统一池化；PD 分离部署下 NoPE 缓存更小，跨节点传输负载相应下降</li>
+        <li style="margin-top:3px"><strong>算子层（融合）</strong>：输出门 \(\sigma(W_g x)\odot\tilde{o}\) 应与注意力输出及 \(W_o\) 融合，避免三次显存往返；训练侧 FP32 输出 tile 需 Ascend C 级 buffer 规划（与 KV staging 交叠）</li>
+        <li style="margin-top:3px"><strong>框架层</strong>：KV Cache 按 \(d_c\times 2\mathrm{B}\) / token 分页，与 KDA checkpoint 统一池化；PD 分离部署下 NoPE 缓存更小，跨节点传输负载相应下降</li>
         <li style="margin-top:3px"><strong>趋势</strong>：NoPE 将位置建模完全交给递归层，长上下文外推不再受 RoPE 限制；硬件诉求集中于 KV Cache 容量 / 带宽与吸收矩阵 GEMV 效率</li>
         </ul>

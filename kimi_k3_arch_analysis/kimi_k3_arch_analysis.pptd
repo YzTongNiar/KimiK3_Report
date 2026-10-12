@@ -44,4 +44,3 @@ pages:
   - pages/3_kernel_flashkda.page
   - pages/4_kernel_kda_decode.page
   - pages/5_kernel_attnres.page
-  - pages/6_kernel_latentmoe.page

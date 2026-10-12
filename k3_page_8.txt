@@ -1,0 +1,90 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+(a) Imbalanced routing (b) Quantile Balancing (c) Balanced routing
+E1
+E2
+E3
+E4
+t1
+t2
+t3
+t4
+t5
+t6
+t7
+t8
+E1 E2 E3 E4
+t1
+t2
+t3
+t4
+t5
+t6
+t7
+t8
+E1
+E2
+E3
+E4
+t1
+t2
+t3
+t4
+t5
+t6
+t7
+t8
+Figure 5: Illustration of Quantile Balancing with m= 8 tokens, n= 4 routed experts, and k= 1 selected expert per token. (a)
+Token-wise Top-k routing (tokens on the left, experts on the right) produces loads (4,3,1,0) ; darker circles indicate overheated
+experts, whereas faded and dashed circles indicate underutilized and dying experts, respectively. (b) Each gray bar is the margin of
+the currently biased score, si,j +b (t)
+j −α (t)
+i , so the row-wise maxima reproduce the routing in (a). The dashed red line in each
+column is the bias adjustment b(t)
+j −bb(t+1)
+j , placed at the (q+1)-th largest margin so that exactly q= 2 margins exceed it. The
+marker ⋆ denotes the row-wise Top-k choice after subtracting the column adjustments, i.e., the routing in (c). (c) The retained
+choices yield the balanced load(2,2,2,2); red edges denote assignments changed by QB.
+For Kimi K3, we set the soft-cap hyperparameters to β1 = 4 for the gate branch and β2 = 25 for the up branch. The
+scaled tanh is approximately linear near the origin and bounded at large magnitude, allowing SiTU-GLU to preserve
+the local response of SwiGLU while controlling both factors in the product. Fig. 4 compares the branch definitions and
+scalar responses of GLU, SwiGLU, and SiTU-GLU on a common slice.
+§ B gives the local expansion, limiting case, formal output bound, and comparison with hard clamping.
+2.3.3 Quantile Balancing
+Unlike auxiliary-loss-based routing [33], Kimi K3 adopts auxiliary-loss-free routing [30]. Load balancing is imple-
+mented by adding an expert-specific bias bj to the router score used for Top- k selection. For token xi, the router
+computess i = Sigmoid(Wrxi)and applies
+Ti = argtopk(si +b), p i,j = si,jP
+r∈Ti si,r
+, j∈ T i.(13)
+Because b is omitted from pi,j, it regulates dispatch without altering the mixture weights or the gradient-based
+optimization of the router. The original method updates b with the fixed-step rule b(t+1)
+j =b (t)
+j +γsign( ¯ℓ−ℓ (t)
+j ) [30],
+for which γ trades off slow adaptation against load oscillation. Maintaining balanced loads becomes more challenging
+as LatentMoE increases the routed expert pool to 896 per layer. Imbalanced routing slows expert-parallel training and
+may leave some experts poorly trained [48].
+To address this limitation, we introduce Quantile Balancing (QB), which sets each expert bias from the router-score
+quantile [113, 114] that matches its target load. Consider a training batch of m tokens routed to n experts with Top-k
+selection, so the target load is q:=mk/n tokens per expert. QB derives the next bias from a single forward pass.
+Routing replaces the Top-k selection with Top-(k+1) on the biased score si +b (t): the first k entries are the routes
+actually taken, while the (k+1)-th entry is the cutoff α(t)
+i that an expert must exceed to enter token i’s Top-k. Taking
+the cutoff from Top-(k+1) routing avoids a separate token-side quantile. We then choose each expert bias so that expert
+jreceives its target load: with the cutoffs fixed, the token count routed to expertjunder a candidate bias bb(t+1)
+j is
+mX
+i=1
+1
+h
+si,j +bb(t+1)
+j > α (t)
+i
+i
+,
+which is monotonically decreasing in the threshold −bb(t+1)
+j . Assuming no ties, setting this count to q makes −bb(t+1)
+j
+the (q+1)-th largest margin si,j −α (t)
+i , so that exactly q margins stay above the threshold. Since q/m=k/n , this is
+8

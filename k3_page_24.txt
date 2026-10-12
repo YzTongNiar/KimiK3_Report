@@ -1,0 +1,53 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+independent recurrent state. The hit is the longest boundary satisfying both stages—always a multiple of the hash block,
+and never required to be a multiple of the physical block. In Fig. 12, a request whose first 2800 tokens match the cached
+prefix hits at B= 2560 = 5×512 , deep inside a 6144-token physical block, and resumes prefill from token B instead
+of recomputing[0, B).
+Consistency under concurrent schedulingThe remaining design points are each dictated by a concrete failure mode
+of sharing partially filled blocks, in a setting where a hit block is at once a shared cache entry and the growth point of a
+private request, and where the MLA and KDA cache groups must agree on every hit boundary. First, all cache groups
+draw blocks from one shared free list, so allocating a private copy for one group could evict a block that another group
+has just hit; every hit block is therefore pinned across all groups before anything is allocated. Second, the copy into the
+private block executes on the GPU immediately before the forward pass, so a block allocated or registered within the
+current scheduling step would still hand the previous owner’s bytes to a reader; such blocks are excluded from matching
+until their copies land. Third, a checkpoint can restore a request only if it exists in every KDA group, so evicting one
+group’s checkpoint atomically invalidates its siblings — a checkpoint is either hittable in every group or in none. With
+these mechanisms, every registered state always corresponds to exactly its declared token prefix, and prefix caching for
+hybrid KDA–MLA models reaches the same generality as for full-attention models: any shared prefix is reusable at any
+512-token boundary, independently of request length, chunking, or scheduling interleaving.
+5.4.2 High-Performance Kernels
+Kimi K3 introduces several new architectural modules: KDA (§2.1.1), Block AttnRes (§2.2), and Stable LatentMoE
+(§2.3). We optimize the kernel implementation for each.
+KDACompared with KDA prefill (§5.1), KDA decoding presents a distinct set of challenges: the primary bottleneck
+shifts from exploiting parallelism to efficiently managing the evolving recurrent state, which is updated in place at every
+decoding step. This in-place update becomes problematic in MTP-based speculative decoding: if verification rejects a
+subset of the drafted tokens, the state has already advanced beyond the last accepted token and cannot be trivially rolled
+back. Maintaining a state snapshot for each draft position would enable rollback, but would also multiply state traffic —
+a cost that dominates at the large batch sizes typical of online serving.
+The state after any accepted draft prefix, however, is fully determined by the projected inputs of the draft tokens, which
+are far smaller than the state itself. We therefore cache only these projected inputs, rebuild the states of accepted tokens
+on-chip, and write back the states of the verified and bonus tokens, a design independently proposed in the concurrent
+work ReplaySSM [25]. The replayed tokens, the bonus token, and the next draft window share one recurrent loop
+inside a single fused kernel covering short convolution, input normalization, gating, the KDA recurrence, and output
+normalization. Verification latency grows sub-linearly with the number of tokens verified and remains below that of
+state-caching baselines. Because the projection caches never leave the decode stage, prefix caching and prefill–decode
+disaggregation operate on the same payload as in non-speculative serving.
+Block AttnResBlock AttnRes [58] follows a two-phase schedule: a batched inter-block pass reads the cached block
+representations once per block, after which each layer folds in the intra-block partial sum through an online-softmax
+merge [80]. Memory access accounts for a substantial fraction of the cost of these kernels in both prefill and decoding,
+so our optimizations in both stages focus primarily on memory efficiency.
+For prefill, materializing the block representations on every tensor-parallel (TP) rank would incur substantial redundant
+memory consumption. We therefore adopt sequence parallelism (SP) for activations: the TP all-reduce is decomposed
+into a reduce-scatter and an all-gather, with the intra-block kernel inserted between the two collectives, operating on the
+sequence-sharded hidden states so that the block representations of each token are materialized on exactly one rank.
+This eliminates the additional memory consumption and reduces the I/O overheads of Block AttnRes during prefill.
+For decoding, we launch the inter-block kernel on a side stream so that it overlaps with independent computation on the
+main stream. The intra-block kernel is instead streamlined through fusion: the merging of the AttnRes output with its
+partial-sum update, together with the subsequent RMSNorm, is fused into the preceding TP all-reduce, eliminating a
+dedicated kernel for the intra-block phase. Together, these optimizations hide the latency of the inter-block pass and
+reduce the memory traffic of the intra-block phase.
+Stable LatentMoEStable LatentMoE increases both the total number of experts and the number of activated
+experts per token. The resulting growth in both the expert space and the per-token expert count raises scheduling and
+coordination overheads, making it difficult for conventional MoE kernels to sustain high hardware utilization. These
+challenges motivate dedicated kernel optimizations for this module.
+24

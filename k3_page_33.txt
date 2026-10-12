@@ -1,0 +1,50 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+0 5 10 15 200
+10
+20
+30
+40
+50
+60
+64.1
+Kimi K3+59.7%
+Claude Fable 5+57.1%
+GPT-5.5+30.8%
+GPT-5.6 Sol+17.3%
+Active hours
+Speedup vs. FLA Triton Baseline (%)
+Figure 14: Case study: GPU kernel optimization on AttnRes.
+7 Case Studies
+In this section, we present representative cases that demonstrate Kimi K3’s capabilities across diverse technical tasks.
+GPU kernel optimizationWe tested the models’ ability to optimize GPU kernels. Each model works independently
+in an identically configured sandbox, with a budget of up to 24 hours per task for profiling, rewriting, and benchmarking.
+The evaluation covers four representative kernels: AttnRes, DeepSeek Sparse Attention (DSA), KDA, and MLA (with
+head dimension 512), on an NVIDIA Hopper GPU and an alternative-vendor GPGPU. Kimi K3 substantially improved
+performance across all four kernels, reducing AttnRes latency from 283.6 ms to 114.4 ms, cutting DSA and KDA
+runtime by 55.1% and 73.6%, respectively, and reaching over half of peak TFLOPS on MLA. Across these tasks, Kimi
+K3 matched Claude Fable 5 [16] (with fallback) and substantially outperformed Claude Opus 4.8 [17], GPT-5.6 Sol [40],
+and GPT-5.5 [39]. Figure 14 compares the models’ optimization trajectories on AttnRes. Beyond the benchmark, an
+early Kimi K3 checkpoint was already handling most of our kernel optimization work during late-stage development.
+GPU compiler developmentKimi K3 developed MiniTriton 5, a compact Triton-like [124] compiler with a custom
+tile-level Python frontend and layout system, a lightweight warp-level MLIR [65] annotation and optimization layer,
+and a Parallel Thread Execution (PTX) code-generation pipeline. Built around the compiler is a dual-mode tensor
+library with a PyTorch-like [90] high-level interface, whose eager and forward-only compiled paths share the same DSL
+compiler and runtime. The library further provides reverse-mode autograd, neural-network modules, distributed-training
+primitives over NCCL [83], and sparse and visualization primitives. On an NVIDIA L20, MiniTriton outperforms
+PyTorch eager [90] and torch.compile [5] in geometric mean over its core benchmark suite. Its from-scratch
+tensor-core matmul path approaches cuBLAS [22] at the largest shapes, reaching about 90% of the measured machine
+roof, while its DSL-level KDA [64] prefill kernel outperforms a matched Triton reference by a clear margin. MiniTriton
+also trains a GPT model end to end with a loss curve closely tracking the PyTorch reference, with full-model gradients
+differing from torch autograd by no more than torch’s own fp32 rounding error ( 10−4), measured against an fp64
+reference. Together, These results demonstrate that Kimi K3 can build a coherent end-to-end compiler — from DSL
+frontend and IR passes to PTX codegen and CUDA runtime — rather than a collection of isolated kernels (Figure 15).
+Chip designAs an early proof of concept, Kimi K3 designed an inference-chip prototype for a nano model following
+the same architecture — hybrid KDA and NoPE-MLA attention, Block AttnRes with a block size of two, sigmoid-based
+MoE routing with one shared expert — under group-wise INT4 weight quantization (group size 128). In a single
+48-hour autonomous run with Kimi Code, Kimi K3 built, optimized, and verified the chip using open-source EDA tools
+with the Nangate45 standard-cell library [81]. Within the 4 mm2 analytical area budget, the design closes timing at
+100 MHz and achieves an RTL-simulated decode throughput of over 8,700 tokens/s, integrating 1.46M standard cells,
+0.277 MiB of SRAM, and an INT4 MAC array with fused dequantization. The RTL code is available on GitHub6.
+5https://github.com/MoonshotAI/minitriton
+6https://github.com/MoonshotAI/nano-kpu
+33

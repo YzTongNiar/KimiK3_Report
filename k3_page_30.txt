@@ -1,0 +1,50 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+• Faithfulness: measures factual hallucination rates in model responses, with each response verified by a fact checker.
+• Chat All-in-One Bench: measures conversational experience at every stage of product usage, with scenarios
+designed around real online user needs.
+Evaluation ConfigurationsUnless a benchmark is split into separate rows by harness, the Harness column in Table 3
+reports the harness used for Kimi K3. For other models, Claude models and GLM-5.2 are evaluated with Claude Code,
+while GPT models are evaluated with Codex. The exceptions are benchmarks where all models use the same specified
+harness: OpenClaw for 24/7 ClawBench 2.0; MIRA (Multi-Agent Infra for Routing and Assignment), an internal
+out-of-distribution harness, for MIRA Bench; Kimi Work for Agent Behavior Bench and Chat All-in-One; and Kimi
+Code for CLIF and Agentic Vision Bench.
+ResultsThe in-house suite separates Kimi K3’s strengths from its weaknesses more sharply than the public bench-
+marks. The clearest strengths are orchestration- and research-type agency: Kimi K3 leads Swarm Bench (76.3) and Deep
+Research Bench (90.0) by clear margins, indicating strong capability in decomposing complex objectives, coordinating
+parallel work, and producing rubric-satisfying deliverables. Coding is likewise a strength: on Kimi Code Bench 2.0 it
+trails only Claude Fable 5, and it attains the best score on Coding Experience, suggesting that its practical behavior as a
+coding agent — communication quality, behavioral appropriateness, and instruction-following stability — is ahead of
+its raw task scores; on the Kimi Webdev Bench, expert judges prefer it over Claude Opus 4.8 by a +31.0-point overall
+margin, with the largest gain on 3D/WebGL/Shader tasks. Professional knowledge work has also improved markedly
+over the previous generation, with Finance Bench essentially tied with GPT-5.6 Sol.
+Kimi K3 trails the leaders mainly on Agent Behavior Bench, MIRA Bench, 24/7 ClawBench 2.0, Agentic Vision Bench,
+and KWV Bench. On the remaining filled suites (KAET, CLIF Bench, Online Experience, DECK Bench, Faithfulness,
+and Chat All-in-One Bench), Kimi K3 ranks first or a close second.
+6.2.2 Cyber Security Evaluation
+We evaluate the model’s cybersecurity capability along a two-tier progression of increasing operational risk: vulnerability
+discovery with proof-of-concept development (Tier 1), and end-to-end exploit development (Tier 2). Evaluation
+targets include recent versions of widely deployed software—operating-system kernel components and open-source
+projects—as well as our internal infrastructure, including production services and codebases. All tasks run in standard
+configurations representative of real-world deployments. Frontier models from Anthropic and OpenAI refuse cyber-
+related tasks, making a comparable evaluation infeasible; we therefore exclude them from this suite.
+Vulnerability discovery (Tier 1).This tier tasks the model with identifying genuine bugs in current codebases—rather
+than reproducing known vulnerabilities—and demonstrating that they are reproducible. These capabilities are primarily
+associated with defensive security research.
+Across dozens of widely deployed systems spanning operating-system kernels, databases, AI services, web frameworks,
+blockchain, and VPN software, the model identified hundreds of candidate vulnerabilities. Of the findings that underwent
+human review, approximately 70% were confirmed as genuine, including 16 previously unknown vulnerabilities across
+six projects.
+Two findings in the Linux kernel illustrate the depth of these results. First, the model identified a remotely triggerable
+heap out-of-bounds write. The bug was introduced by an incomplete upstream fix and affects all subsequent releases,
+up to and including the latest upstream code. Security experts confirmed it as a remote denial-of-service primitive.
+Second, the model identified a Dirty-COW-class vulnerability in the RDMA subsystem: an earlier upstream fix had
+inadvertently dropped a permission check, enabling kernel-side writes to read-only memory pages. Security experts
+confirmed it as a deterministic local privilege-escalation primitive.
+Exploit development (Tier 2).This tier requires the model to convert a vulnerability into a working end-to-end
+exploit, and is the tier most directly relevant to misuse risk. We evaluate it against GLM-5.2 as the baseline, using an
+in-house suite of 36 tasks spanning two tracks.
+User-space exploitation(16 tasks). The model must exploit real CVEs end-to-end in widely deployed user-space
+software, including PostgreSQL, the XWiki collaboration platform, the Apache HTTP Server, and several content-
+management systems and other applications. For each task, the model is given full source code and a live instance;
+targets run in standard configurations without additional hardening.
+30

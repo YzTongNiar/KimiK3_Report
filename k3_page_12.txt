@@ -1,0 +1,48 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Our pre-training begins with a context length of 8k tokens, which is later extended to 64k tokens in a subsequent
+training phase.
+3.4 Long-Context Extension
+Positional encodingKimi K3 uses no explicit positional embedding (NoPE), and instead encodes positional informa-
+tion implicitly through the recurrent gating and decay mechanism of KDA. As a result, the model extrapolates directly
+to 1M-token contexts without any positional-encoding modification, such as RoPE rescaling or interpolation [93].
+Long-context dataLong documents and videos from natural sources contain a substantial amount of low-quality
+content, including near-duplicates, binary blobs, truncated files, video clips, and invalid machine-generated logs. We
+therefore process them through a dedicated cleaning pipeline that combines exact and fuzzy deduplication, supplemented
+by perceptual hashing over frames for video, together with heuristic and classifier-based quality filtering, and structural
+validation. Because genuinely long and coherent documents and videos are scarce relative to short text, we upsample
+them so that the long-context distribution is not overwhelmed by short sequences during cooldown. Length alone,
+however, does not confer long-range capability. To address this, we synthesize additional long-context data by carefully
+permuting and concatenating multimodal documents and sub-tasks, so that the embedded tasks can be solved only by
+attending to information scattered across the full 1M-token context. This trains the attention mechanism at the intended
+scale and prevents it from degenerating into local patterns.
+Progressive context extensionKimi K3 supports a context window of up to 1 million tokens. We achieve this
+through extending the context window progressively as training proceeds, following a four-stage curriculum. The
+window grows from 8K to 64K tokens during pre-training, and from 256K to 1M tokens during the cooldown phase.
+Concentrating the costly long-sequence computation within a small fraction of the overall training budget keeps the
+curriculum economical while still allowing the model to adapt gradually to increasingly long-range dependencies. The
+sequence-dimension partitioning that makes million-token training tractable for the KDA layers is described in §5.1.2.
+4 Post-Training
+4.1 Method
+Our post-training pipeline follows a three-stage paradigm: initializing baseline agent capabilities via supervised fine-
+tuning (SFT), developing specialized domain experts at varying reasoning effort via Reinforcement Learning (RL), and
+consolidating these domain-specific policies into a single model using Multi-Teacher On-Policy Distillation (MOPD).
+4.1.1 Supervised Fine-Tuning
+The SFT stage establishes a high-quality cold-start policy for the subsequent RL stage. Building on the SFT pipeline
+of previous Kimi models [59, 60], we expand the SFT dataset for Kimi K3, substantially broadening its coverage
+of complex agentic tasks. Specifically, we synthesize data trajectories using domain-specialized models from the
+prior Kimi series, followed by multi-stage verification and human-in-the-loop annotation. To represent these complex
+agentic trajectories consistently, we serialize all data with our XTML-based chat template (eXtensible Token Markup
+Language; see § F for details). Collectively, these steps yield a large-scale instruction dataset that endows Kimi K3 with
+adaptive reasoning, precise tool calling, and robust execution in long-horizon agentic scenarios. In addition, we apply
+quantization-aware training (QAT) from the SFT stage onward, with MXFP4 weights and MXFP8 activations (§ 4.1.4).
+4.1.2 Reinforcement Learning
+While SFT provides a solid cold-start foundation, RL is critical to unlocking higher-order reasoning and execution
+capabilities. Rather than training specialized RL models for individual tasks, we scale RL across three broad domains,
+each encompassing a wide spectrum of sub-tasks, and train a single expert for each domain at every reasoning effort
+level: (i)general tasks, spanning general experience, vision, reasoning, faithfulness, search capabilities, and knowledge
+work tasks; (ii)general agents, spanning long-horizon assistant tasks, deep research, and paragraph-level writing; and
+(iii)coding agents, spanning software engineering (SWE), coding experience, kernel tasks, and web development. As
+shown in Figure 8, scaling RL FLOPs consistently improves a variety of capabilities across knowledge, reasoning, vision,
+general agent, and coding. Crossing these three domain experts with three reasoning effort levels in {low,high,max}
+yields a total of nine expert models.
+12

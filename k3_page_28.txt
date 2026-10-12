@@ -1,0 +1,48 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+CodingKimi K3 delivers strong agentic coding performance. It attains the best score on ProgramBench (77.8%), and
+on SWE-Marathon—a GPU-kernel-oriented suite—it scores 42.0%, 7 points ahead of Claude Fable 5. On Terminal-
+Bench 2.1, it nearly matches GPT-5.6 Sol (88.3% vs. 88.8%). On DeepSWE, it ranks behind Claude Fable 5 and
+GPT-5.6 Sol but ahead of Claude Opus 4.8 and GPT-5.5. On FrontierSWE, a long-horizon benchmark, it ranks second
+with a score of 81.2% as of July 16, 2026, behind only Claude Fable 5 (86.6%) and well ahead of all other models.
+AgenticKimi K3 achieves state-of-the-art results on a broad set of agentic suites, including BrowseComp (91.2%),
+DeepSearchQA (95.0% F1 score), ResearchRubrics (76.2%), MCPMark-Verified (94.5%), AutomationBench (30.8%),
+SpreadsheetBench 2 (34.8%), τ 3-Banking (33.4%), and Harvey Lab-AA (94.6% criterion pass rate). The main
+exceptions are the Elo-rated knowledge-work suites, both led by Claude Fable 5: Kimi K3 places third on GDPval-AA v2
+(1,686) and second on AA-Briefcase (1,548). Elsewhere it is largely competitive: on CorpFin v2 and OSWorld-Verified,
+it finishes just 0.2 points behind Claude Fable 5 (71.6% vs. 71.8% and 84.8% vs. 85.0%, respectively), while the
+remaining harder computer-use benchmarks (OSWorld 2.0, SaaS-Bench) are still led by Claude Fable 5 or GPT-5.6 Sol.
+VisionKimi K3 exhibits strong multimodal understanding capabilities, which are further amplified by Python tools:
+on Math-Vision it reaches 94.3%, rising to 97.8% with Python tools, and on the challenging ZeroBench-main it
+ties Claude Fable 5 at 23.0% (pass@5), jumping to 41.0% with Python tools. It also achieves the highest score on
+OmniDocBench (91.1%) and, on WorldVQA (51.0%), ranks second behind Claude Fable 5, ahead of GPT-5.6 Sol and
+Claude Opus 4.8.
+6.2 Internal Evaluation
+6.2.1 Capability Evaluation
+Beyond the public benchmark suite, we maintain a collection of in-house benchmarks that target capability areas public
+evaluations do not adequately cover, giving a more comprehensive measure of model and agent capabilities. These
+benchmarks are refreshed and expanded frequently, so that they can closely track the model’s evolving failure modes
+and directly guide data and training iterations. They broadly fall into three categories: coding capability and experience,
+general agent experience, and conversational experience. Table 3 reports the results across these benchmarks.
+Coding Capability and Experience
+• Kimi Code Bench 2.0 (KCB 2.0): evaluates code agents on realistic, end-to-end software engineering tasks across a
+broad range of programming languages and production-oriented technology stacks.
+• Kimi Webdev Bench: evaluates models on challenging web development prompts drawn from real usage scenarios,
+with outputs compared through blind expert judgment, with results available in Table 4.
+• Coding Experience: evaluates the practical experience of working with the model as a coding agent in real
+development workflows.
+General Agent Experience
+• 24/7 ClawBench 2.0: simulates always-on assistant work, in which tasks span multiple days, events arrive concur-
+rently, and interruptions are routine.
+• Multi-Agent Infra for Routing and Assignment (MIRA) Bench: evaluates long-chain, multi-role, multi-system
+enterprise collaboration tasks, assessing whether agents can carry out end-to-end work and judge when to organize
+or delegate to subagents.
+• Kimi Autonomous Execution Tasks (KAET): evaluates long-horizon autonomous execution on tasks simulating
+real user requests and enterprise system operations.
+• Context Learning and Instruction Following (CLIF) Bench: targets in-context learning, requiring models to learn
+from a provided context while following instructions that interleave multiple complex skills.
+•Agentic Vision Bench: evaluates whether agents notice and correctly use key visual facts during task execution.
+• Swarm Bench: evaluates models’ ability to orchestrate agent swarms [60] on complex tasks that benefit from
+coordinated decomposition and parallel execution.
+• Online Experience: mirrors the distribution of real online agent usage, measuring performance on the deliverable
+file types most frequently requested by users.
+28

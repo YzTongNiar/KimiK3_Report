@@ -1,0 +1,50 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+5.2.3 Multimodal Encoder Optimization
+Dynamic CP in multimodal encoderIn long-context multimodal training, large images and long videos substantially
+increase the computation time of the vision encoder and cause significant load imbalance across devices. To address
+this, we extend context parallelism to such large samples. A single large image is partitioned along the patch dimension
+across multiple devices, and attention is computed by gathering key–value pairs (gather-KV) across CP ranks. In
+addition, we divide each CP group into several sub-CP groups and distribute multiple large images across them in a
+load-balanced manner, preventing the communication fraction from growing with scale. This reduces both the encoder
+latency of large visual samples and the cross-device load imbalance, allowing the remaining encoder computation to be
+hidden in pipeline bubbles.
+Encoder computation in PP bubblesIn Kimi K2.5, we introduced the Decoupled Encoder Process (DEP) [60],
+which splits ViT and text training into separate stages and balances vision forward and backward passes across PP stages.
+We observe that, under the interleaved 1F1B pipeline schedule, the text forward passes of the first PP micro-batches
+are all scheduled at the very beginning, while the text backward passes of the last PP micro-batches finish only at
+the very end. We therefore further decompose the ViT computation [34]. The ViT forward passes of the first PP
+micro-batches are executed synchronously upfront, the remaining forward passes are scheduled into pipeline bubbles,
+and the backward passes are handled analogously. As a result, most of the ViT computation is hidden within pipeline
+bubbles, largely eliminating the effective overhead of the vision encoder.
+5.3 Infra for 1M Agentic RL
+Scaling agentic RL for a model as large as Kimi K3 to million-token contexts under a bounded compute budget makes
+resource efficiency a first-order goal. We therefore develop long-context RL infrastructure for efficient training and
+rollout, together with high-performance, resumable sandboxes for long-horizon environment interaction.
+5.3.1 Long-context RL infrastructure
+We adopt co-located RL training [59] to keep each 1M-context Kimi K3 RL experiment within a few hundred GPUs, and
+use partial rollouts [120] to reduce tail latency from ultra-long trajectories. This design improves hardware utilization,
+but long-context rollouts introduce extra DRAM demand for KV-cache retention, which competes with training-side
+states. Further, achieving high efficiency for both prefill and decoding requires careful prefix management and request
+scheduling.
+External KV cache poolAt 1M-context multi-step rollout, a prefix KV-cache miss is extremely expensive. Partial
+rollout exacerbates this issue at the beginning of each iteration, due to many unfinished long prefill requests from the
+previous iteration arriving at the same time. Speculative decoding further accelerates request turnover within relatively
+fixed tool-call intervals, increasing prefix-block churn. These issues can trigger preemption and lower the cache hit rate,
+which is critical for long-context RL.
+We therefore decouple prefix retention from GPU residency with a write-back design. Active decoding blocks remain in
+GPU KV cache, while reusable idle prefixes are written back to anexternal KV cache poolin CPU DRAM only when it
+is evicted from GPU, and is prefetched back before the next reuse. KDA states are offloaded and prefetched together
+with the corresponding MLA KV cache blocks, keeping their lifecycles aligned. Compared with a write-through
+strategy, this policy incurs CPU DRAM usage and transfer bandwidth only for prefixes that leave the active decode
+path, avoiding redundant CPU copies of blocks that are still resident and active on GPU.
+To provide sufficient DRAM for the external pool, we offload training states (model weights and optimizer states) to
+NVMe after a training iteration finishes. After a rollout iteration, the pool is released to avoid contention with training
+workloads.
+Rollout auto-throttling schedulerIn multi-step rollout, contexts grow progressively as the trajectory advances,
+making fixed concurrency based on the full-trajectory average length both hard to estimate and overly conservative
+early on. Conversely, setting concurrency too high creates KV cache pressure in later stages and can trigger preemption.
+We therefore design an auto-throttling mechanism at the LLM request scheduling layer, using runtime signals such as
+active request count, queued request count, and KV cache utilization to dynamically control how many requests are sent
+to the inference engine. This keeps early rollout well utilized while reducing concurrency as KV cache pressure rises,
+avoiding both under-saturation and overload without manual tuning.
+21

@@ -1,0 +1,51 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+To mitigate the overhead of the latent GEMMs, we adopt three optimizations. First, we fuse the latent down-projection
+with the MoE router into a single GEMM. Second, we shard latent weight matrices across ranks and fuse the output
+all-gather into the GEMM epilogue using multimem store instructions. Finally, we overlap the resulting communication
+with other operators, such as the shared-expert computation. Together, these optimizations eliminate redundant weight
+traffic and duplicated computation, while hiding the communication latency behind computation.
+For routed experts, at small batch sizes, the group GEMMs reduce to memory-bound streaming of weight matrices
+— a regime for which conventional tile-centric kernels are poorly suited due to their compute-oriented design and
+preprocessing overheads. We instead build the MoE decoding kernel upon the token-centric design of WarpDecode [12],
+in which each warp is responsible for one output neuron and streams the associated weights directly from memory. To
+further increase parallelism, we subdivide each warp into finer-grained lane teams, each processing a disjoint subset of
+experts, followed by a warp-wide reduction of the partial results. In addition, the weight layout is permuted offline at a
+one-time preprocessing cost, substantially reducing the runtime dequantization overhead.
+5.4.3 Fleet-Level Scheduling
+Beyond a single serving instance, the challenge shifts from per-request efficiency to predictability: a prefix-cache miss
+costs orders of magnitude more than a hit, and a burst of million-token requests can starve short ones. We propose two
+fleet-level scheduling policies to address this: cache-aware affinity scheduling routes each session to the cluster holding
+its prefix cache while bounding the cost of cluster failures, and budget-based admission control grants each request
+class its own resource budget so that bursty long-context traffic cannot degrade system-wide SLOs.
+Cache-aware affinity schedulingAt 1M context, a typical coding input carries a prefix of 400K tokens but requires a
+prefill increment of only 4K tokens, so a prefix-cache hit avoids re-prefilling the entire prefix and is orders of magnitude
+cheaper than a miss. We therefore route each request to the cluster that holds its prefix cache, as moving the cache
+to another cluster would require transferring it over inter-cluster links far slower than the intra-cluster fabric. This
+cache-aware affinity, however, binds each session to a single cluster, whose failure would interrupt all sessions bound to
+it. Consistent hashing therefore pins each session to two clusters, a primary that serves its traffic and a pre-assigned
+secondary that takes over when the primary fails. The secondary holds none of the session’s prefix cache and must
+re-prefill it upon failover. Since consistent hashing distributes the secondary assignments of different sessions uniformly
+across the fleet, this re-prefill work is divided among many clusters rather than concentrated on one. Cache locality is
+thus preserved in the common case, while the impact of any single cluster failure remains bounded.
+Budget-based admission controlProduction traffic mixes short requests under 2K tokens with ultra-long requests up
+to 1M tokens, so the per-request cost spans roughly three orders of magnitude and the total load imposed by any fixed
+number of requests is highly unpredictable. Capacity planning, queueing models, and rate-limiting quotas based on
+the “average request” all break down under this variance. In a typical failure mode, a burst of long-context requests
+saturates the available compute, and short requests arriving afterwards cannot be scheduled promptly, degrading time to
+first token (TTFT) across all traffic. We therefore adopt budget-based admission control, allocating separate resource
+budgets to different request classes so that bursty long-context traffic consumes at most its own share of the capacity
+and cannot degrade system-wide SLOs experienced by other classes.
+6 Evaluations
+6.1 Main Results
+6.1.1 Benchmarks
+We evaluate Kimi K3 on a comprehensive benchmark suite organized along four broad capability axes:
+• Reasoning & Knowledge: GPQA Diamond [102], CritPt [8], AA-LCR [9], and Humanity’s Last Exam (HLE-Full,
+with and without tools) [94].
+•Coding: DeepSWE [31], ProgramBench [96], Terminal-Bench 2.1 [79], FrontierSWE [36], SWE-Marathon [119],
+PostTrainBench [95], MLS-Bench-Lite [77], and SciCode [123, 8].
+•Agentic: BrowseComp [133], DeepSearchQA [128], ResearchRubrics [107], Toolathlon-Verified [70], MCPMark-
+Verified [135], MCP-Atlas [11], AutomationBench [109], JobBench [71], GDPval-AA v2 [91], AA-Briefcase [8,
+2], Agents’ Last Exam (ALE) [4, 117], APEX-Agents [129], OfficeQA Pro [88], SpreadsheetBench 2 [152],
+OSWorld-Verified [138] and OSWorld 2.0 [145], SaaS-Bench [110],τ 3-Banking [1, 8], Harvey Lab-AA [8, 43],
+CorpFin v2 [21], Finance Agent v2 [35], and Legal Research Bench [66].
+25

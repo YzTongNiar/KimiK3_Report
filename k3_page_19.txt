@@ -1,0 +1,126 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 31 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+1 2 3
+5 64
+4 5 6
+5 64
+5 64
+4 5 6 5 64 5 64
+5 64
+5 64
+4 5 6
+4 5 6
+5 64
+5 64
+5 64
+5 64
+6
+5 6
+5 64
+54
+4
+6
+5 6
+5 64
+54
+4
+6
+5 6
+5 64
+54
+4
+1
+2
+3
+4
+56
+4
+5
+6
+1
+2 3
+DL
+Forward pass Backward pass Remote Offload/Onload SE1SE2 Shared Expert Stage1
+& Stage2 fwd/bwd EP-DEP-CEP-CEP-D EP dispatch &
+combine fwd/bwdSE2SE1Remote offload
+from PP0 to PP2 EP-DREP dispatch recompute
+     Local Activation Offload
+                  EP Comm
+   Remote Activation Offload
+              NCCL Comm
+                Computation SE2
+EP-C
+MLP
+EP-DR
+WGradSE1 Attn
+EP-DEP-C
+Onload
+Attn
+EP-D
+SE1 MLP SE2
+Offload
+reduce grad (reduce_scatter + onload + add + offload)
+ViT bwd
+reduce grad
+DataLoader ViT fwd
+gather paramgather param
+Figure 11: Computation, communication and offloading overlapped in different PP phases.
+The MoE layers employ shared experts replicated across EP ranks, and the all-to-all communication for expert dispatch
+and combine is overlapped with computation to hide its latency.
+Natively multimodal pre-training at the 3T-class poses three critical problems: (i) token loads are imbalanced across
+EP ranks; (ii) activations, gradients, and optimizer states exceed the memory budget; and (iii) the vision encoder’s
+highly variable computation is exposed on the critical path. The following subsections address these problems in turn:
+perfectly balanced expert-parallel MoE training (§5.2.1), memory-efficient training (§5.2.2), and multimodal encoder
+optimization (§5.2.3). Fig. 11 illustrates the resulting execution schedule.
+5.2.1 Perfectly Balanced Expert-Parallel MoE Training
+In conventional EP schemes, token loads are imbalanced across ranks. The resulting computational imbalance
+degrades training throughput, and the dynamically varying shapes of routed-expert activations cause substantial memory
+fragmentation. We therefore propose MoonEP 3, an EP scheme that achieves perfect load balance with dynamic
+redundant experts. MoonEP preserves the overall computation flow of conventional schemes such as DeepEP [149]
+and additionally introduces online planning and migration of redundant experts. In the forward pass, we plan the
+redundant experts from the router outputs of the current micro-batch and layer and prefetch them before the routed-
+expert computation. In the backward pass, we stage their gradients in a local reduce buffer and, once the computation
+completes, reduce them back to the gradient buffers of their home ranks.
+Perfect balance with bounded redundant expertsMoonEP requires every rank to receive exactly S×K tokens,
+where S is the sequence length and K is the number of experts selected per token, so that all ranks perform identical
+amounts of computation. The key question is how many redundant experts suffice to guarantee such a balance. Let E
+be the number of experts and R the EP size. We prove that a balanced plan always exists with at most E/R redundant
+experts per rank and that this bound is essentially tight (§ E). Reserving E/R redundant-expert slots per rank therefore
+guarantees that planning always admits a feasible solution, so training is never interrupted. In contrast, prior work such
+as ECHO [139] and UltraEP [134] presets the number of redundant experts or imposes a per-rank token cap. Training is
+then forced to stop whenever no feasible plan exists within the cap, and the cap itself requires manual tuning while still
+leaving residual imbalance.
+Online planningComputing the exact optimum at every training step is prohibitively expensive. We therefore
+compute exact solutions offline with integer linear programming (ILP) for representative cases as references and design
+a GPU planning kernel that is near-optimal, incurs negligible overhead, and always respects theE/Rupper bound.
+Zero-copy communicationPerfect balance also simplifies the communication path. We implement a fused per-
+mute/unpermute operator in which the planning kernel precomputes the destination of every token, so tokens are sent
+directly to their expert-grouped positions on remote ranks, and views of the communication buffer are returned directly
+to the computation, eliminating intermediate copies. Under worst-case imbalance, supporting the same copy-free data
+path in DeepEP requires a communication buffer of size S×K×R , whereas MoonEP requires only a fixed S×K
+buffer owing to the perfect balance.
+Sync-free execution with static shapesIn conventional MoE implementations, the per-expert token counts vary
+across steps and layers, and the host must synchronize with the device at every layer to obtain the actual computation
+3https://github.com/MoonshotAI/MoonEP
+19

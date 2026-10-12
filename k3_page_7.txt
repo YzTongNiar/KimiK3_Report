@@ -1,0 +1,80 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Gate branch Up branch Curve
+GLU [26]σ(x)x
+x
+f(x)
+−10 50 1000
+100
+|f(x)| ≤β 1 β2 = 100
+SwiGLU
+SiTU-GLU GLU
+SwiGLU [108]x·σ(x)x
+SiTU-GLU β1 tanh
+
+x
+β1
+
+·σ(x)β 2 tanh
+
+x
+β2
+
+Figure 4: Gate and up branches of GLU, SwiGLU, and SiTU-GLU, together with their scalar responses, where σ denotes the
+sigmoid function. Both branches receive the scalar input x, and all curves share the domain x∈[−10,100] ; the inset magnifies the
+near-origin region. SiTU-GLU, shown in red with β1 = 4 and β2 = 25, closely follows SwiGLU near the origin and approaches the
+bound|f(x)| ≤β 1β2 = 100for large positive inputs, whereas SwiGLU remains unbounded.
+bias updates remain well behaved. Stable LatentMoE addresses these two failure modes with three components: an
+RMSNorm before the up-projection and Sigmoid Tanh Unit GLU (SiTU-GLU) to suppress activation explosion, and
+Quantile Balancing (QB) for load balancing.
+As illustrated in Fig. 2, the layer follows the shared- and routed-expert organization of DeepSeekMoE [23]. Forx∈R d,
+the shared experts process x directly, while the routed path projects it to z=W ↓x∈R ℓ, dispatches z to the selected
+experts, and maps their weighted aggregate back toR d throughW ↑:
+u=
+X
+i∈Tk(x)
+piErouted
+i (W↓x),
+y=
+NsX
+j=1
+Eshared
+j (x) +W ↑ RMSNorm(u).(11)
+Here, u∈R ℓ is the aggregated routed representation, Eshared
+j :R d →R d and Erouted
+i :R ℓ →R ℓ are the shared and
+routed expert feed-forward networks, and pi is the router weight defined by the Quantile Balancing rule below. Kimi
+K3 fixes the number of full-width shared experts toN s = 2in every layer.
+2.3.1 Normalized LatentMoE
+The original LatentMoE directly applies W↑ to the aggregated routed representation u, whose scale can vary with the
+selected experts and their routing weights. As shown in Eq. 11, Kimi K3 instead inserts RMSNorm [148] between
+expert aggregation and the up-projection. This normalization reduces the sensitivity of the routed branch to scale
+variation before it is combined with the full-width shared branch. Beyond stabilizing training, the additional RMSNorm
+consistently improves validation loss and downstream benchmarks.
+2.3.2 Sigmoid Tanh Unit GLU
+Gated Linear Units (GLUs) modulate a linear value branch with a sigmoid-activated gate, computingSigmoid(Wgx)⊙
+Wux [26]. SwiGLU replaces the sigmoid gate withSwish(x) =xSigmoid(x) and yields strong empirical performance
+in Transformers [108]. SwiGLU has subsequently become a widely adopted FFN design in large language models,
+while a complete account of its empirical effectiveness remains open.
+However, both multiplicative factors in SwiGLU are unbounded, so coincident large coordinates can produce activation
+outliers and increase overflow risk in low-precision arithmetic. The sigmoid gate of the original GLU avoids unbounded
+gate growth, but it does not retain the approximately linear positive regime of Swish. This motivates an activation that
+controls large-value growth while preserving the characteristic local and positive-side response of SwiGLU. Other
+recent efforts have explored alternative parameterizations of this trade-off [52].
+To satisfy these requirements, we propose Sigmoid Tanh Unit GLU (SiTU-GLU). SiTU-GLU applies the smooth cap
+softcap(x, β) =βtanh(x/β)to the linear factor of the Swish gate and independently to the up branch:
+SiTU-GLU(x) =
+
+β1 tanh
+Wgx
+β1
+
+⊙Sigmoid(W gx)
+
+⊙
+
+β2 tanh
+Wux
+β2
+
+,(12)
+7

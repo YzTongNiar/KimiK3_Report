@@ -57,10 +57,10 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>结构定位</strong>：Delta 规则 + 逐通道遗忘门；每 block = 3×KDA + 1×Gated MLA，69 层 KDA（占 74%）；定长状态 S(dk×dv) 替代 KV Cache —— 1M 上下文的内存基础</li>
-        <li style="margin-top:4px"><strong>改动① 有界衰减</strong>：g = −5·σ(e<sup>A</sup>·z) 替代无下界的 −e<sup>A</sup>·Softplus(z)；16-token 子块累计衰减 ∈(−80, 0)，重标定因子 &lt; e<sup>80</sup> ≈ 5.5×10<sup>34</sup>，落入 BF16 动态范围 → 对角块改用稠密 matmul，消除 position-pair 标量路径</li>
-        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：y = W<sub>o</sub>[σ(W<sub>g</sub>·x) ⊙ RMSNorm(õ)] 替代低秩门，新增 d×H·dv 稠密 GEMM；计算形态推向“全稠密 matmul”，CUBE 依赖上升</li>
-        <li style="margin-top:4px"><strong>负载特征</strong>：chunk 内并行（C = 64）+ chunk 间串行；prefill 每 token 注意力 FLOPs 由 O(L) 降为 O(C)；decode 瓶颈转为原地状态更新与回滚</li>
+        <li><strong>结构定位</strong>：Delta 规则线性注意力以定长状态替代 KV Cache → 长上下文的显存与延迟由 \(O(L)\) 降为 \(O(1)\)</li>
+        <li style="margin-top:4px"><strong>改动① 有界衰减</strong>：逐通道衰减约束在有界区间 → 数值稳定，对角块计算稠密化、可整体映射到 CUBE</li>
+        <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：以一次标准稠密 GEMM 替换低秩门 → 计算形态统一为 matmul，硬件亲和性增强</li>
+        <li style="margin-top:4px"><strong>负载特征</strong>：Prefill 计算密集（chunk 内并行）、Decode 访存密集（状态原地更新）→ 优化重心从算力转向状态管理</li>
         </ul>
   - elementId: arch-label
     elementType: text
@@ -100,9 +100,9 @@ elements:
       text: 参数、FLOPs 与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 208, 436, 196]
-    columnWidths: [0.24, 0.26, 0.17, 0.33]
-    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    bounds: [488, 208, 436, 216]
+    columnWidths: [0.20, 0.25, 0.16, 0.39]
+    rowHeights: [0.08, 0.154, 0.153, 0.153, 0.153, 0.153, 0.154]
     style: $param
     rows:
       - - text: 组件
@@ -110,32 +110,72 @@ elements:
         - text: FLOPs/token
         - text: 负载特征 → 昇腾诉求
       - - text: q/k/v 投影 + ShortConv（k=4）
-        - text: x∈R<sup>7168</sup> → q,k∈R<sup>H·dk</sup>，v∈R<sup>H·dv</sup>
-        - text: 2d·H(2dk+dv)
-        - text: 稠密 GEMM → CUBE；decode 退化为 GEMV，访存受限
+        - text: |
+            <p>\(x\in\mathbb{R}^{d}\rightarrow q,k\in\mathbb{R}^{Hd_k}\)</p>
+            <p>\(v\in\mathbb{R}^{Hd_v}\)</p>
+        - text: |
+            \(2dH(2d_k+d_v)\)
+        - text: |
+            <ul>
+            <li>• Prefill 为稠密 GEMM，计算密集 → 要求 CUBE 算力</li>
+            <li>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</li>
+            </ul>
       - - text: 遗忘门 z + 写入强度 β
-        - text: 低秩 d→r→H·dk；d→H
-        - text: ≈2d·r（占比小）
-        - text: 小 GEMM + σ/exp 逐元素 → Vector 核
+        - text: |
+            <p>低秩 \(d\rightarrow r\rightarrow Hd_k\)</p>
+            <p>\(d\rightarrow H\)</p>
+        - text: |
+            \(\approx 2dr\)（占比小）
+        - text: |
+            <ul>
+            <li>• 小 GEMM + 逐元素 σ/exp → Vector 核承担</li>
+            <li>• 计算占比小 → 宜融合进主 kernel</li>
+            </ul>
       - - text: 有界衰减 <span style="color:$primary">①</span>
-        - text: g = −5·σ(e<sup>A</sup>·z) ∈(−5, 0)
-        - text: O(H·dk)，逐元素
-        - text: 纯 Vector；使对角块可上 CUBE，消除 position-pair 标量路径
+        - text: |
+            \(g=-5\sigma(e^{A}z)\in(-5,0)\)
+        - text: |
+            \(O(Hd_k)\)，逐元素
+        - text: |
+            <ul>
+            <li>• 纯 Vector 逐元素 → 不占 CUBE</li>
+            <li>• 对角块稠密化 → 可上 CUBE</li>
+            </ul>
       - - text: Chunk 内注意力
-        - text: A = Tril((Q⊙Γ)(K/Γ)<sup>⊤</sup>)；C = 64
-        - text: 2C(dk+dv)，与 L 无关
-        - text: 全稠密 matmul → CUBE 占比↑（原对角块为 chunk 内主要瓶颈）
+        - text: |
+            <p>\(A=\mathrm{Tril}((Q\odot\Gamma)(K/\Gamma)^{\top})\)</p>
+            <p>\(C=64\)</p>
+        - text: |
+            \(2C(d_k+d_v)\)
+        - text: |
+            <ul>
+            <li>• 稠密 matmul，与 L 无关 → CUBE 占比提升</li>
+            <li>• tile 64×128 → 匹配 CUBE 分块</li>
+            </ul>
       - - text: 跨 chunk 状态传播
-        - text: S ∈ R<sup>dk×dv</sup>，chunk 间串行
-        - text: 2·dk·dv
-        - text: 小矩阵 + 串行依赖 → 并行度低，需 kernel 内流水掩盖
-      - - text: 全秩输出门 + W<sub>o</sub> <span style="color:$primary">②</span>
-        - text: "W<sub>g</sub>: d×H·dv；W<sub>o</sub>: H·dv×d"
-        - text: 4d·H·dv
-        - text: 新增标准稠密 GEMM → CUBE 友好；参数量 +d·H·dv
+        - text: |
+            \(S\in\mathbb{R}^{d_k\times d_v}\)，串行
+        - text: |
+            \(2d_kd_v\)
+        - text: |
+            <ul>
+            <li>• 小矩阵串行依赖 → CUBE 利用率低</li>
+            <li>• 需 kernel 内流水掩盖 → 调度诉求</li>
+            </ul>
+      - - text: 全秩输出门 + \(W_o\) <span style="color:$primary">②</span>
+        - text: |
+            <p>\(W_g:d\times Hd_v\)</p>
+            <p>\(W_o:Hd_v\times d\)</p>
+        - text: |
+            \(4dHd_v\)
+        - text: |
+            <ul>
+            <li>• 标准稠密 GEMM → CUBE 友好</li>
+            <li>• 参数量 \(+dHd_v\) → 显存略增</li>
+            </ul>
   - elementId: param-note
     elementType: text
-    bounds: [488, 410, 436, 24]
+    bounds: [488, 430, 436, 22]
     content:
       fontSize: 7.5
       color: $gray
@@ -143,8 +183,8 @@ elements:
       lineHeight: 1.35
       align: [left, top]
       text: |
-        <p>显存：KDA 每层状态 H·dk·dv×2B（定长，与 L 无关）；24 层 MLA 的 KV Cache 随 L 线性增长，1M 上下文下为主要显存项。</p>
-        <p>注：d = 7168、H = 96（报告 Table 1）；dk / dv 以 checkpoint config 为准；FLOPs 按 chunkwise 公式推算。</p>
+        <p>显存：KDA 每层状态 \(Hd_kd_v\times 2\mathrm{B}\)（定长，与 L 无关）；24 层 MLA 的 KV Cache 随 L 线性增长，1M 上下文下为主要显存项。</p>
+        <p>注：\(d=7168\)、\(H=96\)（报告 Table 1）；\(d_k\) / \(d_v\) 以 checkpoint config 为准；FLOPs 按 chunkwise 公式推算。</p>
   - elementId: dev-label
     elementType: text
     bounds: [44, 446, 300, 15]

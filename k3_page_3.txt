@@ -1,0 +1,79 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+KDA
+Stable LatentMoE
+Gated MLA
+Stable LatentMoE
+α
+w
+α
+w
+α
+w
+α
+w
+αw
+Output
+Blockn−1
+Blockn−2
+Embedding
+3×
+1×
+Shared Expert
+Routed Expert
+1 2 21 3 N
+Router Linear
+Linear
+Norm
+MLP
+MoonViT-V2
+Kimi Delta Attention
+Norm
+Linear
+Linear
+Conv
+L2
+Linear
+Conv
+L2
+Linear
+Conv σ σ
+Linear
+σ
+q k v α β
+α
+α
+α
+α
+α
+w
+w
+w
+w
+w
+KDA
+Stable LatentMoE
+Gated MLA
+Stable LatentMoE
+Blockn−1
+Blockn−2
+Embedding
+Figure 2: The Kimi K3 architecture, organized around token, channel, and layer mixing, with a native vision pathway at the input.
+Each block contains three Kimi Delta Attention (KDA) layers followed by one Gated MLA layer, with each attention layer paired
+with a Stable LatentMoE feed-forward network. Attention Residuals (AttnRes) use learned pseudo-queries (w) to derive attention
+weights (α) over the embedding and preceding block outputs, enabling selective information flow across depth.Top left: the Stable
+LatentMoE module with shared and routed experts.Bottom left: the KDA module.Bottom right: the native vision pathway.
+2 Model Architecture
+The Kimi K3 architecture is designed to scale information flow along three complementary dimensions: sequence
+length, network depth, and model width. Along the sequence dimension, Hybrid Attention combines three Kimi Delta
+Attention (KDA) [64] layers with one Gated MLA layer in each block, providing an efficient mechanism for long-context
+token mixing while retaining selective high-capacity attention (§2.1). Along the depth dimension, Attention Residuals
+(AttnRes) [58] enable each module to selectively retrieve representations from the embedding, the current block, and
+preceding blocks, extending information access beyond conventional sequential residual accumulation (§2.2). Along
+the width dimension, each attention layer is followed by a Stable LatentMoE layer that performs sparse channel mixing,
+effectively activating 16 of 896 routed experts for each token (§2.3). For native vision, MoonViT-V2 encodes images
+and videos, and a lightweight projector maps the resulting visual features into the shared embedding space before
+backbone processing (§2.4). Together with Per-Head Muon (§2.5), these components provide a unified architecture for
+scaling information flow across tokens, layers, and channels. Combined with refined training and data recipes, they
+yield an approximately 2.5× improvement in overall scaling efficiency over Kimi K2. Figure 2 provides an overview of
+the architecture.
+3

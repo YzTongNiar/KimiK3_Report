@@ -1,0 +1,45 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+0 25 50 75 100
+0
+25
+50
+75
+100
+Normalized executor tool-call progress (%)
+Completion curve (%)
+Camera Repair Management System Replication
+Kimi K3 (1.000)
+Opus 4.8 (0.918)
+GPT-5.5 (0.893)
+Kimi K2.6 (0.560)
+Figure 10: Completion curves on Camera Repair Management System, a black-box system replication task in which the agent
+reconstructs a hidden 3D-camera repair system as a web application through oracle queries. Completion denotes verifier-assessed
+task progress.
+5 Infrastructure
+Kimi K3 combines three system challenges rarely encountered in a single model: hybrid KDA attention, 3T-class
+sparse multimodal training and inference, and million-token agentic workloads. Our infrastructure is co-designed with
+these challenges across the model lifecycle. At the architecture level, high-performance KDA kernels and Context
+Parallelism make the recurrent formulation efficient within and across devices, in both training and inference. During
+pretraining, balanced expert execution, reduced memory footprint, and communication-overlapped scheduling sustain
+high utilization at scale. During 1M-token agentic RL, hierarchical state management and resumable sandbox execution
+preserve long trajectories across iterations. Finally, state-aware KDA prefix caching, specialized inference kernels, and
+cache- and budget-aware scheduling translate these efficiencies into predictable production serving.
+5.1 Algorithm-System Co-Design for KDA
+KDA replaces the growing key–value cache of softmax attention with a fixed-size recurrent stateS∈R dk×dv (§2.1.1),
+whose serial update poses challenges in parallel execution, in exchange for a fixed-size state that is cheap to transfer
+and reuse. The designs below address the first property and exploit the second at two levels of execution, with fused
+kernels within a device and KDA Context Parallelism across devices.
+5.1.1 KDA Kernels across Regimes
+The serial dependence of the KDA state is at odds with the GPU’s preference for wide, uniform parallelism, and it
+manifests as a different bottleneck in each execution regime. We design a dedicated kernel for each regime.
+Chunkwise kernel for training and prefillThe chunkwise form of KDA is parallel within each chunk but serial
+across chunks, since the recurrent state must propagate from chunk to chunk. Executed naively, these two phases
+alternate, leaving the SMs idle during the serial propagation. We therefore develop FlashKDA [14], a CUTLASS-based
+chunkwise kernel that overlaps intra-chunk computation with cross-chunk state propagation. The kernel decomposes
+the work into token-parallel stages and a head-parallel recurrence, each scheduled and tuned independently, and
+substantially outperforms the Triton reference implementation. FlashKDA serves both training and inference prefill and
+is auto-dispatched as a backend of flash-linear-attention [141].
+Intra-device context parallelism for long-context prefillTensor parallelism partitions heads across devices but
+never shortens the recurrence, so under pure TP deployment, prefilling an ultra-long sequence leaves most SMs idle
+when each rank holds only a few heads. The key observation is that the state transition of each segment can be evaluated
+17

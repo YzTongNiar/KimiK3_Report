@@ -1,0 +1,41 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+1020 1021
+2.5×
+FLOPs
+Validation Loss
+Kimi K2
+Kimi K3
+Figure 7: Fitted scaling-law curves for Kimi K2 and Kimi K3. Kimi K3 achieves2.5×gain in scaling efficiency over Kimi K2.
+Table 1: Architectural comparison between Kimi K2 and Kimi K3.
+Kimi K2 Kimi K3∆
+Architecture MoE MoE –
+#Layers 61 93↑52%
+Total Parameters 1.04T 2.78T↑167%
+Activated Parameters 32.6B 104.2B↑220%
+Hidden Dimension 7,168 7,168=
+Latent MoE Dimension – 3584 (0.5×) –
+MoE Hidden Dimension per Expert 2,048 3,072↑50%
+Routed Experts 384 896↑133%
+Experts Active per Token 8 16↑100%
+Shared Experts 1 2↑100%
+Attention Heads 64 96↑50%
+Number of Dense Layers 1 1=
+V ocabulary Size 160K 160K=
+Training Context Length 128K 1M8×
+Attention Mechanism MLA Hybrid KDA–MLA –
+Activation Function SwiGLU SiTU-GLU –
+Attention-Layer Composition 61 MLA 69 KDA + 24 MLA –
+Number of MTP Layers 1 layer 1 layer=
+Total Parameters of ViT - 401M -
+#ViT Layers - 27 layers -
+Patch Size of ViT - 14 -
+#Attention Heads of ViT - 12 -
+3.3 Training Recipe
+Kimi K3 adopts a native multimodal training strategy in which language and vision are jointly optimized from the start
+of training, rather than grafting a vision encoder onto a pre-trained language model through a post-hoc alignment stage.
+Under this paradigm, visual and textual tokens are interleaved within a single next-token prediction objective, enabling
+the shared backbone to learn unified multimodal representations from the outset.
+We optimize the model using the Per-Head Muon optimizer (§ 2.5) together with the weight-clipping mechanism
+introduced in Kimi K2, while adopting QB (§ 2.3.3) for MoE load balancing. We use a cosine learning rate schedule
+with a1%linear warmup. Weight decay is set to0.1throughout.
+11

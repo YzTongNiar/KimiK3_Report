@@ -1,0 +1,55 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+construct different harness configurations for different task groups, exposing Kimi K3 to diverse combinations of these
+modules rather than the conventions of any single harness. The same abstraction also readily supports RL across various
+task domains, providing a scalable foundation for training more general-purpose agents.
+4.2.2 Knowledge-Graph-Guided Task Synthesis
+Motivation and overviewThe quality and diversity of post-training tasks are largely determined by their source
+materials. Retrieval guided by fine-grained concepts surfaces specialized and underrepresented knowledge, while
+sampling across diverse concepts broadens domain coverage. To control both granularity and coverage at scale, we
+build a self-evolving, hierarchically organized knowledge graph that agents continuously expand through web-scale
+exploration across knowledge-intensive and coding domains. Figure 9 illustrates the task synthesis pipeline.
+CS/AI
+Coding
+··· and more
+Chemistry
+Physics
+Math
+Humanities
+Biomedicine
+more layers
+Keyword Set
+sample related keys jointly
+RoPE GPU kernel ···
+Material Retrieval
+fetch public materials from the internet
+···
+Academic article
+Blog post
+Code repo
+Task Synthesis
+choose one task type per instance
+Coding
+Knowledge
+Vision
+··· and more
+Figure 9: Overview of knowledge-graph-guided task synthesis. The hierarchically organized knowledge graph represents concepts at
+multiple levels, ranging from broad domains to fine-grained concepts. Related nodes are sampled to form a keyword set that guides
+the retrieval of publicly available source materials. For each synthesis instance, the system selects a task type and uses the retrieved
+materials to synthesize a corresponding task.
+Agentic knowledge graph constructionWe construct the knowledge graph as a directed acyclic graph through
+recursive, agent-driven expansion. The expansion process begins with a predefined set of coarse-grained seed nodes.
+An agent instance is then assigned to each node and performs multiple web searches to investigate the corresponding
+concept. Before adding new nodes, the agent explores the existing graph to identify equivalent or related concepts,
+reuse existing nodes where appropriate, and minimize duplication. Edges are always directed from the coarser concept
+to the finer one, regardless of which endpoint the agent discovers first. Newly added nodes are subsequently assigned to
+agents for further exploration. A branch stops expanding when the assigned agent determines that the current concept is
+sufficiently atomic.
+Material retrieval and task synthesisTo target a desired distribution across domains and task types, the system
+samples nodes at varying levels of granularity, either individually or in related combinations. Keywords derived from
+the sampled nodes are combined with contextual information from their ancestors in the knowledge graph to formulate
+web queries. The retrieved real-world materials are assembled so that a synthesis agent produces training tasks of
+various task types.
+4.2.3 Verifiable Problems in Agentic Environments
+We train Kimi K3 on verifiable problems in agentic environments; representative examples include multi-step complex
+information searching, where the model plans its research, gathers evidence from the web step by step, and produces
+15

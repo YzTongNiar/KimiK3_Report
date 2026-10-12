@@ -1,0 +1,55 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+References
+[1]τ 3-Banking. Sierra. 2026.URL:https://taubench.com/blog/tau-knowledge.html.
+[2] AA-Briefcase: Agentic Knowledge Work Benchmark. Artificial Analysis. 2026.URL: https : / /
+artificialanalysis.ai/evaluations/aa-briefcase.
+[3] Alexandru Agache et al. “Firecracker: Lightweight Virtualization for Serverless Applications”. In:17th USENIX
+Symposium on Networked Systems Design and Implementation (NSDI). 2020, pp. 419–434.
+[4]Agents’ Last Exam. UC Berkeley RDI. 2026.URL:https://agents-last-exam.org/leaderboard.
+[5] Jason Ansel et al. “PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation
+and Graph Compilation”. In:Proceedings of the 29th ACM International Conference on Architectural Support
+for Programming Languages and Operating Systems (ASPLOS). 2024.DOI:10.1145/3620665.3640366.
+[6] Anthropic.Claude’s Extended Thinking. https://www.anthropic.com/research/visible-extended-
+thinking. Accessed: 2026-07-23. Feb. 2025.
+[7] Anthropic.Introducing Claude 4. https://www.anthropic.com/news/claude-4. Accessed: 2026-07-23.
+May 2025.
+[8]Artificial Analysis. Artificial Analysis. 2026.URL:https://artificialanalysis.ai/.
+[9] Artificial Analysis Long Context Reasoning (AA-LCR). Artificial Analysis. 2026.URL: https : / /
+artificialanalysis.ai/evaluations/artificial-analysis-long-context-reasoning.
+[10] Dzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio.Neural Machine Translation by Jointly Learning to
+Align and Translate. 2014. arXiv:1409.0473 [cs.CL].URL:https://arxiv.org/abs/1409.0473.
+[11] Chaithanya Bandi et al.MCP-Atlas: A Large-Scale Benchmark for Tool-Use Competency with Real MCP
+Servers. 2026. arXiv:2602.00933 [cs.SE].
+[12] Better MoE Model Inference with Warp Decode. Cursor. 2026.URL: https://cursor.com/blog/warp-
+decode(visited on 07/20/2026).
+[13] Liang Chen et al.BabyVision: Visual Reasoning Beyond Language. 2026. arXiv: 2601.06521 [cs.CV].URL:
+https://arxiv.org/abs/2601.06521.
+[14] Yutian Chen et al.FlashKDA: Flash Kimi Delta Attention. 2026.URL: https://github.com/MoonshotAI/
+FlashKDA.
+[15]Claude Code. Anthropic. 2026.URL:https://docs.anthropic.com/en/docs/claude-code.
+[16] Claude Fable 5. Anthropic. 2026.URL: https://www.anthropic.com/news/claude-fable-5-mythos-
+5.
+[17]Claude Opus 4.8. Anthropic. 2026.URL:https://www.anthropic.com/news/claude-opus-4-8.
+[18] Claude Sonnet 5. Anthropic. 2026.URL: https : / / www - cdn . anthropic . com /
+283ef97c476cf442c91d9a37d5b214242a55bb92/Claude%20Sonnet%205%20System%20Card.pdf.
+[19]Claude Sonnet 5. Anthropic. 2026.URL:https://www.anthropic.com/news/claude-sonnet-5.
+[20]Codex. OpenAI. 2026.URL:https://github.com/openai/codex.
+[21]CorpFin v2. Vals AI. 2026.URL:https://www.vals.ai/benchmarks/corp_fin_v2.
+[22]cuBLAS. NVIDIA. 2026.URL:https://developer.nvidia.com/cublas.
+[23] Damai Dai et al.DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language
+Models. 2024. arXiv:2401.06066 [cs.CL].URL:https://arxiv.org/abs/2401.06066.
+[24] Tri Dao and Albert Gu. “Transformers are SSMs: Generalized Models and Efficient Algorithms Through
+Structured State Space Duality”. In:CoRRabs/2405.21060 (2024).DOI: 10.48550/ARXIV.2405.21060 .
+arXiv:2405.21060.URL:https://doi.org/10.48550/arXiv.2405.21060.
+[25] Dao AI Lab.ReplaySSM: Cache SSM Inputs, Not State. https://tridao.me/blog/2026/replayssm/ .
+June 2026.
+[26] Yann N. Dauphin et al. “Language Modeling with Gated Convolutional Networks”. In:Proceedings of the 34th
+International Conference on Machine Learning. V ol. 70. Proceedings of Machine Learning Research. PMLR,
+2017, pp. 933–941.URL:https://proceedings.mlr.press/v70/dauphin17a.html.
+[27] Soham De et al.Griffin: Mixing Gated Linear Recurrences with Local Attention for Efficient Language Models.
+2024. arXiv:2402.19427 [cs.LG].URL:https://arxiv.org/abs/2402.19427.
+[28] DeepSeek-AI.DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model. 2024.
+arXiv:2405.04434 [cs.CL].URL:https://arxiv.org/abs/2405.04434.
+[29] DeepSeek-AI. “DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence”. In:arXiv preprint
+arXiv:2606.19348(2026).
+35

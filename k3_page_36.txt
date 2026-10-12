@@ -1,0 +1,56 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+[30] DeepSeek-AI et al.DeepSeek-V3 Technical Report. 2024. arXiv: 2412.19437 [cs.CL] .URL: https://
+arxiv.org/abs/2412.19437.
+[31]DeepSWE Benchmark. Datacurve. 2026.URL:https://deepswe.datacurve.ai/.
+[32] Venmugil Elango et al.LatentMoE: Toward Optimal Accuracy per FLOP and Parameter in Mixture of Experts.
+2026. arXiv:2601.18089 [cs.LG].URL:https://arxiv.org/abs/2601.18089.
+[33] William Fedus, Barret Zoph, and Noam Shazeer. “Switch Transformers: Scaling to Trillion Parameter Models
+with Simple and Efficient Sparsity”. In:Journal of Machine Learning Research23.120 (2022), pp. 1–39.
+[34] Weiqi Feng et al. “Optimus: Accelerating Large-Scale Multi-Modal LLM Training by Bubble Exploitation”.
+In:2025 USENIX Annual Technical Conference (USENIX ATC 25). Boston, MA: USENIX Association, July
+2025, pp. 161–177.ISBN: 978-1-939133-48-9.URL: https://www.usenix.org/conference/atc25/
+presentation/feng.
+[35]Finance Agent v2. Vals AI. 2026.URL:https://www.vals.ai/benchmarks/fabv2.
+[36]FrontierSWE. 2026.URL:https://www.frontierswe.com/.
+[37] Chaoyou Fu et al.Video-MME: The First-Ever Comprehensive Evaluation Benchmark of Multi-modal LLMs in
+Video Analysis. 2024. arXiv:2405.21075 [cs.CV].URL:https://arxiv.org/abs/2405.21075.
+[38]GLM-5.2. Z.ai. 2026.URL:https://z.ai/blog/glm-5.2.
+[39]GPT-5.5. OpenAI. 2026.URL:https://openai.com/index/introducing-gpt-5-5/.
+[40]GPT-5.6 Sol. OpenAI. 2026.URL:https://openai.com/index/previewing-gpt-5-6-sol/.
+[41] Daya Guo et al. “DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning”. In:Nature
+645.8081 (2025), pp. 633–638.ISSN: 1476-4687.DOI: 10 . 1038 / s41586 - 025 - 09422 - z.URL: http :
+//dx.doi.org/10.1038/s41586-025-09422-z.
+[42] Wentao Guo et al.SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations. 2025. arXiv: 2512.
+14080 [cs.LG].URL:https://arxiv.org/abs/2512.14080.
+[43] Harvey LAB: Legal Agent Benchmark. Harvey. 2026.URL: https://www.harvey.ai/blog/introducing-
+harveys-legal-agent-benchmark.
+[44] Kaiming He et al.Deep Residual Learning for Image Recognition. 2015. arXiv: 1512.03385 [cs.CV].URL:
+https://arxiv.org/abs/1512.03385.
+[45]Hermes Agent. Nous Research. 2026.URL:https://hermes-agent.nousresearch.com/docs/.
+[46] Jordan Hoffmann et al.Training Compute-Optimal Large Language Models. 2022. arXiv: 2203 . 15556
+[cs.CL].URL:https://arxiv.org/abs/2203.15556.
+[47] Shengding Hu, Yuge Tu, Xu Han, et al. “MiniCPM: Unveiling the Potential of Small Language Models with
+Scalable Training Strategies”. In: (2024). arXiv:2404.06395 [cs.CL].
+[48] Ailin Huang, Ang Li, Aobo Kong, et al. “Step 3.5 Flash: Open Frontier-Level Intelligence with 11B Active
+Parameters”. In:arXiv preprint arXiv:2602.10604(2026).
+[49] Yanping Huang et al. “Gpipe: Efficient training of giant neural networks using pipeline parallelism”. In:
+Advances in neural information processing systems32 (2019).
+[50] Benoit Jacob et al. “Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only
+Inference”. In:Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR).
+2018, pp. 2704–2713.
+[51] Sam Ade Jacobs et al.DeepSpeed Ulysses: System Optimizations for Enabling Training of Extreme Long
+Sequence Transformer Models. 2023. arXiv: 2309.14509 [cs.LG].URL: https://arxiv.org/abs/2309.
+14509.
+[52] Peijie Jiang et al.PowLU: An Activation Function for Stable Pre-Training of LLMs. 2026. arXiv: 2605.25704
+[cs.CL].URL:https://arxiv.org/abs/2605.25704.
+[53]JobBench: Aligning Agent Work with Human Will. July 24, 2026.URL:https://job-bench.github.io/.
+[54] Keller Jordan et al.Muon: An Optimizer for Hidden Layers in Neural Networks. 2024.URL: https : / /
+kellerjordan.github.io/posts/muon/.
+[55] Jared Kaplan et al.Scaling Laws for Neural Language Models. 2020. arXiv: 2001.08361 [cs.LG] .URL:
+https://arxiv.org/abs/2001.08361.
+[56] Angelos Katharopoulos et al. “Transformers are RNNs: Fast Autoregressive Transformers with Linear Atten-
+tion”. In:Proceedings of ICML. Ed. by Hal Daumé III and Aarti Singh. PMLR, 2020, pp. 5156–5165.URL:
+https://proceedings.mlr.press/v119/katharopoulos20a.html.
+[57]Kimi CLI. Moonshot AI. 2026.URL:https://www.kimi.com/code.
+[58] Kimi Team.Attention Residuals. Preprint. 2026.
+36

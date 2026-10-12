@@ -1,0 +1,57 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+[88] Krista Opsahl-Ong et al. “OfficeQA Pro: An Enterprise Benchmark for End-to-End Grounded Reasoning”. In:
+(2026). arXiv:2603.08655.
+[89] Linke Ouyang et al.OmniDocBench: Benchmarking Diverse PDF Document Parsing with Comprehensive
+Annotations. 2025. arXiv:2412.07626 [cs.CV].URL:https://arxiv.org/abs/2412.07626.
+[90] Adam Paszke et al.PyTorch: An Imperative Style, High-Performance Deep Learning Library. 2019. arXiv:
+1912.01703 [cs.LG].
+[91] Tejal Patwardhan et al.GDPval: Evaluating AI Model Performance on Real-World Economically Valuable
+Tasks. 2025. arXiv:2510.04374 [cs.LG].URL:https://arxiv.org/abs/2510.04374.
+[92] Bo Peng et al.RWKV-7 "Goose" with Expressive Dynamic State Evolution. 2025. arXiv: 2503.14456 [cs.CL].
+[93] Bowen Peng et al. “Yarn: Efficient context window extension of large language models”. In:arXiv preprint
+arXiv:2309.00071(2023).
+[94] Long Phan et al.Humanity’s Last Exam. 2025. arXiv: 2501.14249 [cs.LG].URL: https://arxiv.org/
+abs/2501.14249.
+[95]PostTrainBench. 2026.URL:https://posttrainbench.com/.
+[96]ProgramBench. Vals AI. 2026.URL:https://www.vals.ai/benchmarks/programbench.
+[97] Ruoyu Qin et al.Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving. 2024. arXiv:
+2407.00079 [cs.DC].
+[98] Zhen Qin et al.HGRN2: Gated Linear RNNs with State Expansion. 2024. arXiv: 2404.07904 [cs.CL].URL:
+https://arxiv.org/abs/2404.07904.
+[99] Haiquan Qiu and Quanming Yao. “Why Low-Precision Transformer Training Fails: An Analysis on Flash
+Attention”. In:International Conference on Learning Representations (ICLR). 2026. arXiv: 2510.04212
+[cs.LG].
+[100] Zihan Qiu et al.Gated Attention for Large Language Models: Non-linearity, Sparsity, and Attention-Sink-Free.
+2025. arXiv:2505.06708 [cs.CL].
+[101] Samyam Rajbhandari et al. “Zero: Memory optimizations toward training trillion parameter models”. In:SC20:
+International Conference for High Performance Computing, Networking, Storage and Analysis. IEEE. 2020,
+pp. 1–16.
+[102] David Rein et al. “Gpqa: A graduate-level google-proof q&a benchmark”. In:First Conference on Language
+Modeling. 2024.
+[103] Jonathan Roberts et al.ZeroBench: An Impossible Visual Benchmark for Contemporary Large Multimodal
+Models. 2025. arXiv:2502.09696 [cs.CV].URL:https://arxiv.org/abs/2502.09696.
+[104] Bita Darvish Rouhani et al. “Microscaling Data Formats for Deep Learning”. In:arXiv preprint
+arXiv:2310.10537(2023). arXiv:2310.10537 [cs.LG].
+[105] Alexander Samarin et al.LK Losses: Direct Acceptance Rate Optimization for Speculative Decoding. 2026.
+arXiv:2602.23881 [cs.LG].URL:https://arxiv.org/abs/2602.23881.
+[106] Imanol Schlag, Kazuki Irie, and Jürgen Schmidhuber. “Linear Transformers Are Secretly Fast Weight Program-
+mers”. In:Proceedings of ICML. Ed. by Marina Meila and Tong Zhang. PMLR, 2021, pp. 9355–9366.URL:
+https://proceedings.mlr.press/v139/schlag21a.html.
+[107] Manasi Sharma et al. “ResearchRubrics: A Benchmark of Prompts and Rubrics For Evaluating Deep Research
+Agents”. In:The Fourteenth International Conference on Learning Representations. 2026.URL: https :
+//openreview.net/forum?id=ErnvfmSX0P.
+[108] Noam Shazeer.GLU Variants Improve Transformer. 2020. arXiv: 2002 . 05202 [cs.LG].URL: https :
+//arxiv.org/abs/2002.05202.
+[109] Daniel Shepard and Robin Salimans. “AutomationBench”. In: (2026). arXiv:2604.18934 [cs.AI].
+[110] Kean Shi et al.SaaS-Bench: Can Computer-Use Agents Leverage Real-World SaaS to Solve Professional
+Workflows?2026. arXiv:2605.15777 [cs.AI].URL:https://arxiv.org/abs/2605.15777.
+[111] Benjamin F. Spector et al. “ThunderKittens: Simple, Fast, and Adorable Kernels”. In:The Thirteenth Inter-
+national Conference on Learning Representations. 2025.URL: https://openreview.net/forum?id=
+0fJfVOSUra.
+[112] Jianlin Su.Muon Optimizer Guide: Quick Start and Key Details. Blog post (in Chinese). Nov. 2025.URL:
+https://kexue.fm/archives/11416.
+[113] Jianlin Su.Travels in MoE: 6. Promoting Load Balance via Optimal Assignment. Blog post (in Chinese). Feb.
+2026.URL:https://spaces.ac.cn/archives/11619.
+[114] Hanchi Sun et al.Expert Threshold Routing for Autoregressive Language Modeling with Dynamic Computation
+Allocation and Load Balancing. 2026. arXiv:2603.11535 [cs.AI].
+38

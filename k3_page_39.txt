@@ -1,0 +1,56 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+[115] Weigao Sun et al. “LASP-2: Rethinking Sequence Parallelism for Linear Attention and Its Hybrid”. In: (2025).
+arXiv:2502.07563 [cs.LG].URL:https://arxiv.org/abs/2502.07563.
+[116] Weigao Sun et al. “Linear Attention Sequence Parallelism”. In: (2024). arXiv: 2404.02882 [cs.LG].URL:
+https://arxiv.org/abs/2404.02882.
+[117] Yiyou Sun et al.Agents’ Last Exam. 2026. arXiv: 2606.05405 [cs.AI].URL: https://arxiv.org/abs/
+2606.05405.
+[118] Yuan Sun.Binary-Integer-Programming Based Algorithm for Expert Load Balancing in Mixture-of-Experts
+Models. 2025. arXiv:2502.15451 [cs.LG].
+[119]SWE Marathon. 2026.URL:https://www.swe-marathon.org/.
+[120] Kimi Team.Kimi k1.5: Scaling Reinforcement Learning with LLMs. 2025. arXiv: 2501.12599 [cs.AI].URL:
+https://arxiv.org/abs/2501.12599.
+[121] The Tool Decathlon: Benchmarking Language Agents for Diverse, Realistic, and Long-Horizon Task Execution.
+July 24, 2026.URL:https://toolathlon.xyz/introduction.
+[122] Thinking Machines Lab.Inkling: Our Open-Weights Model. https : / / thinkingmachines . ai / news /
+introducing-inkling/. Accessed: 2026-07-23. July 2026.
+[123] Minyang Tian et al.SciCode: A Research Coding Benchmark Curated by Scientists. 2024. arXiv: 2407.13168
+[cs.AI].URL:https://arxiv.org/abs/2407.13168.
+[124] Philippe Tillet, Hsiang-Tsung Kung, and David Cox. “Triton: An Intermediate Language and Compiler for
+Tiled Neural Network Computations”. In:Proceedings of the 3rd ACM SIGPLAN International Workshop on
+Machine Learning and Programming Languages (MAPL). 2019.
+[125] UK AI Security Institute and U.S. Center for AI Standards and Innovation.Preliminary Assessment of Kimi
+K3’s Cyber Capabilities.https://www.aisi.gov.uk/blog/preliminary-assessment-of-kimi-k3s-
+cyber-capabilities. July 2026.
+[126]Vals AI. Vals AI. 2026.URL:https://www.vals.ai/.
+[127] Ashish Vaswani et al. “Attention is All you Need”. In:Advances in NeurIPS. Ed. by I. Guyon et al. Curran
+Associates, Inc., 2017.URL: https://proceedings.neurips.cc/paper_files/paper/2017/file/
+3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf.
+[128] Nikhita Vedula et al.DeepSearchQA: Bridging the Comprehensiveness Gap for Deep Research Agents.
+2025.URL: https://storage.googleapis.com/deepmind- media/DeepSearchQA/DeepSearchQA_
+benchmark_paper.pdf.
+[129] Bertie Vidgen et al.APEX-Agents. 2026. arXiv:2601.14242 [cs.CL].
+[130] Ke Wang et al. “Measuring Multimodal Mathematical Reasoning with MATH-Vision Dataset”. In:Advances
+in NeurIPS. Ed. by A. Globerson et al. V ol. 37. Curran Associates, Inc., 2024, pp. 95095–95169.DOI: 10.
+52202/079017- 3014.URL: https://proceedings.neurips.cc/paper_files/paper/2024/file/
+ad0edc7d5fa1a783f063646968b7315b-Paper-Datasets_and_Benchmarks_Track.pdf.
+[131] Lei Wang et al. “TileLang: A Composable Tiled Programming Model for AI Systems”. In:arXiv preprint
+arXiv:2504.17577(2025).URL:https://arxiv.org/abs/2504.17577.
+[132] Zirui Wang et al.CharXiv: Charting Gaps in Realistic Chart Understanding in Multimodal LLMs. 2024. arXiv:
+2406.18521 [cs.CL].URL:https://arxiv.org/abs/2406.18521.
+[133] Jason Wei et al.BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents. 2025. arXiv:
+2504.12516 [cs.CL].URL:https://arxiv.org/abs/2504.12516.
+[134] Xinming Wei et al.UltraEP: Unleash MoE Training and Inference on Rack-Scale Nodes with Near-Optimal
+Load Balancing. 2026. arXiv:2606.04101 [cs.DC].URL:https://arxiv.org/abs/2606.04101.
+[135] Zijian Wu et al. “MCPMark: A benchmark for stress-testing realistic and comprehensive mcp use”. In:arXiv
+preprint arXiv:2509.24002(2025).
+[136] B. Xiao et al. “MiMo-V2-Flash Technical Report”. In:arXiv preprint arXiv:2601.02780(2026).
+[137] Xiaomi MiMo Team.MiMo-V2.5-Pro. https://huggingface.co/collections/XiaomiMiMo/mimo-v25.
+2026.
+[138] Tianbao Xie et al. “Introducing OSWorld-Verified”. In:xlang.ai(July 2025).URL: https://xlang.ai/blog/
+osworld-verified.
+[139] Zijie Yan et al.Scalable Training of Mixture-of-Experts Models with Megatron Core. 2026. arXiv:2603.07685
+[cs.DC].URL:https://arxiv.org/abs/2603.07685.
+[140] Songlin Yang, Jan Kautz, and Ali Hatamizadeh. “Gated Delta Networks: Improving Mamba2 with Delta Rule”.
+In:Proceedings of ICLR. 2025.URL:https://openreview.net/forum?id=r8H7xhYPwz.
+39

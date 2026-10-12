@@ -59,10 +59,10 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>问题</strong>：chunkwise KDA = chunk 内并行（matmul）+ chunk 间串行（状态 S 传递）；朴素实现两阶段交替执行，串行传播期间算力空置 —— 气泡占比随 chunk 数线性放大</li>
-        <li style="margin-top:4px"><strong>方案</strong>：FlashKDA（CUTLASS）将计算分解为 token 并行阶段与 head 并行递归，各自独立调度调参，以 chunk 内计算掩盖跨 chunk 状态传播 → 显著优于 Triton 参考实现；训练与推理 prefill 共用，作为 flash-linear-attention 的后端自动分发</li>
-        <li style="margin-top:4px"><strong>负载构成</strong>：intra-chunk（A、O = AṼ，C = 64）为稠密 matmul → CUBE；inter-chunk（(Γ⊙Q)S、S 更新）为 dk×dv 小矩阵 → 单 chunk 并行度低，但可沿 head 维并行、并被计算掩盖</li>
-        <li style="margin-top:4px"><strong>长序列短板</strong>：纯 TP 只切 head、不缩短递归，超长 prefill 时各 rank 仅持少量 head、算力闲置 → SM 级 CP planner 在单设备内切分序列，并行求各段转移再精确合并，无跨设备通信</li>
+        <li><strong>问题</strong>：chunkwise KDA = chunk 内并行 + chunk 间串行，串行传播期间算力空置 → 气泡随 chunk 数线性放大</li>
+        <li style="margin-top:4px"><strong>方案</strong>：token 并行与 head 并行两阶段分解、独立调度，以 chunk 内计算掩盖跨 chunk 状态传播 → 显著优于 Triton 参考实现</li>
+        <li style="margin-top:4px"><strong>负载构成</strong>：chunk 内稠密 matmul 上 CUBE，chunk 间小矩阵沿 head 维并行并被掩盖 → CUBE 利用率与流水深度是核心指标</li>
+        <li style="margin-top:4px"><strong>长序列短板</strong>：纯 TP 不缩短递归 → SM 级 CP planner 在单设备内切分序列、并行求转移再精确合并，无跨设备通信</li>
         </ul>
 
   # ===== 左：调度示意 =====
@@ -88,42 +88,81 @@ elements:
       text: 各阶段负载与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 208, 436, 196]
-    columnWidths: [0.26, 0.26, 0.16, 0.32]
-    rowHeights: [0.1, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+    bounds: [488, 208, 436, 216]
+    columnWidths: [0.20, 0.25, 0.16, 0.39]
+    rowHeights: [0.08, 0.154, 0.153, 0.153, 0.153, 0.153, 0.154]
     style: "$param"
     rows:
       - - text: 阶段
         - text: 张量形状
         - text: FLOPs/token
         - text: 负载特征 → 昇腾诉求
-      - - text: chunk 内注意力 A·Ṽ
-        - text: "[C,dk]×[dk,C]×[C,dv]，C = 64"
-        - text: 2C(dk+dv)
-        - text: 稠密 matmul → CUBE；典型 tile 64×128
-      - - text: 跨 chunk 读取 (Γ⊙Q)S
-        - text: "[C,dk]×[dk,dv]"
-        - text: 2dk·dv
-        - text: 小矩阵乘、CUBE 利用率低 → 与 chunk 内计算双缓冲交叠
-      - - text: 状态更新 S←MS+K̄ᵀṼ
-        - text: "[dk,dk]×[dk,dv]；[dk,C]×[C,dv]"
-        - text: ≈3dk·dv
-        - text: 串行依赖；S 驻留片上（dk·dv×2B / head）避免 HBM 往返
+      - - text: chunk 内注意力 \(A\tilde{V}\)
+        - text: |
+            <p>\([C,d_k]\times[d_k,C]\times[C,d_v]\)</p>
+            <p>\(C=64\)</p>
+        - text: |
+            \(2C(d_k+d_v)\)
+        - text: |
+            <ul>
+            <li>• 稠密 matmul → 要求 CUBE 算力</li>
+            <li>• tile 64×128 → 匹配 CUBE 分块</li>
+            </ul>
+      - - text: 跨 chunk 读取 \((\Gamma\odot Q)S\)
+        - text: |
+            \([C,d_k]\times[d_k,d_v]\)
+        - text: |
+            \(2d_kd_v\)
+        - text: |
+            <ul>
+            <li>• 小矩阵乘 → CUBE 利用率低</li>
+            <li>• 与 chunk 内计算双缓冲交叠 → 调度诉求</li>
+            </ul>
+      - - text: 状态更新 \(S\leftarrow MS+\bar{K}^{\top}\tilde{V}\)
+        - text: |
+            <p>\([d_k,d_k]\times[d_k,d_v]\)</p>
+            <p>\([d_k,C]\times[C,d_v]\)</p>
+        - text: |
+            \(\approx 3d_kd_v\)
+        - text: |
+            <ul>
+            <li>• 串行依赖 → 并行度受限</li>
+            <li>• S 驻留片上 → 避免 HBM 往返</li>
+            </ul>
       - - text: 累积衰减 Γ
-        - text: "[C,dk] / head，log 空间 cumsum"
-        - text: O(C·dk)，逐元素
-        - text: 纯 Vector；与 matmul 构成异构流水
+        - text: |
+            \([C,d_k]\) / head，log 空间 cumsum
+        - text: |
+            \(O(Cd_k)\)，逐元素
+        - text: |
+            <ul>
+            <li>• 纯 Vector 逐元素</li>
+            <li>• 与 CUBE matmul 构成异构流水</li>
+            </ul>
       - - text: UT 变换（W / U）
-        - text: "[C,C] 三角求逆 + 小 matmul"
-        - text: O(C·dk)
-        - text: 小尺寸 matmul → CUBE 效率受限，宜融合进主 kernel
+        - text: |
+            \([C,C]\) 三角求逆 + 小 matmul
+        - text: |
+            \(O(Cd_k)\)
+        - text: |
+            <ul>
+            <li>• 小尺寸 matmul → CUBE 效率受限</li>
+            <li>• 宜融合进主 kernel</li>
+            </ul>
       - - text: SM 级 CP planner
-        - text: 段转移 M∈R<sup>dk×dk</sup>、Ŝ∈R<sup>dk×dv</sup>
-        - text: 合并 2dk²·dv / 段
-        - text: 单设备内序列切分并行，无通信 → AICore 级调度需求
+        - text: |
+            <p>\(M\in\mathbb{R}^{d_k\times d_k}\)</p>
+            <p>\(\hat{S}\in\mathbb{R}^{d_k\times d_v}\)</p>
+        - text: |
+            合并 \(2d_k^{2}d_v\) / 段
+        - text: |
+            <ul>
+            <li>• 单设备内切分并行 → 无通信</li>
+            <li>• AICore 级调度需求</li>
+            </ul>
   - elementId: param-note
     elementType: text
-    bounds: [488, 410, 436, 24]
+    bounds: [488, 430, 436, 22]
     content:
       fontSize: 7.5
       color: "$gray"
@@ -131,8 +170,8 @@ elements:
       lineHeight: 1.35
       align: [left, top]
       text: |
-        <p>片上驻留：S 为 dk×dv / head（dk = dv = 128 时 32KB / head，BF16），单核多 head 驻留能力决定流水深度。</p>
-        <p>注：C = 64（FLA 默认 chunk size）；dk / dv 以 checkpoint config 为准；FLOPs 为按 chunkwise 公式推算。</p>
+        <p>片上驻留：S 为 \(d_k\times d_v\) / head（\(d_k=d_v=128\) 时 32KB / head，BF16），单核多 head 驻留能力决定流水深度。</p>
+        <p>注：\(C=64\)（FLA 默认 chunk size）；\(d_k\) / \(d_v\) 以 checkpoint config 为准；FLOPs 为按 chunkwise 公式推算。</p>
 
   # ===== 底部：开发需求与趋势 =====
   - elementId: dev-label

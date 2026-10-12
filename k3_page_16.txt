@@ -1,0 +1,53 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+a verifiable answer; the real day-to-day work of professionals, such as investment banking, data analysis, and legal
+practice, where the model decomposes a complex request, operates domain tools in a sandbox, and completes a
+deliverable over dozens to hundreds of steps; and multi-step verifiable visual reasoning over STEM problems, visual
+puzzles, and chart understanding. Each visual-reasoning trajectory is generated in an agent environment equipped with
+a Python interpreter in an isolated sandbox: the model iteratively writes and executes code to crop, zoom, or transform
+the input image, perform precise computation, or verify intermediate results, and receives the execution outputs —
+including generated images — as new observations over multiple interaction steps. As the model learns to perform more
+image operations and collect more observations, its performance on complex visual reasoning tasks steadily improves.
+4.2.4 Kernel Optimization Tasks
+To strengthen Kimi K3’s GPU kernel optimization capabilities, we build a large-scale suite of kernel tasks ranging from
+single-operator kernels to fused mega-kernels, sourced from high-quality GitHub repositories such as Flash Linear
+Attention [141]. The suite spans diverse GPU programming approaches, such as CUDA, Triton, CuTe DSL, Gluon,
+ThunderKittens [111], and TileLang [131], and covers widely used GPU architectures and numerical formats including
+BF16, FP8, and FP4. Rewards evaluate both correctness and performance: each kernel provides a PyTorch reference
+implementation, and solutions exceeding a predefined numerical error threshold receive zero reward. Performance is
+scored against an expert implementation, where matching it yields a reward of 0.5 and approaching the hardware roofline
+increases the reward toward 1. To ensure that rewards reflect genuine optimization, we develop a hacking-detection
+system that penalizes reward-hacking strategies such as CUDA graph replay, input caching, and precision reduction, and
+we continuously extend it with new safeguards as new hacking strategies are observed during Kimi K3’s development.
+4.2.5 Personal Assistant Tasks
+For long-horizon personal assistant tasks, we develop realistic mock implementations of widely used applications, such
+as Gmail, Notion, Slack, and Canvas. They preserve the core semantics of their real-world counterparts while enabling
+reproducible, large-scale interaction without external APIs or rate limits. Building on these mock applications, we
+design complex tasks inspired by real-world professional workflows in scenarios like human resources, legal services,
+and finance. In each task, the agent operates in a persistent, evolving environment over multiple simulated days and
+encounters dozens of interdependent events distributed across applications. A single rollout may involve up to thousands
+of tool calls and millions of context tokens. Each event carries its own evaluation criterion, assessed by deterministic
+rules or LLM-based evaluators. The initial workspace is constructed by agents that autonomously search the web for
+reference materials and transform them into a coherent, task-relevant environment. We also extend our RL framework
+to support such living environments, modeling complex event streams and the induced world-state transitions.
+4.2.6 Autonomous Execution Tasks
+We introduce Autonomous Execution Tasks (AET), an environment paradigm that trains long-horizon agent intelligence
+through verify-in-the-loop optimization. Each task specifies an initial state, a constrained goal, a tool-based action space,
+execution budgets, and an independent verifier. Agents see only the objective, context, constraints, and verification
+interfaces, without reference trajectories or predefined procedures, and must autonomously perform task decomposition,
+tool selection, planning, error recovery, and termination. Rewards are grounded in the verifier’s evaluation of the final
+environment state rather than the agent’s self-reported completion. We design multiple types of verifiers that support
+diverse environments, including black-box system replication (Figure 10), quantitative factor discovery, and tax auditing.
+In each environment, agents iteratively submit solutions, receive verifier feedback, and refine their strategies, training
+a general loop of hypothesizing, acting, analyzing feedback, and adapting. Reward hacking is mitigated by isolating
+agents from verifiers, pairing public verifiers that offer diagnostic feedback with hidden verifiers that evaluate held-out
+scenarios, and applying penalty-based rewards under limited submission budgets.
+4.2.7 Web Development Tasks
+We construct a diverse suite of expert-curated web development tasks covering typical scenarios. Inputs range from
+one-line scene descriptions to multi-paragraph specifications; artifacts span websites, interactive games, 3D/WebGL
+scenes, data visualization, SVGs, and full-stack applications. Every task runs in a containerized sandbox and is rolled
+out under diverse agent scaffolds rather than a single fixed harness, to promote cross-scaffold generalization. Rewards
+consist of two components: deterministic checks and model judging by an internal reward model. Deterministic checks
+functionally test application behavior, and score structural and pixel-level similarity for tasks that replicate a reference.
+The reward is zeroed when a project fails to build, runs with errors, or fakes rather than implements the artifact. Model
+judging uses other models to perform source code inspection or to look at and interact with the output artifact.
+16

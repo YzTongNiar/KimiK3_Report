@@ -1,0 +1,64 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+the teacherπ (d,e)
+teacher and the studentπ θ is defined as:
+rd
+opd(yt |e, x, y <t) = clip
+ 
+sg
+ 
+log π(d,e)
+teacher(yt |x, y <t)
+πθ(yt |e, x, y <t)
+!
+,−R max, Rmax
+!
+,(15)
+where sg(·) denotes the stop-gradient operator, and Rmax >0 is a clipping threshold to constrain extreme advantage
+signals, thereby stabilizing RL training. This dense reward signal seamlessly integrates into our RL framework,
+naturally enabling infrastructure-level optimizations such as partial rollout training for long-horizon tasks. While
+we also experimented with more fine-grained top-k distillation objectives, we observed no clear advantage in either
+convergence speed or final performance in our setting.
+4.1.4 Deployment-Aware Post-Training
+MXFP4 Quantization-Aware Post-TrainingTo reduce memory footprint and serving cost at deployment, we
+quantize the MoE expert weights — which dominate the model’s parameter memory — to MXFP4 [104], with
+activations computed in MXFP8, while all non-expert components (attention projections, latent MoE projections, shared
+experts, and MoE routers) remain in higher precision. We perform quantization-aware training (QAT) [50] throughout
+the entire post-training stage, covering both SFT and RL, so that the model adapts to quantization-induced precision
+loss. During RL, rollout and training share the same quantization scheme — eliminating the train–inference mismatch.
+Draft Model Fine-TuningOptimizing inference efficiency is crucial for serving complex, long-horizon agentic
+models. Kimi K3 is pre-trained with a multi-token-prediction (MTP) layer that mirrors the structure of a backbone
+block. As the draft model of EAGLE-3 [72] comprises a single decoder layer whose structure matches the MTP layer,
+we fine-tune the pre-trained MTP layer into an EAGLE-3-style draft model, with the target model frozen and only the
+draft layer and its feature-fusion projection updated. Following the training-time test protocol of EAGLE-3, the draft
+is unrolled for seven steps during training; beyond the first step, where the target-side features of the newest position
+are unavailable, the draft consumes its own outputs from earlier steps, mirroring the recurrent drafting procedure at
+inference.
+The draft input fuses low-, mid-, and high-level features of the target model, taken from the outputs of the 1st, 4th,
+and final AttnRes blocks, respectively (§ 2.2). These features are concatenated and projected to the hidden size by
+a bias-free matrix WE3, initialized as [0 0I] so that the fused representation coincides at initialization with the
+high-level feature hh — the input on which the MTP layer was pre-trained — and gradually learns to incorporate the
+low- and mid-level features during fine-tuning.
+The speedup of speculative decoding is governed by the per-token acceptance rateP
+x∈V min(p(x), q(x)) under lossless
+speculative sampling, where p and q denote the next-token distributions of the target and draft models. Since minimizing
+the conventional KL-divergence surrogate does not guarantee maximizing this rate for a capacity-limited draft model,
+we directly optimize the likelihood-based LK loss [105], the negative logarithm of the acceptance rate itself,
+LLK =−log
+X
+x∈V
+min(p(x), q(x)),(16)
+with p and q evaluated at temperature 1 and no auxiliary ground-truth cross-entropy term. Draft fine-tuning follows the
+post-training QAT configuration (§ 4.1.4), with MoE expert weights in MXFP4 and their input activations in MXFP8,
+while non-expert modules remain in higher precision.
+4.2 RL Task Synthesis and Agentic Environments
+The effectiveness of our RL framework relies heavily on rich, diverse, and robustly verifiable environments. To support
+scalable training across complex long-horizon tasks, we design a series of specialized white-box environments and task
+synthesis paradigms.
+4.2.1 Unified White-Box RL Environment
+Training with a single fixed agent harness can cause a model to overfit to a particular tool schema, system prompt, context
+management mechanism, or interaction protocol. To address this, we develop a unified white-box RL environment
+that represents an agent harness as a collection of configurable, composable modules, including tool interfaces, system
+prompts, context management strategies, skills, memories, subagents, and other components. Composing these modules
+through configuration, the environment can instantiate mainstream harnesses such as Kimi Code [57], Claude Code [15],
+Codex [20], OpenClaw [87], and Hermes [45], as well as entirely new ones. During RL training, we dynamically
+14

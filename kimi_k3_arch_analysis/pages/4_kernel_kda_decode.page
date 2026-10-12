@@ -59,10 +59,10 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>瓶颈转移</strong>：decode 每步原地更新状态 S；MTP 投机解码若拒绝部分草稿，S 已越过最后接受 token、无法直接回滚 —— 为每个草稿位置保存状态快照，在大 batch 下状态流量不可承受</li>
-        <li style="margin-top:4px"><strong>方案</strong>：只缓存草稿 token 的投影输入（远小于状态），验证后在片上重建已接受 token 的状态，写回 verified + bonus token 的状态（与同期工作 ReplaySSM 独立同思路）</li>
-        <li style="margin-top:4px"><strong>单融合 kernel</strong>：重放 token + bonus token + 下一草稿窗口共享一个递归循环，覆盖 短卷积 / 输入归一化 / 门控 / KDA 递归 / 输出归一化；验证延迟随验证 token 数亚线性增长，优于状态缓存基线</li>
-        <li style="margin-top:4px"><strong>部署亲和</strong>：投影缓存不离开 decode 阶段 → prefix caching 与 prefill-decode 分离的负载和非投机服务完全一致</li>
+        <li><strong>瓶颈转移</strong>：decode 每步原地更新状态 S，投机解码拒绝草稿时状态无法直接回滚 → 逐草稿快照在大 batch 下不可承受</li>
+        <li style="margin-top:4px"><strong>方案</strong>：只缓存草稿的投影输入，验证后在片上重建已接受状态 → 状态流量降一个量级（与 ReplaySSM 独立同思路）</li>
+        <li style="margin-top:4px"><strong>单融合 kernel</strong>：重放 + bonus + 下一草稿窗口共享一个递归循环 → 验证延迟亚线性增长，优于状态缓存基线</li>
+        <li style="margin-top:4px"><strong>部署亲和</strong>：投影缓存不离开 decode 阶段 → prefix caching 与 PD 分离行为与非投机服务一致</li>
         </ul>
 
   # ===== 左：融合 kernel 与回滚 =====
@@ -88,9 +88,9 @@ elements:
       text: 各阶段负载与昇腾诉求
   - elementId: param-table
     elementType: table
-    bounds: [488, 208, 436, 196]
-    columnWidths: [0.26, 0.26, 0.16, 0.32]
-    rowHeights: [0.1, 0.18, 0.18, 0.18, 0.18, 0.18]
+    bounds: [488, 208, 436, 216]
+    columnWidths: [0.20, 0.25, 0.16, 0.39]
+    rowHeights: [0.08, 0.184, 0.184, 0.184, 0.184, 0.184]
     style: "$param"
     rows:
       - - text: 阶段
@@ -98,28 +98,57 @@ elements:
         - text: FLOPs
         - text: 负载特征 → 昇腾诉求
       - - text: 短卷积（causal，k=4）
-        - text: "[B,H,dk]×4"
-        - text: ≈4dk·H / token
-        - text: 小卷积 → Vector；独立 kernel 不划算，必须融合
+        - text: |
+            \([B,H,d_k]\times 4\)
+        - text: |
+            \(\approx 4d_kH\) / token
+        - text: |
+            <ul>
+            <li>• 小卷积 → Vector</li>
+            <li>• 独立 kernel 不划算 → 必须融合</li>
+            </ul>
       - - text: 门控（safe-gate）
-        - text: g = −5·σ(e<sup>A</sup>·z)
-        - text: O(H·dk)
-        - text: 纯 Vector；当前 NPU kernel 未融合（host 侧预处理，多一次显存往返）
+        - text: |
+            \(g=-5\sigma(e^{A}z)\)
+        - text: |
+            \(O(Hd_k)\)
+        - text: |
+            <ul>
+            <li>• 纯 Vector</li>
+            <li>• 现状 host 侧预处理 → 多一次显存往返，待下沉</li>
+            </ul>
       - - text: KDA 递归（rank-1 更新）
-        - text: "S: [H,dk,dv]，逐 token 串行"
-        - text: ≈3H·dk·dv / token
-        - text: 小矩阵、并行度仅 B×H 维 → 状态驻留片上是关键
+        - text: |
+            \(S:[H,d_k,d_v]\)，逐 token 串行
+        - text: |
+            \(\approx 3Hd_kd_v\) / token
+        - text: |
+            <ul>
+            <li>• 小矩阵、并行度仅 B×H 维</li>
+            <li>• 状态驻留片上 → SRAM 容量诉求</li>
+            </ul>
       - - text: 状态重建（replay）
-        - text: D 个草稿的投影输入
-        - text: D×3H·dk·dv
-        - text: 片上重建，免去 D 份状态快照的 HBM 读写
+        - text: |
+            D 个草稿的投影输入
+        - text: |
+            \(D\times 3Hd_kd_v\)
+        - text: |
+            <ul>
+            <li>• 片上重建 → 免 D 份状态快照 HBM 读写</li>
+            <li>• 计算换访存 → 大 batch 收益显著</li>
+            </ul>
       - - text: 投影输入缓存
-        - text: D×(4dk+1)·H×2B
+        - text: |
+            \(D\times(4d_k+1)H\times 2\mathrm{B}\)
         - text: —
-        - text: 仅为状态快照的 ≈4/dv（dv = 128 → ≈1/32）；显存与带宽双省
+        - text: |
+            <ul>
+            <li>• 仅为状态快照的 \(\approx 4/d_v\)（\(d_v=128\rightarrow 1/32\)）</li>
+            <li>• 显存与带宽双省</li>
+            </ul>
   - elementId: param-note
     elementType: text
-    bounds: [488, 410, 436, 24]
+    bounds: [488, 430, 436, 22]
     content:
       fontSize: 7.5
       color: "$gray"
@@ -127,7 +156,7 @@ elements:
       lineHeight: 1.35
       align: [left, top]
       text: |
-        <p>估算（dk = dv = 128、H = 96）：单层状态 3.0MB（BF16）；D = 4 时快照读写 ≈12MB / 层 / step，投影缓存 ≈0.4MB / 层；dk / dv 以 checkpoint config 为准。</p>
+        <p>估算（\(d_k=d_v=128\)、\(H=96\)）：单层状态 3.0MB（BF16）；D = 4 时快照读写 ≈12MB / 层 / step，投影缓存 ≈0.4MB / 层；\(d_k\) / \(d_v\) 以 checkpoint config 为准。</p>
 
   # ===== 底部：开发需求与趋势 =====
   - elementId: dev-label

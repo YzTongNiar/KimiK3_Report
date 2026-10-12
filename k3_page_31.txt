@@ -1,0 +1,49 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Linux kernel exploitation(20 tasks). Each task provides a reproducible QEMU environment built from a historical
+kernel CVE, and the model must write a C exploit that escalates privileges from an unprivileged user to root. Mitigations
+are progressively enabled across difficulty grades.
+Every task in the suite is verified solvable by human security experts. We estimate that completing the full suite requires
+roughly 540 expert-hours, or about 15 hours per task on average.
+Results on the exploit suite.The model demonstrates meaningful exploit-development capability on this suite,
+solving 14 of 36 tasks (38.9%) versus 8 of 36 (22.2%) for GLM-5.2. Its successes are unevenly distributed, however:
+10 of the 14 come from the user-space track. On the kernel track, neither model solves three-quarters of the tasks.
+Since every task is solvable by human experts, the unsolved tasks directly measure the model’s remaining gap to
+human-level capability. Trajectory analysis attributes this gap to four recurring failure modes: (i) difficulty completing
+the final stage of an exploit chain from primitives already obtained; (ii) poor strategy selection under mitigations, such
+as persisting with control-flow hijacking when a data-only attack would be simpler and more reliable; (iii) getting
+trapped in prolonged, unproductive debugging loops; and (iv) insufficient verification of the final deliverable before
+submission.
+Summary.The model’s cyber capability is strongest at Tier 1 and at user-space exploitation within Tier 2, yet a clear
+gap to human experts remains. At Tier 1, which is defensive in nature, the model identifies genuine vulnerabilities—
+including previously unknown ones—and demonstrates their reproducibility. At Tier 2, it completes end-to-end exploits
+against user-space targets. Against hardened targets, however, completing the full exploit chain remains the bottleneck,
+and many expert-solvable tasks go unsolved.
+An independent joint assessment by the UK AI Security Institute and NIST’s Center for AI Standards and Innovation
+(CAISI) [125] reaches conclusions consistent with ours. Kimi K3 outperforms GLM-5.2 on exploit development (32%
+vs. 24% on ExploitBench; 17 vs. 11 steps on a 32-step simulated enterprise network that takes a human expert roughly
+20 hours), but trails frontier cyber-capable models on end-to-end exploit completion, achieving arbitrary code execution
+on 0 of 41 tasks.
+We regard our evaluation as a lower bound on capability. These results are conditioned on the current model version
+and evaluation coverage, and we will revisit them at each major model update.
+6.3 Third-Party Evaluation
+Kimi K3 has also been independently evaluated by third-party organizations since its release. Table 5 summarizes the
+headline results as of July 23, 2026.
+Artificial AnalysisArtificial Analysis evaluated Kimi K3 [8]. Kimi K3 attains an Intelligence Index v4.1 of 57.1,
+ranking fourth of 580 models — third if GPT-5.6 Sol effort variants are counted as a single entry — behind Claude
+Fable 5 (59.9) and GPT-5.6 Sol (58.9), and ahead of all other evaluated models.
+Vals AIOn Vals AI’s GDP-weighted industry benchmark suite [126], Kimi K3 ranks second of 39 models on the Vals
+Index (74.7%), behind Claude Fable 5 (75.1%) and ahead of GPT-5.6 Sol (73.1%).
+ArenaOn the crowdsourced human-preference arenas [75], Kimi K3 ranks first of 99 models on the WebDev Arena
+(1,678 Elo, ahead of Claude Fable 5 at 1,634) — the first open model to top this leaderboard — and eighth of 200 on
+the Text Arena (1,486 Elo). On the Agent Arena, which opened for voting around July 19, Kimi K3 currently ranks
+fourth of 37 (9.1), behind Claude Fable 5 (12.7), GPT-5.6 Sol (10.1), and Claude Opus 4.8 (9.8).
+6.4 Cost Efficiency
+Beyond scores, we examine inference cost efficiency by comparing score against per-task cost across four suites
+covering coding and agentic tasks: Kimi Code Bench 2.0, BrowseComp, GDPval-AA v2, and AA-Briefcase. For Kimi
+Code Bench 2.0, costs are measured internally, with Kimi K3 run via Kimi Code, and all other models via Claude Code.
+For BrowseComp, the cost of Kimi K3 is measured from our own runs, while the costs of Claude and GPT are cited
+from published charts [40, 18, 19]. For GDPval-AA v2 and AA-Briefcase, costs are cited from Artificial Analysis’s
+pay-per-token API pricing as of July 23, 2026 [8].
+On Kimi Code Bench 2.0, Kimi K3 is 4.0 points behind Claude Fable 5 at 38% of its cost, and at high effort it already
+matches Claude Opus 4.8’s maximum-effort score at roughly one third of the cost. On BrowseComp, Kimi K3 attains
+31

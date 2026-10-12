@@ -1,0 +1,25 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+[141] Songlin Yang and Yu Zhang.FLA: A Triton-Based Library for Hardware-Efficient Implementations of Linear
+Attention Mechanism. Jan. 2024.URL:https://github.com/fla-org/flash-linear-attention.
+[142] Songlin Yang et al. “Gated Linear Attention Transformers with Hardware-Efficient Training”. In:Proceedings
+of ICML. PMLR, 2024.
+[143] Songlin Yang et al. “Parallelizing Linear Transformers with the Delta Rule over Sequence Length”. In:
+Proceedings of NeurIPS. 2024.
+[144] Yaoyu Wang.Context Parallelism for DeltaNet. 2025.URL:https://yywangcs.notion.site/DeltaNet-
+2a9fc9f5d8058013a498f34e0b25bd52.
+[145] Mengqi Yuan et al.OSWorld2.0: Benchmarking Computer Use Agents on Long-Horizon Real-World Tasks.
+2026. arXiv:2606.29537 [cs.AI].URL:https://arxiv.org/abs/2606.29537.
+[146] Xiang Yue et al.MMMU-Pro: A More Robust Multi-discipline Multimodal Understanding Benchmark. 2024.
+arXiv:2409.02813 [cs.CL].URL:https://arxiv.org/abs/2409.02813.
+[147] Aohan Zeng et al.GLM-5: from Vibe Coding to Agentic Engineering. 2026. arXiv: 2602.15763 [cs.LG] .
+URL:https://arxiv.org/abs/2602.15763.
+[148] Biao Zhang and Rico Sennrich. “Root mean square layer normalization”. In:Advances in NeurIPS32 (2019).
+[149] Chenggang Zhao et al.DeepEP: an efficient expert-parallel communication library. https://github.com/
+deepseek-ai/DeepEP. 2025.
+[150] Yilun Zhao et al. “MMVU: Measuring Expert-Level Multi-Discipline Video Understanding”. In:Proceedings
+of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). June 2025, pp. 8475–8489.
+[151] Runjie Zhou et al.WorldVQA: Measuring Atomic World Knowledge in Multimodal Large Language Models.
+2026. arXiv:2602.02537 [cs.CV].URL:https://arxiv.org/abs/2602.02537.
+[152] Jian Zhu et al. “SpreadsheetBench 2: Evaluating Agents on End-to-End Business Spreadsheet Workflows”. In:
+(2026). arXiv:2606.29955 [cs.SE].
+40

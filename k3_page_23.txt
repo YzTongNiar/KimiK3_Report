@@ -1,0 +1,52 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+boundary. We therefore design a KDA-aware prefix cache that manages the two cache types jointly—from a unified
+paged layout to fine-grained prefix reuse and consistency under concurrent scheduling—keeping million-token prefixes
+cheap to retain and reusable across requests.
+Unified cache layout for hybrid KDA–MLA attentionEach Kimi K3 block consists of three KDA layers and one
+Gated MLA layer, whose caches differ fundamentally. The MLA KV cache grows with sequence length and is paged per
+token, whereas the KDA recurrent state is fixed in size with a single copy per request. Maintaining a separate manager
+for each would duplicate the allocation, eviction, and transfer logic. We therefore pack KDA states into the same paged
+block pool as MLA KV , unifying pages to the same byte size so that both page types share one implementation of
+allocation, reference counting, and eviction. Within a page, the states of all heads are stored contiguously head by
+head, so that each head’s byte stream is self-contained and serves as the minimal unit of cross-node transfer. Under
+prefill/decode disaggregation, when prefill and decode nodes adopt different TP degrees, re-layout is performed on the
+transfer path with zero GPU-side reshuffling. This asymmetry proved useful during development: any type-confused
+access yields garbage rather than plausible data — a zero-overhead sanity check on the pooled layout.
+KDA prefix cache optimizationBlock-hash-based prefix caching reuses the KV cache at the granularity of one
+physical block: only complete blocks are hashed, so only block-aligned prefixes are reusable.
+This coupling breaks down in Kimi K3. Block-hash matching requires one block size shared by all layers, and a prefix
+hit is reusable only if the KDA state at the hit boundary has been persisted. A KDA layer maintains a single large
+recurrent state per sequence rather than per-token entries, so state snapshots are affordable only at sparse boundaries;
+the shared block size is therefore forced to 1024–6144 tokens—and, since hashing is tied to the storage block, the
+hash granularity as well, although MLA’s per-token entries alone would tolerate much finer blocks. At such a coarse
+granularity caching is nearly useless: requests shorter than one block can never be reused, and chunked prefill exports
+no cacheable prefix until it crosses a full block boundary.
+physical cache block (6144 tokens) = 12 prefix-hash blocks
+hash block (512 tokens)
+MLA KV
+KDA ckpt
+hit boundaryB= 2560
+restore the KDA checkpoint atB; copy-on-write the partial MLA block;
+resume prefill from tokenBwith zero recompute of[0, B)
+Figure 12:Fine-grained prefix caching within a physical cache block.A 6144-token physical block contains twelve 512-token
+hash blocks, with cached MLA blocks shown in blue and empty blocks in light gray. The markers below show the KDA checkpoint
+status at each hash boundary. An open circle (◦) denotes a boundary without a stored checkpoint, a gray dot (•) denotes a persisted
+KDA checkpoint, and an orange dot ( •) marks the checkpoint hit at B= 2560 . Persisted checkpoints are sparse and typically
+coincide with conversation-turn boundaries. The request reuses the five MLA hash blocks and the KDA checkpoint at B, then
+resumes prefill without recomputing[0, B).
+We therefore decouple the two granularities. Prefix hashing runs on finehash blocks(e.g., 512 tokens) inside MLA
+pages, while the physical block remains the coarse allocation unit. Alignment runs the other way for KDA: checkpoints
+of the recurrent state are saved only at (a sparse subset of) MLA’s hash endpoints—the only positions a lookup can ever
+reference.
+During prefill, a partially filled MLA page is registered in the prefix-cache index under the chained hash of its last
+complete hash block, where each hash covers all preceding hash blocks so that matching an endpoint certifies the
+whole prefix up to it; the registered endpoint advances as the page fills. Meanwhile, after each forward pass, the KDA
+kernel persists the recurrent state at the last hash-aligned position processed. Checkpoints are large, so intermediate
+checkpoints superseded as the request advances are recycled, while those at conversation-turn boundaries are retained
+for cross-request reuse. Cached checkpoints are read-only snapshots: a hit restores the state by copying it into the
+request’s private running state before the next forward pass, and new checkpoints are written to fresh slots, so a
+checkpoint visible to other requests is never mutated in place.
+Lookup proceeds in two stages (Fig. 12). The MLA stage matches whole physical blocks by chained hash and, at
+the first missing block, falls back to the hash endpoints inside it, so partially filled pages remain hittable. The KDA
+stage then requires a checkpoint at the candidate boundary in every KDA cache group, each of which maintains an
+23

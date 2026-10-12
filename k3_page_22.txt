@@ -1,0 +1,52 @@
+Kimi K3: Open Frontier IntelligenceTECHNICALREPORT
+Gradient-buffer reuse for non-policy model forwardingRL loss computation often requires forward-only non-
+policy models, such as reference models, whose weights are too large to keep resident on GPU. We keep these weights
+in CPU memory and materialize them only when needed, backing their parameter tensors with the policy model’s FP32
+gradient-buffer storage. This reuses existing GPU memory without extra allocation or fragmentation, and remains safe
+because the buffers are overwritten when real gradients are later computed.
+With ZeRO-2 gradient sharding and offloading (§ 5.2.2), each GPU retains gradient buffers for only two VPP chunks in
+Kimi K3 RL training. We stream reference weights into these slots chunk by chunk: one slot is used for the current
+forward computation while the other prefetches the next chunk, hiding copy overhead without increasing GPU memory.
+5.3.2 Sandbox Infrastructure
+We employ multiple sandbox runtimes to support the diverse requirements of Kimi K3 post-training and evaluation,
+including a traditional container-based runtime, a GPU sandbox runtime, and, most notably, a new microVM-based
+sandbox runtime called AgentENV .
+AgentENV4, developed in collaboration with our partners, is a sandbox system specifically designed for agentic AI
+workloads. It is built around three core design goals:
+• High-fidelity isolated sandbox runtimeAs agents become more capable and tasks more difficult, they tend to
+explore more aggressively and may even attempt reward hacking. On the one hand, this poses unique security
+challenges: in our early experiments with traditional container-based sandbox runtimes, we observed several kernel
+panics and deadlocks caused by unintended agent operations. On the other hand, we want to permit as much
+exploration as possible so as not to constrain agent capability, and complex tasks require a sandbox close to a
+real-world environment — for example, agents should be able to mount disks, run containers, or even launch virtual
+machines at will. By running isolated microVMs with Firecracker [3], AgentENV provides a level of isolation and
+fidelity that container-based runtimes cannot match.
+• Flexible sandbox life-cycles for agentic RLAt the low level, AgentENV supports incremental checkpointing
+and resuming of sandbox states, where only memory pages dirtied since the last checkpoint are saved during
+checkpointing, achieving checkpoint and resume latencies as low as 133 ms and 49 ms, respectively. On top of this,
+AgentENV provides three high-level operations that help improve agentic RL efficiency.(a) Pause and Resume:
+a paused sandbox consumes no memory or CPU resources; a sandbox can therefore be paused while the agent is
+waiting for the model’s inference result, which can account for as much as 98% of the sandbox lifetime.(b) Fork:
+fork creates a new sandbox from the exact state of the original one while keeping the original running, which is
+useful for reward judging without side effects.(c) Snapshot: snapshots of a sandbox can be saved at regular intervals
+for error recovery.
+• High efficiency and high densityIn our workloads, tens of thousands of sandboxes, each with a unique set of
+images, may need to be created within seconds. We adopt OverlayBD [69] as the image format, together with a
+custom ublk driver implementation, storage-layer sharing, and P2P transport, achieving sub-second launch latency at
+large scale. We further reduce memory usage with copy-on-write memory and page-cache optimizations, achieving
+a memory overcommit ratio of up to 6.5×in real workloads.
+Throughout Kimi K3’s training and evaluation, a total of 51,219,741 sandboxes across 1,505,678 images were created.
+5.4 Inference and Online Serving
+Serving Kimi K3 exposes the same challenges from the production side: the hybrid KDA–MLA architecture maintains
+two fundamentally different caches that must be managed jointly at million-token contexts, its new modules and highly
+sparse experts demand kernels tailored to each, and production traffic mixes requests whose per-request cost spans three
+orders of magnitude. The designs below address these challenges at three levels. At the engine level, a KDA-aware
+prefix cache packs the fixed-size recurrent state into the same paged pool as the MLA KV cache and keeps long prefixes
+reusable across requests. At the device level, dedicated kernels for KDA decoding, Block AttnRes, and the sparse
+latent MoE minimize per-token latency and memory traffic. At the fleet level, cache-aware affinity scheduling and
+budget-based admission control translate these efficiencies into predictable serving.
+5.4.1 KDA-Aware Prefix Cache Management
+The hybrid architecture in Kimi K3 complicates prefix caching: the KDA recurrent state and the MLA KV cache differ
+fundamentally in size and lifetime, yet a cached prefix is reusable only when both can be restored together at the same
+4AgentENV is open-sourced athttps://github.com/kvcache-ai/AgentENV
+22
