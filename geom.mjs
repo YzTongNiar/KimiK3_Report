@@ -1,0 +1,4 @@
+import * as path from 'node:path';import {pathToFileURL} from 'node:url';const art=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs').href);const {PresentationFile,FileBlob}=art;const p=await PresentationFile.importPptx(await FileBlob.load('D:/kimi_k3_workspace/kimi_k3_arch_analysis/kimi_k3_with_comments.pptx'));
+for (const id of ['sh/m1c3mlsn','sh/943mhgre','sh/83ulovat','sh/14ryd8fq','sh/6d0fytg3','tb/5wz690z6','sh/0ba143al','sh/rm1k7yt4','sh/ql8jytsj','sh/doj29oba','sh/sna103ap','sh/3ihk3et8','sh/i94r6xgz','sh/x8vaxsfe','sh/a5kr2xg3','tb/dk3yxony','im/q9876pkv']) {
+ const o=p.resolve(id); let pos=null; try{pos=o.position}catch{}; let txt=''; try{txt=o.text?.plainText||o.text?.toString?.()||''}catch{}; let fs;try{fs=o.text?.fontSize}catch{}; console.log(id, JSON.stringify({pos,fs,txt:String(txt).slice(0,80),type:o.constructor?.name},null,0));
+}

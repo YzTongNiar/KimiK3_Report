@@ -1,0 +1,11 @@
+import {pathToFileURL} from 'node:url';import fs from 'node:fs/promises';const art=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs').href);const {PresentationFile,FileBlob}=art;const src='C:/Users/ASUS/Documents/Codex/2026-10-07/slides-ai-plugin-app-69eba611751c819182a7476b3acfe9fa-openai-2/outputs/kimi-k3-model-structure-analysis-revised-v12-final-v6.pptx';const out='C:/Users/ASUS/Documents/Codex/2026-10-07/slides-ai-plugin-app-69eba611751c819182a7476b3acfe9fa-openai-2/outputs/kimi-k3-model-structure-analysis-revised-v12-final-v7.pptx';const p=await PresentationFile.importPptx(await FileBlob.load(src));const s=p.slides.items[0];
+const addMarker=(txt,left,top)=>{const sh=s.shapes.add({geometry:'textbox',position:{left,top,width:18,height:18}});sh.text=txt;sh.text.style={fontSize:11,bold:true,color:'#C00000',typeface:'微软雅黑',alignment:'center',verticalAlignment:'middle',insets:0};try{sh.fill='none';sh.line={style:'none',fill:'none',width:0};}catch{};return sh;};
+// Numbered overlays on the imported architecture figure: 1-5 map to rows; 6 is summary ledger.
+addMarker('①',84,481); // q/k/v + ShortConv
+addMarker('②',218,449); // gate / beta write
+addMarker('③',238,451); // cumsum / decay
+addMarker('④',187,381); // chunk attention
+addMarker('⑤',286,393); // cross-chunk state
+addMarker('⑥',520,534); // layer/ledger summary
+const t=p.resolve('tb/lwfe1cbi');t.getCell(0,0).value='组件（图中编号）';t.getCell(1,0).value='q/k/v 投影 + ShortConv ①';t.getCell(2,0).value='遗忘门 z + 写入 β ②';t.getCell(3,0).value='有界衰减 ③';t.getCell(4,0).value='Chunk 内注意力 ④';t.getCell(5,0).value='跨 chunk 状态传播 ⑤';t.getCell(6,0).value='综合账本 ⑥';
+s.speakerNotes.text='图中编号说明：① q/k/v 投影与 ShortConv；② gate / 写入 β；③ cumsum / 有界衰减；④ chunk 内注意力；⑤ 跨 chunk 状态传播 / delta rule；⑥ 右侧层堆叠与状态账本汇总。表格中的编号与图中编号一一对应。RMSNorm 位于图中红框外的输出归一化路径。\n论文结论（§2.1.1、§5.1.1、§5.1.2）：KDA 使用固定大小递归状态；FlashKDA 重叠 chunk 内计算与跨 chunk 状态传播；KCP 使用固定大小状态片段、all-gather 和 prefix scan。g_min=-5 使 causal tile 可统一使用 Tensor Core。\n工程推论：表格中关于 CUBE/Vector overlap、L0/UB 驻留、state bytes/token 和 prefix cache 的昇腾实现建议，是基于上述论文机制与 vLLM/vLLM-Ascend 代码做的适配判断。';await (await PresentationFile.exportPptx(p)).save(out);console.log(out);

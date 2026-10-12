@@ -1,0 +1,1 @@
+import {pathToFileURL} from 'node:url';import fs from 'node:fs/promises';const art=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact_tool/dist/artifact_tool.mjs').href);

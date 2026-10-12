@@ -1,0 +1,1 @@
+import {pathToFileURL} from 'node:url'; const mod=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp/dist/index.cjs').href); const sharp=mod.default||mod; console.log(await sharp('D:/kimi_k3_workspace/kimi_k3_arch_analysis/media/kda_arch.png').metadata());

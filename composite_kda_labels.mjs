@@ -1,0 +1,10 @@
+import {pathToFileURL} from 'node:url';import fs from 'node:fs/promises';
+const mod=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp/dist/index.cjs').href);const sharp=mod.default||mod;
+const base='D:/kimi_k3_workspace/kimi_k3_arch_analysis/media/kda_arch.png';
+const out='D:/kimi_k3_workspace/kimi_k3_arch_analysis/media/kda_arch.png';
+const W=3498,H=1800;
+const pts=[['A',6.8,16,9,16],['B',74.5,23,71,23],['C',41.8,29.5,44,29.5],['D',9,57,12,57],['E',85.5,57,82,57],['F',173,34.5,170,36]];
+const X=x=>x*18, Y=y=>(100-y)*18;
+const bits=pts.map(([label,cx,cy,tx,ty])=>`<line x1="${X(cx)}" y1="${Y(cy)}" x2="${X(tx)}" y2="${Y(ty)}" stroke="#555555" stroke-width="2"/><circle cx="${X(cx)}" cy="${Y(cy)}" r="32" fill="#ffffff" stroke="#555555" stroke-width="2"/><text x="${X(cx)}" y="${Y(cy)+11}" text-anchor="middle" font-family="SimHei,Arial" font-size="30" fill="#333333">${label}</text>`).join('');
+const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bits}</svg>`;
+const buf=await sharp(base).composite([{input:Buffer.from(svg),top:0,left:0}]).png().toBuffer();await fs.writeFile(out,buf);console.log(out);

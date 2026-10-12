@@ -1,0 +1,14 @@
+import {pathToFileURL} from 'node:url';
+const art=await import(pathToFileURL('C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs').href);
+const {PresentationFile,FileBlob}=art;
+const src='C:/Users/ASUS/Documents/Codex/2026-10-07/slides-ai-plugin-app-69eba611751c819182a7476b3acfe9fa-openai-2/outputs/kimi-k3-model-structure-analysis-revised-v12-final-v3.pptx';
+const out='C:/Users/ASUS/Documents/Codex/2026-10-07/slides-ai-plugin-app-69eba611751c819182a7476b3acfe9fa-openai-2/outputs/kimi-k3-model-structure-analysis-revised-v12-final-v4.pptx';
+const p=await PresentationFile.importPptx(await FileBlob.load(src));
+const t=p.resolve('tb/lwfe1cbi');
+t.getCell(0,0).value='组件（红框映射）';
+t.getCell(2,0).value='遗忘门 z + 写入 β\n（红框：gate）';
+t.getCell(3,0).value='有界衰减\n（红框：cumsum / α、γ）';
+t.getCell(5,0).value='跨 chunk 状态传播\n（红框：delta rule / Sₜ）';
+const s=p.slides.items[0];
+s.speakerNotes.text='图例映射：左侧红框对应右侧表格中的“gate”“cumsum / α、γ”“delta rule / Sₜ”三项；RMSNorm 位于红框外的输出归一化路径。\n论文结论（§2.1.1、§5.1.1、§5.1.2）：KDA 使用固定大小递归状态；FlashKDA 重叠 chunk 内计算与跨 chunk 状态传播；KCP 使用固定大小状态片段、all-gather 和 prefix scan。g_min=-5 使 causal tile 可统一使用 Tensor Core。\n工程推论：表格中关于 CUBE/Vector overlap、L0/UB 驻留、state bytes/token 和 prefix cache 的昇腾实现建议，是基于上述论文机制与 vLLM/vLLM-Ascend 代码做的适配判断。';
+await (await PresentationFile.exportPptx(p)).save(out); console.log(out);

@@ -1,0 +1,9 @@
+import {pathToFileURL} from "node:url";
+import fs from "node:fs/promises";
+const art=await import(pathToFileURL("C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs").href);
+const p=await art.PresentationFile.importPptx(await art.FileBlob.load("C:/Users/ASUS/Documents/Codex/2026-10-07/slides-ai-plugin-app-69eba611751c819182a7476b3acfe9fa-openai-2/outputs/kimi-k3-model-structure-analysis-revised-v12-final-v14.pptx"));
+console.log("slides="+p.slides.items.length);
+for(let i=0;i<p.slides.items.length;i++){
+ const b=await p.slides.items[i].export({format:"png",scale:1.5});
+ await fs.writeFile(`D:/kimi_k3_workspace/v14_slide_${i+1}.png`,new Uint8Array(await b.arrayBuffer()));
+}
