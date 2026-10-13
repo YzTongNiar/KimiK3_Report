@@ -146,43 +146,44 @@ def page4():
 def page5():
     fig, ax = new_canvas()
     # 上：机制
-    dashed_frame(ax, 4, 52, 186, 44)
-    label(ax, 8, 89, "机制：对 block 表示做深度维注意力", fs=14, fam=HEI, bold=True)
+    dashed_frame(ax, 4, 54, 186, 42)
+    label(ax, 8, 89, "机制：对 block 表示做深度维注意力", fs=15, fam=HEI, bold=True)
     bs = [(14, "b0", "white"), (38, "b1", BLUE), (62, "b2", BLUE), (100, "b8", BLUE)]
     for x0, t, c in bs:
-        rbox(ax, x0, 66, 18, 12, c, t, fs=12, tc=BLUE_TXT if c == BLUE else "black")
-    label(ax, 88, 72, "…", fs=14, color=NOTE_GRAY, ha="center")
-    circle(ax, 126, 72, 3.4, "w", fs=11, ec=DARK, fc=PINK, italic=True)
-    label(ax, 132, 72, "伪查询（逐层可学习）", fs=11, color=NOTE_GRAY, fam=HEI, bold=True)
-    circle(ax, 71, 56, 3, "Σ", fs=11)
+        rbox(ax, x0, 65, 18, 12, c, t, fs=12.5, tc=BLUE_TXT if c == BLUE else "black")
+    label(ax, 88, 71, "…", fs=14, color=NOTE_GRAY, ha="center")
+    circle(ax, 126, 71, 3.4, "w", fs=11, ec=DARK, fc=PINK, italic=True)
+    label(ax, 132, 71, "伪查询（逐层可学习）", fs=11.5, color=NOTE_GRAY, fam=HEI, bold=True)
+    circle(ax, 71, 58.5, 3, "Σ", fs=12)
     # 总线折线：各 b / w 垂直汇入 y=62 总线，再垂直入 Σ
     line(ax, [(23, 62), (126, 62)], lw=1.2)
     for x0 in (23, 47, 109):
-        line(ax, [(x0, 66), (x0, 62)], lw=1.2)
-    line(ax, [(126, 68.6), (126, 62)], lw=1.2)
-    line(ax, [(71, 66), (71, 62)], lw=1.2)
-    arrow(ax, 71, 62, 71, 59.2, lw=1.2)   # b2 正对 Σ，直通
-    label(ax, 80, 56, r"$h_l=\sum_i \alpha_i \cdot b_i$", fs=13)
-    label(ax, 132, 58, "α = softmax(w·RMSNorm(b))", fs=10.5, color=NOTE_GRAY, fam=HEI, bold=True)
-    label(ax, 132, 53.5, "online softmax 合并", fs=10.5, color=NOTE_GRAY, fam=HEI, bold=True)
+        line(ax, [(x0, 65), (x0, 62)], lw=1.2)
+    line(ax, [(126, 67.6), (126, 62)], lw=1.2)
+    arrow(ax, 71, 65, 71, 61.7, lw=1.2)   # b2 正对 Σ，直通
+    label(ax, 80, 58.5, r"$h_l=\sum_i \alpha_i \cdot b_i$", fs=13)
+    label(ax, 132, 64, "α = softmax(w·RMSNorm(b))", fs=11, color=NOTE_GRAY, fam=HEI, bold=True)
+    label(ax, 132, 59.5, "online softmax 合并", fs=11, color=NOTE_GRAY, fam=HEI, bold=True)
     # 中：Prefill
-    label(ax, 8, 46, "Prefill：all-reduce 拆为 RS + AG，kernel 插入其间", fs=13, fam=HEI, bold=True)
-    rbox(ax, 14, 31, 32, 10, GRAY2, "Reduce-Scatter", fs=11.5)
-    arrow(ax, 47, 36, 53, 36, lw=1.4)
-    rbox(ax, 54, 31, 62, 10, BLUE, "intra-block kernel（序列分片上物化）", fs=11.5, tc=BLUE_TXT, fam=HEI)
-    arrow(ax, 117, 36, 123, 36, lw=1.4)
-    rbox(ax, 124, 31, 28, 10, GRAY2, "All-Gather", fs=11.5)
+    dashed_frame(ax, 4, 30, 186, 20)
+    label(ax, 8, 44.5, "Prefill：all-reduce 拆为 RS + AG，kernel 插入其间", fs=13.5, fam=HEI, bold=True)
+    rbox(ax, 14, 33, 32, 8.5, GRAY2, "Reduce-Scatter", fs=12)
+    arrow(ax, 47, 37.2, 53, 37.2, lw=1.4)
+    rbox(ax, 54, 33, 62, 8.5, BLUE, "intra-block kernel（序列分片上物化）", fs=12, tc=BLUE_TXT, fam=HEI)
+    arrow(ax, 117, 37.2, 123, 37.2, lw=1.4)
+    rbox(ax, 124, 33, 28, 8.5, GRAY2, "All-Gather", fs=12)
     # 下：Decode
-    label(ax, 8, 24, "Decode：inter-block 放 side stream 交叠", fs=13, fam=HEI, bold=True)
+    dashed_frame(ax, 4, 4, 186, 22)
+    label(ax, 8, 22.5, "Decode：inter-block 放 side stream 交叠", fs=13.5, fam=HEI, bold=True)
     for x0 in (14, 52):
-        rbox(ax, x0, 11, 32, 9, BLUE, "主流计算", fs=11.5, tc=BLUE_TXT, fam=HEI)
-    arrow(ax, 46.5, 15.5, 51.5, 15.5, lw=1.2)
-    label(ax, 92, 15.5, "…", fs=14, color=NOTE_GRAY, ha="center")
-    rbox(ax, 30, 3.5, 64, 6.5, PINK, "inter-block kernel（side stream）", fs=11, fam=HEI)
+        rbox(ax, x0, 13.5, 32, 7, BLUE, "主流计算", fs=12, tc=BLUE_TXT, fam=HEI)
+    arrow(ax, 46.5, 17, 51.5, 17, lw=1.2)
+    label(ax, 92, 17, "…", fs=14, color=NOTE_GRAY, ha="center")
+    rbox(ax, 30, 5.5, 64, 4.5, PINK, "inter-block kernel（side stream）", fs=11, fam=HEI)
     # side stream 与主流的交叠关系（虚线垂直连接）
     for x0 in (45, 75):
-        line(ax, [(x0, 10), (x0, 11)], color="#9A9A9C", lw=1.0)
-    label(ax, 100, 6.5, "与主流独立计算交叠，隐藏延迟", fs=10.5, color=NOTE_GRAY, fam=HEI, bold=True)
+        line(ax, [(x0, 10), (x0, 13.5)], color="#9A9A9C", lw=1.0)
+    label(ax, 100, 7.7, "与主流独立计算交叠，隐藏延迟", fs=11, color=NOTE_GRAY, fam=HEI, bold=True)
     save(fig, "attnres.png")
 
 # ============================================================
