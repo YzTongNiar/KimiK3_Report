@@ -27,6 +27,8 @@ NOTE_GRAY = "#404040"
 SER = "Times New Roman"
 HEI = "SimHei"
 
+REC = []   # 图元记录（供 PPTD 可编辑元素导出）
+
 FIG_W, FIG_H = 11.66, 6.0   # 194.4 x 100 units @ aspect equal
 
 def new_canvas():
@@ -39,6 +41,9 @@ def new_canvas():
 
 def rbox(ax, x, y, w, h, fc, text=None, fs=9, ec=DARK, lw=1.1, shadow=None,
          octagon=False, tc="black", bold=False, rounding=1.2, fam=SER, italic=False):
+    REC.append(dict(t="rbox", x=x, y=y, w=w, h=h, fc=fc, text=text, fs=fs, ec=ec,
+                    lw=lw, shadow=shadow, octagon=octagon, tc=tc, bold=bold,
+                    fam=fam, italic=italic))
     def shape(dx=0, dy=0, fill=fc, edge=ec, lw_=lw):
         if octagon:
             c = min(1.6, w / 4, h / 2)
@@ -59,23 +64,28 @@ def rbox(ax, x, y, w, h, fc, text=None, fs=9, ec=DARK, lw=1.1, shadow=None,
                 style="italic" if italic else "normal")
 
 def arrow(ax, x0, y0, x1, y1, color=DARK, lw=1.1, head=True):
+    REC.append(dict(t="arrow", x0=x0, y0=y0, x1=x1, y1=y1, color=color, lw=lw, head=head))
     ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
                 arrowprops=dict(arrowstyle="-|>" if head else "-",
                                 color=color, lw=lw, mutation_scale=9,
                                 shrinkA=0, shrinkB=0))
 
 def line(ax, pts, color=DARK, lw=1.1):
+    REC.append(dict(t="line", pts=[list(p) for p in pts], color=color, lw=lw))
     xs, ys = zip(*pts)
     ax.plot(xs, ys, color=color, lw=lw, solid_capstyle="round")
 
 def circle(ax, cx, cy, r, label=None, fs=9, ec=DARK, lw=1.1, fc="white",
            tc="black", italic=False, fam=SER):
+    REC.append(dict(t="circle", cx=cx, cy=cy, r=r, label=label, fs=fs, ec=ec,
+                    lw=lw, fc=fc, tc=tc, italic=italic, fam=fam))
     ax.add_patch(Circle((cx, cy), r, fc=fc, ec=ec, lw=lw))
     if label:
         ax.text(cx, cy, label, ha="center", va="center", fontsize=fs,
                 family=fam, color=tc, style="italic" if italic else "normal")
 
 def swish(ax, cx, cy, r=2.1):
+    REC.append(dict(t="swish", cx=cx, cy=cy, r=r))
     circle(ax, cx, cy, r)
     t = np.linspace(0, 1, 40)
     xs = cx - 1.1 + 2.2 * t
@@ -83,6 +93,7 @@ def swish(ax, cx, cy, r=2.1):
     ax.plot(xs, ys, color=DARK, lw=0.9)
 
 def hourglass(ax, cx, y, w=11, h=5.5):
+    REC.append(dict(t="hourglass", cx=cx, y=y, w=w, h=h))
     x = cx - w / 2
     top = [(x, y+h), (x+w, y+h), (x+w*0.72, y+h*0.45), (x+w*0.28, y+h*0.45)]
     bot = [(x+w*0.28, y+h*0.55), (x+w*0.72, y+h*0.55), (x+w, y), (x, y)]
@@ -90,17 +101,21 @@ def hourglass(ax, cx, y, w=11, h=5.5):
     ax.add_patch(Polygon(bot, closed=True, fc=GREEN, ec=DARK, lw=1.0, joinstyle="round"))
 
 def mul_circle(ax, cx, cy, r=2.8):
+    REC.append(dict(t="mul", cx=cx, cy=cy, r=r))
     ax.add_patch(Circle((cx, cy), r, fc="white", ec=DARK, lw=1.1))
     d = r * 0.55
     ax.plot([cx-d, cx+d], [cy-d, cy+d], color=DARK, lw=1.0)
     ax.plot([cx-d, cx+d], [cy+d, cy-d], color=DARK, lw=1.0)
 
 def dashed_frame(ax, x, y, w, h, ec=DARK, lw=1.2, ls="--"):
+    REC.append(dict(t="frame", x=x, y=y, w=w, h=h, ec=ec, lw=lw))
     ax.add_patch(FancyBboxPatch((x, y), w, h,
         boxstyle="round,pad=0,rounding_size=2.2", fc="none", ec=ec, lw=lw, ls=ls))
 
 def label(ax, x, y, text, fs=8.5, color="black", fam=SER, ha="left",
           bold=False, italic=False):
+    REC.append(dict(t="label", x=x, y=y, text=text, fs=fs, color=color,
+                    fam=fam, ha=ha, bold=bold, italic=italic))
     ax.text(x, y, text, fontsize=fs, family=fam, color=color, ha=ha,
             va="center", fontweight="bold" if bold else "normal",
             style="italic" if italic else "normal")

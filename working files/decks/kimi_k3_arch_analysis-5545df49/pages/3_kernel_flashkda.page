@@ -80,10 +80,558 @@ elements:
       wrap: false
       align: [left, middle]
       text: 计算 / 状态传播调度交叠
-  - elementId: arch-figure
-    elementType: image
-    bounds: [38, 198, 424, 218]
-    src: media/flashkda.png
+  # ===== 可编辑图例（由 emit_pptd.py 生成，勿手改；改图请改绘图脚本后重新生成） =====
+  - elementId: fig-flashkda-s1
+    elementType: shape
+    bounds: [46.7, 206.7, 405.7, 91.6]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t2
+    elementType: text
+    bounds: [55.4, 218.2, 133.9, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        朴素交替：CUBE / Vector 串行等待
+  - elementId: fig-flashkda-s3
+    elementType: shape
+    bounds: [68.5, 248.1, 39.3, 28.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t4
+    elementType: text
+    bounds: [68.5, 248.1, 39.3, 28.3]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        C1
+  - elementId: fig-flashkda-s5
+    elementType: shape
+    bounds: [114.3, 248.1, 24, 28.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-flashkda-t6
+    elementType: text
+    bounds: [118.7, 257.6, 15.3, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#9A9A9C"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        空闲
+  - elementId: fig-flashkda-s7
+    elementType: shape
+    bounds: [144.9, 248.1, 26.2, 28.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t8
+    elementType: text
+    bounds: [144.9, 248.1, 26.2, 28.3]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        S1
+  - elementId: fig-flashkda-s9
+    elementType: shape
+    bounds: [177.6, 248.1, 24, 28.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-flashkda-t10
+    elementType: text
+    bounds: [181.9, 257.6, 15.3, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#9A9A9C"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        空闲
+  - elementId: fig-flashkda-s11
+    elementType: shape
+    bounds: [208.1, 248.1, 39.3, 28.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t12
+    elementType: text
+    bounds: [208.1, 248.1, 39.3, 28.3]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        C2
+  - elementId: fig-flashkda-s13
+    elementType: shape
+    bounds: [253.9, 248.1, 24, 28.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-flashkda-t14
+    elementType: text
+    bounds: [258.3, 257.6, 15.3, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#9A9A9C"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        空闲
+  - elementId: fig-flashkda-s15
+    elementType: shape
+    bounds: [284.5, 248.1, 26.2, 28.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t16
+    elementType: text
+    bounds: [284.5, 248.1, 26.2, 28.3]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        S2
+  - elementId: fig-flashkda-s17
+    elementType: shape
+    bounds: [317.2, 248.1, 24, 28.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-flashkda-t18
+    elementType: text
+    bounds: [321.5, 257.6, 15.3, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#9A9A9C"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        空闲
+  - elementId: fig-flashkda-s19
+    elementType: shape
+    bounds: [347.7, 248.1, 39.3, 28.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t20
+    elementType: text
+    bounds: [347.7, 248.1, 39.3, 28.3]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        C3
+  - elementId: fig-flashkda-t21
+    elementType: text
+    bounds: [395.7, 257.2, 61.8, 10.2]
+    content:
+      fontSize: 6
+      color: "#404040"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: |
+        … 气泡 = 算力空置
+  - elementId: fig-flashkda-t22
+    elementType: text
+    bounds: [68.5, 284.5, 230.8, 10.2]
+    content:
+      fontSize: 6
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        C = chunk 内稠密 matmul（CUBE）　S = 跨 chunk 状态传播（Vector）
+  - elementId: fig-flashkda-s23
+    elementType: shape
+    bounds: [46.7, 307, 405.7, 100.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t24
+    elementType: text
+    bounds: [55.4, 317.4, 280.1, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        FlashKDA：intra-chunk 与跨 chunk 流水交叠（S 驻留 L1 / UB，双缓冲）
+  - elementId: fig-flashkda-t25
+    elementType: text
+    bounds: [55.4, 342.9, 19, 11]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        CUBE
+  - elementId: fig-flashkda-s26
+    elementType: shape
+    bounds: [86, 333.2, 32.7, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t27
+    elementType: text
+    bounds: [86, 333.2, 32.7, 26.2]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        A·V1
+  - elementId: fig-flashkda-s28
+    elementType: shape
+    bounds: [119.8, 333.2, 21.8, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#A6C8EA"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t29
+    elementType: text
+    bounds: [119.8, 333.2, 21.8, 26.2]
+    content:
+      fontSize: 5.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        UT1
+  - elementId: fig-flashkda-s30
+    elementType: shape
+    bounds: [143.8, 333.2, 32.7, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t31
+    elementType: text
+    bounds: [143.8, 333.2, 32.7, 26.2]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        A·V2
+  - elementId: fig-flashkda-s32
+    elementType: shape
+    bounds: [177.6, 333.2, 21.8, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#A6C8EA"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t33
+    elementType: text
+    bounds: [177.6, 333.2, 21.8, 26.2]
+    content:
+      fontSize: 5.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        UT2
+  - elementId: fig-flashkda-s34
+    elementType: shape
+    bounds: [201.6, 333.2, 32.7, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t35
+    elementType: text
+    bounds: [201.6, 333.2, 32.7, 26.2]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        A·V3
+  - elementId: fig-flashkda-s36
+    elementType: shape
+    bounds: [235.4, 333.2, 21.8, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#A6C8EA"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t37
+    elementType: text
+    bounds: [235.4, 333.2, 21.8, 26.2]
+    content:
+      fontSize: 5.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        UT3
+  - elementId: fig-flashkda-s38
+    elementType: shape
+    bounds: [259.4, 333.2, 32.7, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t39
+    elementType: text
+    bounds: [259.4, 333.2, 32.7, 26.2]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        A·V4
+  - elementId: fig-flashkda-s40
+    elementType: shape
+    bounds: [293.2, 333.2, 21.8, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#A6C8EA"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t41
+    elementType: text
+    bounds: [293.2, 333.2, 21.8, 26.2]
+    content:
+      fontSize: 5.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        UT4
+  - elementId: fig-flashkda-t42
+    elementType: text
+    bounds: [55.4, 377.8, 27, 11]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        Vector
+  - elementId: fig-flashkda-s43
+    elementType: shape
+    bounds: [86, 365.9, 28.4, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t44
+    elementType: text
+    bounds: [86, 365.9, 28.4, 26.2]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Γ
+  - elementId: fig-flashkda-t45
+    elementType: text
+    bounds: [88.5, 395, 23.3, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: Times New Roman
+      bold: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        cumsum
+  - elementId: fig-flashkda-s46
+    elementType: shape
+    bounds: [130.7, 365.9, 30.5, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t47
+    elementType: text
+    bounds: [130.7, 365.9, 30.5, 26.2]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        S1
+  - elementId: fig-flashkda-s48
+    elementType: shape
+    bounds: [188.5, 365.9, 30.5, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t49
+    elementType: text
+    bounds: [188.5, 365.9, 30.5, 26.2]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        S2
+  - elementId: fig-flashkda-s50
+    elementType: shape
+    bounds: [246.3, 365.9, 30.5, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-t51
+    elementType: text
+    bounds: [246.3, 365.9, 30.5, 26.2]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        S3
+  - elementId: fig-flashkda-l52
+    elementType: line
+    bounds: [101.3, 358.3, 45.6, 5.3]
+    viewBox: [45.6, 5.3]
+    points: "1,1 1,4.3 44.6,4.3"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-l53
+    elementType: line
+    bounds: [145, 361.6, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,1 1,3.6"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-l54
+    elementType: line
+    bounds: [159.1, 358.3, 45.6, 5.3]
+    viewBox: [45.6, 5.3]
+    points: "1,1 1,4.3 44.6,4.3"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-l55
+    elementType: line
+    bounds: [202.8, 361.6, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,1 1,3.6"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-l56
+    elementType: line
+    bounds: [216.9, 358.3, 45.6, 5.3]
+    viewBox: [45.6, 5.3]
+    points: "1,1 1,4.3 44.6,4.3"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-l57
+    elementType: line
+    bounds: [260.6, 361.6, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,1 1,3.6"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-flashkda-s58
+    elementType: shape
+    bounds: [323.7, 328.8, 120, 69.8]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#7A7A7A"}
+  - elementId: fig-flashkda-t59
+    elementType: text
+    bounds: [330.3, 336.1, 81.8, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        chunkwise 递推（C = 64）
+  - elementId: fig-flashkda-t60
+    elementType: text
+    bounds: [330.3, 350.3, 138.5, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        \(S_i=(I-\beta_i k_i k_i^{\top})\,\mathrm{Diag}(\alpha_i)\,S_{i-1}\)
+  - elementId: fig-flashkda-t61
+    elementType: text
+    bounds: [330.3, 362.3, 57.2, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        \(+\,\beta_i k_i v_i^{\top}\)
+  - elementId: fig-flashkda-t62
+    elementType: text
+    bounds: [330.3, 376.4, 98.5, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: |
+        对角块：有界衰减 → 稠密 matmul
+  - elementId: fig-flashkda-t63
+    elementType: text
+    bounds: [330.3, 388.4, 112, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [left, middle]
+      text: |
+        跨 chunk：小矩阵 rank-1 更新，串行
+  # ===== 可编辑图例结束 =====
   - elementId: param-label
     elementType: text
     bounds: [488, 180, 300, 15]

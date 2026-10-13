@@ -80,10 +80,426 @@ elements:
       wrap: false
       align: [left, middle]
       text: 深度维注意力机制与执行调度
-  - elementId: arch-figure
-    elementType: image
-    bounds: [38, 198, 424, 218]
-    src: media/attnres.png
+  # ===== 可编辑图例（由 emit_pptd.py 生成，勿手改；改图请改绘图脚本后重新生成） =====
+  - elementId: fig-attnres-s1
+    elementType: shape
+    bounds: [46.7, 206.7, 405.7, 91.6]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t2
+    elementType: text
+    bounds: [55.4, 215.6, 144.5, 12.8]
+    content:
+      fontSize: 7.5
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        机制：对 block 表示做深度维注意力
+  - elementId: fig-attnres-s3
+    elementType: shape
+    bounds: [68.5, 248.1, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t4
+    elementType: text
+    bounds: [68.5, 248.1, 39.3, 26.2]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        b0
+  - elementId: fig-attnres-s5
+    elementType: shape
+    bounds: [120.9, 248.1, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t6
+    elementType: text
+    bounds: [120.9, 248.1, 39.3, 26.2]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        b1
+  - elementId: fig-attnres-s7
+    elementType: shape
+    bounds: [173.2, 248.1, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t8
+    elementType: text
+    bounds: [173.2, 248.1, 39.3, 26.2]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        b2
+  - elementId: fig-attnres-s9
+    elementType: shape
+    bounds: [256.1, 248.1, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t10
+    elementType: text
+    bounds: [256.1, 248.1, 39.3, 26.2]
+    content:
+      fontSize: 6.5
+      color: "#1F2A36"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        b8
+  - elementId: fig-attnres-t11
+    elementType: text
+    bounds: [226.3, 255.3, 7.3, 11.9]
+    content:
+      fontSize: 7
+      color: "#404040"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        …
+  - elementId: fig-attnres-s12
+    elementType: shape
+    bounds: [305.4, 253.8, 14.8, 14.8]
+    shapeName: ellipse
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t13
+    elementType: text
+    bounds: [305.4, 253.8, 14.8, 14.8]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        w
+  - elementId: fig-attnres-t14
+    elementType: text
+    bounds: [325.9, 256.1, 70.2, 10.2]
+    content:
+      fontSize: 6
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        伪查询（逐层可学习）
+  - elementId: fig-attnres-s15
+    elementType: shape
+    bounds: [186.3, 281.9, 13.1, 13.1]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t16
+    elementType: text
+    bounds: [186.3, 281.9, 13.1, 13.1]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Σ
+  - elementId: fig-attnres-l17
+    elementType: line
+    bounds: [87.2, 279.8, 226.7, 2]
+    viewBox: [226.7, 2]
+    points: "1,1 225.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-l18
+    elementType: line
+    bounds: [87.2, 273.3, 2, 8.5]
+    viewBox: [2, 8.5]
+    points: "1,1 1,7.5"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-l19
+    elementType: line
+    bounds: [139.5, 273.3, 2, 8.5]
+    viewBox: [2, 8.5]
+    points: "1,1 1,7.5"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-l20
+    elementType: line
+    bounds: [274.7, 273.3, 2, 8.5]
+    viewBox: [2, 8.5]
+    points: "1,1 1,7.5"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-l21
+    elementType: line
+    bounds: [311.8, 267.6, 2, 14.2]
+    viewBox: [2, 14.2]
+    points: "1,1 1,13.2"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-l22
+    elementType: line
+    bounds: [191.9, 273.3, 2, 9.2]
+    viewBox: [2, 9.2]
+    points: "1,1 1,8.2"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t23
+    elementType: text
+    bounds: [212.5, 282.9, 79.1, 11]
+    content:
+      fontSize: 6.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        \(h_l=\sum_i \alpha_i \cdot b_i\)
+  - elementId: fig-attnres-t24
+    elementType: text
+    bounds: [325.9, 271.8, 87.7, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        α = softmax(w·RMSNorm(b))
+  - elementId: fig-attnres-t25
+    elementType: text
+    bounds: [325.9, 281.6, 66.1, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        online softmax 合并
+  - elementId: fig-attnres-s26
+    elementType: shape
+    bounds: [46.7, 307, 405.7, 43.6]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t27
+    elementType: text
+    bounds: [55.4, 313, 208, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        Prefill：all-reduce 拆为 RS + AG，kernel 插入其间
+  - elementId: fig-attnres-s28
+    elementType: shape
+    bounds: [68.5, 325.5, 69.8, 18.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t29
+    elementType: text
+    bounds: [68.5, 325.5, 69.8, 18.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Reduce-Scatter
+  - elementId: fig-attnres-l30
+    elementType: line
+    bounds: [139.5, 333.9, 15.1, 2]
+    viewBox: [15.1, 2]
+    points: "1,1 14.1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-attnres-s31
+    elementType: shape
+    bounds: [155.8, 325.5, 135.2, 18.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t32
+    elementType: text
+    bounds: [155.8, 325.5, 135.2, 18.5]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        intra-block kernel（序列分片上物化）
+  - elementId: fig-attnres-l33
+    elementType: line
+    bounds: [292.2, 333.9, 15.1, 2]
+    viewBox: [15.1, 2]
+    points: "1,1 14.1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-attnres-s34
+    elementType: shape
+    bounds: [308.5, 325.5, 61.1, 18.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t35
+    elementType: text
+    bounds: [308.5, 325.5, 61.1, 18.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        All-Gather
+  - elementId: fig-attnres-s36
+    elementType: shape
+    bounds: [46.7, 359.3, 405.7, 48]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t37
+    elementType: text
+    bounds: [55.4, 361, 168, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        Decode：inter-block 放 side stream 交叠
+  - elementId: fig-attnres-s38
+    elementType: shape
+    bounds: [68.5, 371.3, 69.8, 15.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t39
+    elementType: text
+    bounds: [68.5, 371.3, 69.8, 15.3]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        主流计算
+  - elementId: fig-attnres-s40
+    elementType: shape
+    bounds: [151.4, 371.3, 69.8, 15.3]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t41
+    elementType: text
+    bounds: [151.4, 371.3, 69.8, 15.3]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        主流计算
+  - elementId: fig-attnres-l42
+    elementType: line
+    bounds: [138.4, 377.9, 12.9, 2]
+    viewBox: [12.9, 2]
+    points: "1,1 11.9,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t43
+    elementType: text
+    bounds: [235, 373, 7.3, 11.9]
+    content:
+      fontSize: 7
+      color: "#404040"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        …
+  - elementId: fig-attnres-s44
+    elementType: shape
+    bounds: [103.4, 394.2, 139.6, 9.8]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-attnres-t45
+    elementType: text
+    bounds: [103.4, 394.2, 139.6, 9.8]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        inter-block kernel（side stream）
+  - elementId: fig-attnres-l46
+    elementType: line
+    bounds: [135.1, 385.6, 2, 9.6]
+    viewBox: [2, 9.6]
+    points: "1,8.6 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-attnres-l47
+    elementType: line
+    bounds: [200.6, 385.6, 2, 9.6]
+    viewBox: [2, 9.6]
+    points: "1,8.6 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#9A9A9C"}
+  - elementId: fig-attnres-t48
+    elementType: text
+    bounds: [256.1, 394.5, 89.2, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        与主流独立计算交叠，隐藏延迟
+  # ===== 可编辑图例结束 =====
   - elementId: param-label
     elementType: text
     bounds: [488, 180, 300, 15]

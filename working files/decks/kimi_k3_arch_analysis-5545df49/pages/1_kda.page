@@ -93,10 +93,1289 @@ elements:
       wrap: false
       align: [left, middle]
       text: 红框 = K3 相对 Kimi Linear 的改动
-  - elementId: arch-figure
-    elementType: image
-    bounds: [38, 198, 424, 218]
-    src: media/kda_arch.png
+  # ===== 可编辑图例（由 emit_pptd.py 生成，勿手改；改图请改绘图脚本后重新生成） =====
+  - elementId: fig-kda_arch-s1
+    elementType: shape
+    bounds: [46.7, 208.9, 218.1, 196.2]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l2
+    elementType: line
+    bounds: [154.8, 391, 2, 15.1]
+    viewBox: [2, 15.1]
+    points: "1,14.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l3
+    elementType: line
+    bounds: [71.9, 391, 163.4, 2]
+    viewBox: [163.4, 2]
+    points: "1,1 162.4,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l4
+    elementType: line
+    bounds: [71.9, 386.7, 2, 6.4]
+    viewBox: [2, 6.4]
+    points: "1,5.4 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l5
+    elementType: line
+    bounds: [111.2, 386.7, 2, 6.4]
+    viewBox: [2, 6.4]
+    points: "1,5.4 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l6
+    elementType: line
+    bounds: [150.4, 386.7, 2, 6.4]
+    viewBox: [2, 6.4]
+    points: "1,5.4 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l7
+    elementType: line
+    bounds: [185.3, 386.7, 2, 6.4]
+    viewBox: [2, 6.4]
+    points: "1,5.4 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l8
+    elementType: line
+    bounds: [233.3, 386.7, 2, 6.4]
+    viewBox: [2, 6.4]
+    points: "1,5.4 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s9
+    elementType: shape
+    bounds: [59.6, 376.5, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6DAD6"}
+  - elementId: fig-kda_arch-s10
+    elementType: shape
+    bounds: [57.6, 374.6, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t11
+    elementType: text
+    bounds: [57.6, 374.6, 30.5, 13.1]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Linear
+  - elementId: fig-kda_arch-s12
+    elementType: shape
+    bounds: [60.7, 354.7, 28.4, 13.1]
+    shapeName: custom
+    viewBox: [28.4, 13.1]
+    path: "M 3.5,13.1 L 24.9,13.1 L 28.4,9.6 L 28.4,3.5 L 24.9,0 L 3.5,0 L 0,3.5 L 0,9.6 Z"
+    fill: {type: solid, color: "#E6E6E8"}
+  - elementId: fig-kda_arch-s13
+    elementType: shape
+    bounds: [58.7, 352.8, 28.4, 13.1]
+    shapeName: custom
+    viewBox: [28.4, 13.1]
+    path: "M 3.5,13.1 L 24.9,13.1 L 28.4,9.6 L 28.4,3.5 L 24.9,0 L 3.5,0 L 0,3.5 L 0,9.6 Z"
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t14
+    elementType: text
+    bounds: [58.7, 352.8, 28.4, 13.1]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Conv
+  - elementId: fig-kda_arch-s15
+    elementType: shape
+    bounds: [68.3, 338.4, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l16
+    elementType: line
+    bounds: [69.5, 339.8, 6.8, 6.4]
+    viewBox: [6.8, 6.4]
+    points: "1,5.4 1.1,5.1 1.2,4.9 1.4,4.7 1.5,4.5 1.6,4.3 1.7,4.2 1.9,4 2,3.8 2.1,3.7 2.2,3.6 2.4,3.5 2.5,3.4 2.6,3.3 2.7,3.3 2.8,3.2 3,3.2 3.1,3.2 3.2,3.2 3.3,3.2 3.5,3.2 3.6,3.2 3.7,3.2 3.8,3.1 4,3.1 4.1,3.1 4.2,3 4.3,3 4.4,2.9 4.6,2.8 4.7,2.7 4.8,2.5 4.9,2.4 5.1,2.2 5.2,2 5.3,1.8 5.4,1.6 5.6,1.4 5.7,1.2 5.8,1"
+    curve: smooth
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s17
+    elementType: shape
+    bounds: [68.3, 338.4, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s18
+    elementType: shape
+    bounds: [62, 322.3, 21.8, 12]
+    shapeName: custom
+    viewBox: [21.8, 12]
+    path: "M 3.5,12 L 18.3,12 L 21.8,8.5 L 21.8,3.5 L 18.3,0 L 3.5,0 L 0,3.5 L 0,8.5 Z"
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t19
+    elementType: text
+    bounds: [62, 322.3, 21.8, 12]
+    content:
+      fontSize: 3.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        L2
+  - elementId: fig-kda_arch-l20
+    elementType: line
+    bounds: [71.9, 364.9, 2, 10.7]
+    viewBox: [2, 10.7]
+    points: "1,9.7 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l21
+    elementType: line
+    bounds: [71.9, 346.5, 2, 7.2]
+    viewBox: [2, 7.2]
+    points: "1,6.2 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l22
+    elementType: line
+    bounds: [71.9, 333.2, 2, 6.1]
+    viewBox: [2, 6.1]
+    points: "1,5.1 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l23
+    elementType: line
+    bounds: [66.4, 301.6, 2, 21.6]
+    viewBox: [2, 21.6]
+    points: "1,20.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l24
+    elementType: line
+    bounds: [77.3, 301.6, 2, 21.6]
+    viewBox: [2, 21.6]
+    points: "1,20.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t25
+    elementType: text
+    bounds: [63.3, 307.8, 6.4, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        q
+  - elementId: fig-kda_arch-t26
+    elementType: text
+    bounds: [82.1, 307.8, 6.4, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        k
+  - elementId: fig-kda_arch-s27
+    elementType: shape
+    bounds: [98.9, 376.5, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6DAD6"}
+  - elementId: fig-kda_arch-s28
+    elementType: shape
+    bounds: [96.9, 374.6, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t29
+    elementType: text
+    bounds: [96.9, 374.6, 30.5, 13.1]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Linear
+  - elementId: fig-kda_arch-s30
+    elementType: shape
+    bounds: [99.9, 354.7, 28.4, 13.1]
+    shapeName: custom
+    viewBox: [28.4, 13.1]
+    path: "M 3.5,13.1 L 24.9,13.1 L 28.4,9.6 L 28.4,3.5 L 24.9,0 L 3.5,0 L 0,3.5 L 0,9.6 Z"
+    fill: {type: solid, color: "#E6E6E8"}
+  - elementId: fig-kda_arch-s31
+    elementType: shape
+    bounds: [98, 352.8, 28.4, 13.1]
+    shapeName: custom
+    viewBox: [28.4, 13.1]
+    path: "M 3.5,13.1 L 24.9,13.1 L 28.4,9.6 L 28.4,3.5 L 24.9,0 L 3.5,0 L 0,3.5 L 0,9.6 Z"
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t32
+    elementType: text
+    bounds: [98, 352.8, 28.4, 13.1]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Conv
+  - elementId: fig-kda_arch-s33
+    elementType: shape
+    bounds: [107.6, 338.4, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l34
+    elementType: line
+    bounds: [108.8, 339.8, 6.8, 6.4]
+    viewBox: [6.8, 6.4]
+    points: "1,5.4 1.1,5.1 1.2,4.9 1.4,4.7 1.5,4.5 1.6,4.3 1.7,4.2 1.9,4 2,3.8 2.1,3.7 2.2,3.6 2.4,3.5 2.5,3.4 2.6,3.3 2.7,3.3 2.8,3.2 3,3.2 3.1,3.2 3.2,3.2 3.3,3.2 3.5,3.2 3.6,3.2 3.7,3.2 3.8,3.1 4,3.1 4.1,3.1 4.2,3 4.3,3 4.4,2.9 4.6,2.8 4.7,2.7 4.8,2.5 4.9,2.4 5.1,2.2 5.2,2 5.3,1.8 5.4,1.6 5.6,1.4 5.7,1.2 5.8,1"
+    curve: smooth
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s35
+    elementType: shape
+    bounds: [107.6, 338.4, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l36
+    elementType: line
+    bounds: [111.2, 364.9, 2, 10.7]
+    viewBox: [2, 10.7]
+    points: "1,9.7 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l37
+    elementType: line
+    bounds: [111.2, 346.5, 2, 7.2]
+    viewBox: [2, 7.2]
+    points: "1,6.2 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l38
+    elementType: line
+    bounds: [111.2, 301.6, 2, 37.8]
+    viewBox: [2, 37.8]
+    points: "1,36.8 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t39
+    elementType: text
+    bounds: [115.2, 307.8, 6.4, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        v
+  - elementId: fig-kda_arch-s40
+    elementType: shape
+    bounds: [139.4, 375.7, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 0,0 L 24,0 L 17.3,6.6 L 6.7,6.6 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s41
+    elementType: shape
+    bounds: [139.4, 375.7, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 6.7,5.4 L 17.3,5.4 L 24,12 L 0,12 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s42
+    elementType: shape
+    bounds: [139.4, 361.5, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 0,0 L 24,0 L 17.3,6.6 L 6.7,6.6 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s43
+    elementType: shape
+    bounds: [139.4, 361.5, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 6.7,5.4 L 17.3,5.4 L 24,12 L 0,12 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s44
+    elementType: shape
+    bounds: [146.8, 347.1, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t45
+    elementType: text
+    bounds: [146.8, 347.1, 9.2, 9.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        σ
+  - elementId: fig-kda_arch-l46
+    elementType: line
+    bounds: [150.4, 355.3, 2, 7.2]
+    viewBox: [2, 7.2]
+    points: "1,6.2 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l47
+    elementType: line
+    bounds: [150.4, 301.6, 2, 46.5]
+    viewBox: [2, 46.5]
+    points: "1,45.5 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t48
+    elementType: text
+    bounds: [154.5, 307.8, 6.4, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        α
+  - elementId: fig-kda_arch-s49
+    elementType: shape
+    bounds: [134, 339.7, 34.9, 51.2]
+    shapeName: roundRect
+    border: {style: dash, width: 0.8, color: "#C00000"}
+  - elementId: fig-kda_arch-t50
+    elementType: text
+    bounds: [170, 342, 6.1, 8.5]
+    content:
+      fontSize: 5
+      color: "#C00000"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        ①
+  - elementId: fig-kda_arch-s51
+    elementType: shape
+    bounds: [174.3, 375.7, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 0,0 L 24,0 L 17.3,6.6 L 6.7,6.6 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s52
+    elementType: shape
+    bounds: [174.3, 375.7, 24, 12]
+    shapeName: custom
+    viewBox: [24, 12]
+    path: "M 6.7,5.4 L 17.3,5.4 L 24,12 L 0,12 Z"
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s53
+    elementType: shape
+    bounds: [181.7, 361.3, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t54
+    elementType: text
+    bounds: [181.7, 361.3, 9.2, 9.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        σ
+  - elementId: fig-kda_arch-l55
+    elementType: line
+    bounds: [185.3, 369.4, 2, 7.2]
+    viewBox: [2, 7.2]
+    points: "1,6.2 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l56
+    elementType: line
+    bounds: [185.3, 301.6, 2, 60.6]
+    viewBox: [2, 60.6]
+    points: "1,59.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t57
+    elementType: text
+    bounds: [189.4, 307.8, 6.4, 9.3]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        β
+  - elementId: fig-kda_arch-s58
+    elementType: shape
+    bounds: [221, 376.5, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6DAD6"}
+  - elementId: fig-kda_arch-s59
+    elementType: shape
+    bounds: [219, 374.6, 30.5, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t60
+    elementType: text
+    bounds: [219, 374.6, 30.5, 13.1]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Linear
+  - elementId: fig-kda_arch-s61
+    elementType: shape
+    bounds: [229.7, 338.4, 9.2, 9.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t62
+    elementType: text
+    bounds: [229.7, 338.4, 9.2, 9.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        σ
+  - elementId: fig-kda_arch-l63
+    elementType: line
+    bounds: [233.3, 346.5, 2, 29]
+    viewBox: [2, 29]
+    points: "1,28 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l64
+    elementType: line
+    bounds: [163.9, 245, 71.4, 94.4]
+    viewBox: [71.4, 94.4]
+    points: "70.4,93.4 70.4,1 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s65
+    elementType: shape
+    bounds: [214.7, 370.2, 39.3, 20.7]
+    shapeName: roundRect
+    border: {style: dash, width: 0.8, color: "#C00000"}
+  - elementId: fig-kda_arch-t66
+    elementType: text
+    bounds: [255.2, 376.9, 6.1, 8.5]
+    content:
+      fontSize: 5
+      color: "#C00000"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        ②
+  - elementId: fig-kda_arch-s67
+    elementType: shape
+    bounds: [64.2, 280.8, 152.7, 21.8]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t68
+    elementType: text
+    bounds: [64.2, 280.8, 152.7, 21.8]
+    content:
+      fontSize: 5.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Kimi Delta Attention
+  - elementId: fig-kda_arch-s69
+    elementType: shape
+    bounds: [129.4, 261, 56.7, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#E6E6E8"}
+  - elementId: fig-kda_arch-s70
+    elementType: shape
+    bounds: [127.4, 259, 56.7, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F2F2F3"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t71
+    elementType: text
+    bounds: [127.4, 259, 56.7, 13.1]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Norm
+  - elementId: fig-kda_arch-l72
+    elementType: line
+    bounds: [154.8, 271.1, 2, 10.7]
+    viewBox: [2, 10.7]
+    points: "1,9.7 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s73
+    elementType: shape
+    bounds: [149.7, 239.9, 12.2, 12.2]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l74
+    elementType: line
+    bounds: [151.4, 241.6, 8.7, 8.7]
+    viewBox: [8.7, 8.7]
+    points: "1,7.7 7.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l75
+    elementType: line
+    bounds: [151.4, 241.6, 8.7, 8.7]
+    viewBox: [8.7, 8.7]
+    points: "1,1 7.7,7.7"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l76
+    elementType: line
+    bounds: [154.8, 251.1, 2, 9]
+    viewBox: [2, 9]
+    points: "1,8 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s77
+    elementType: shape
+    bounds: [129.4, 221.8, 56.7, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6DAD6"}
+  - elementId: fig-kda_arch-s78
+    elementType: shape
+    bounds: [127.4, 219.8, 56.7, 13.1]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F6D2CE"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t79
+    elementType: text
+    bounds: [127.4, 219.8, 56.7, 13.1]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Linear
+  - elementId: fig-kda_arch-l80
+    elementType: line
+    bounds: [154.8, 231.9, 2, 9]
+    viewBox: [2, 9]
+    points: "1,8 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l81
+    elementType: line
+    bounds: [154.8, 207.9, 2, 12.9]
+    viewBox: [2, 12.9]
+    points: "1,11.9 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t82
+    elementType: text
+    bounds: [161.2, 211.2, 15.3, 8.5]
+    content:
+      fontSize: 5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [left, middle]
+      text: |
+        \(y_t\)
+  - elementId: fig-kda_arch-s83
+    elementType: shape
+    bounds: [315, 392, 56.7, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F2F2F3"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t84
+    elementType: text
+    bounds: [315, 392, 56.7, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Embedding
+  - elementId: fig-kda_arch-s85
+    elementType: shape
+    bounds: [342.6, 388.6, 1.5, 1.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#9A9A9C"}
+  - elementId: fig-kda_arch-s86
+    elementType: shape
+    bounds: [342.6, 386, 1.5, 1.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#9A9A9C"}
+  - elementId: fig-kda_arch-s87
+    elementType: shape
+    bounds: [342.6, 383.4, 1.5, 1.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#9A9A9C"}
+  - elementId: fig-kda_arch-s88
+    elementType: shape
+    bounds: [315, 367, 56.7, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F2F2F3"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t89
+    elementType: text
+    bounds: [315, 367, 56.7, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Block \(n-2\)
+  - elementId: fig-kda_arch-s90
+    elementType: shape
+    bounds: [315, 345.1, 56.7, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F2F2F3"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t91
+    elementType: text
+    bounds: [315, 345.1, 56.7, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Block \(n-1\)
+  - elementId: fig-kda_arch-s92
+    elementType: shape
+    bounds: [286.6, 208.9, 122.1, 133]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t93
+    elementType: text
+    bounds: [294.7, 410.4, 123.5, 6]
+    content:
+      fontSize: 3.5
+      color: "#404040"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        1 Block = 3×KDA + 1×Gated MLA（×23，末尾再 +1×Gated MLA）
+  - elementId: fig-kda_arch-l94
+    elementType: line
+    bounds: [342.3, 334.3, 2, 11.8]
+    viewBox: [2, 11.8]
+    points: "1,10.8 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s95
+    elementType: shape
+    bounds: [317.2, 321.2, 52.3, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t96
+    elementType: text
+    bounds: [317.2, 321.2, 52.3, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        KDA
+  - elementId: fig-kda_arch-l97
+    elementType: line
+    bounds: [342.3, 314.9, 2, 7.2]
+    viewBox: [2, 7.2]
+    points: "1,6.2 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s98
+    elementType: shape
+    bounds: [338.8, 306.8, 9.2, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t99
+    elementType: text
+    bounds: [338.8, 306.8, 9.2, 9.2]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        +
+  - elementId: fig-kda_arch-l100
+    elementType: line
+    bounds: [342.3, 301.6, 2, 6.1]
+    viewBox: [2, 6.1]
+    points: "1,5.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s101
+    elementType: shape
+    bounds: [312.8, 288.5, 61.1, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t102
+    elementType: text
+    bounds: [312.8, 288.5, 61.1, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Stable LatentMoE
+  - elementId: fig-kda_arch-l103
+    elementType: line
+    bounds: [342.3, 284.4, 2, 5.1]
+    viewBox: [2, 5.1]
+    points: "1,4.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s104
+    elementType: shape
+    bounds: [338.8, 276.3, 9.2, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t105
+    elementType: text
+    bounds: [338.8, 276.3, 9.2, 9.2]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        +
+  - elementId: fig-kda_arch-l106
+    elementType: line
+    bounds: [342.3, 272.2, 2, 5.1]
+    viewBox: [2, 5.1]
+    points: "1,4.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s107
+    elementType: shape
+    bounds: [315, 259, 56.7, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#E5B3B2"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t108
+    elementType: text
+    bounds: [315, 259, 56.7, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Gated MLA
+  - elementId: fig-kda_arch-l109
+    elementType: line
+    bounds: [342.3, 253.9, 2, 6.1]
+    viewBox: [2, 6.1]
+    points: "1,5.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s110
+    elementType: shape
+    bounds: [338.8, 245.7, 9.2, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t111
+    elementType: text
+    bounds: [338.8, 245.7, 9.2, 9.2]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        +
+  - elementId: fig-kda_arch-l112
+    elementType: line
+    bounds: [342.3, 241.7, 2, 5.1]
+    viewBox: [2, 5.1]
+    points: "1,4.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s113
+    elementType: shape
+    bounds: [312.8, 228.5, 61.1, 14.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t114
+    elementType: text
+    bounds: [312.8, 228.5, 61.1, 14.2]
+    content:
+      fontSize: 4.5
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        Stable LatentMoE
+  - elementId: fig-kda_arch-l115
+    elementType: line
+    bounds: [342.3, 223.4, 2, 6.1]
+    viewBox: [2, 6.1]
+    points: "1,5.1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-s116
+    elementType: shape
+    bounds: [338.8, 215.2, 9.2, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t117
+    elementType: text
+    bounds: [338.8, 215.2, 9.2, 9.2]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      wrap: false
+      align: [center, middle]
+      text: |
+        +
+  - elementId: fig-kda_arch-l118
+    elementType: line
+    bounds: [342.3, 207.9, 2, 8.3]
+    viewBox: [2, 8.3]
+    points: "1,7.3 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-l119
+    elementType: line
+    bounds: [307.5, 310.4, 36.9, 28.2]
+    viewBox: [36.9, 28.2]
+    points: "35.9,27.2 1,27.2 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l120
+    elementType: line
+    bounds: [307.5, 310.4, 32.3, 2]
+    viewBox: [32.3, 2]
+    points: "1,1 31.3,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l121
+    elementType: line
+    bounds: [303.7, 279.8, 40.6, 26]
+    viewBox: [40.6, 26]
+    points: "39.6,25 1,25 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l122
+    elementType: line
+    bounds: [303.7, 279.8, 36, 2]
+    viewBox: [36, 2]
+    points: "1,1 35,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l123
+    elementType: line
+    bounds: [300, 249.3, 44.3, 27.1]
+    viewBox: [44.3, 27.1]
+    points: "43.3,26.1 1,26.1 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l124
+    elementType: line
+    bounds: [300, 249.3, 39.7, 2]
+    viewBox: [39.7, 2]
+    points: "1,1 38.7,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l125
+    elementType: line
+    bounds: [296.3, 218.8, 48, 27.1]
+    viewBox: [48, 27.1]
+    points: "47,26.1 1,26.1 1,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l126
+    elementType: line
+    bounds: [296.3, 218.8, 43.4, 2]
+    viewBox: [43.4, 2]
+    points: "1,1 42.4,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-t127
+    elementType: text
+    bounds: [286.5, 308.4, 10.4, 10.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        3×
+  - elementId: fig-kda_arch-t128
+    elementType: text
+    bounds: [286.5, 261.6, 10.4, 10.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        1×
+  - elementId: fig-kda_arch-l129
+    elementType: line
+    bounds: [368.5, 327.3, 16.4, 2]
+    viewBox: [16.4, 2]
+    points: "15.4,1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s130
+    elementType: shape
+    bounds: [383.9, 323, 10.5, 10.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-t131
+    elementType: text
+    bounds: [383.9, 323, 10.5, 10.5]
+    content:
+      fontSize: 4.5
+      color: "#B92621"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        α
+  - elementId: fig-kda_arch-l132
+    elementType: line
+    bounds: [388.2, 319.4, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,3.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s133
+    elementType: shape
+    bounds: [383.5, 310.8, 11.3, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t134
+    elementType: text
+    bounds: [386.4, 312, 5.5, 6.8]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        w
+  - elementId: fig-kda_arch-l135
+    elementType: line
+    bounds: [372.9, 294.6, 12, 2]
+    viewBox: [12, 2]
+    points: "11,1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s136
+    elementType: shape
+    bounds: [383.9, 290.3, 10.5, 10.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-t137
+    elementType: text
+    bounds: [383.9, 290.3, 10.5, 10.5]
+    content:
+      fontSize: 4.5
+      color: "#B92621"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        α
+  - elementId: fig-kda_arch-l138
+    elementType: line
+    bounds: [388.2, 286.7, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,3.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s139
+    elementType: shape
+    bounds: [383.5, 278.1, 11.3, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t140
+    elementType: text
+    bounds: [386.4, 279.3, 5.5, 6.8]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        w
+  - elementId: fig-kda_arch-l141
+    elementType: line
+    bounds: [370.7, 265.1, 14.2, 2]
+    viewBox: [14.2, 2]
+    points: "13.2,1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s142
+    elementType: shape
+    bounds: [383.9, 260.9, 10.5, 10.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-t143
+    elementType: text
+    bounds: [383.9, 260.9, 10.5, 10.5]
+    content:
+      fontSize: 4.5
+      color: "#B92621"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        α
+  - elementId: fig-kda_arch-l144
+    elementType: line
+    bounds: [388.2, 257.3, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,3.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s145
+    elementType: shape
+    bounds: [383.5, 248.7, 11.3, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t146
+    elementType: text
+    bounds: [386.4, 249.9, 5.5, 6.8]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        w
+  - elementId: fig-kda_arch-l147
+    elementType: line
+    bounds: [372.9, 234.6, 12, 2]
+    viewBox: [12, 2]
+    points: "11,1 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s148
+    elementType: shape
+    bounds: [383.9, 230.4, 10.5, 10.5]
+    shapeName: ellipse
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-t149
+    elementType: text
+    bounds: [383.9, 230.4, 10.5, 10.5]
+    content:
+      fontSize: 4.5
+      color: "#B92621"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        α
+  - elementId: fig-kda_arch-l150
+    elementType: line
+    bounds: [388.2, 226.8, 2, 4.6]
+    viewBox: [2, 4.6]
+    points: "1,3.6 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-s151
+    elementType: shape
+    bounds: [383.5, 218.2, 11.3, 9.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#FFFFFF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_arch-t152
+    elementType: text
+    bounds: [386.4, 219.3, 5.5, 6.8]
+    content:
+      fontSize: 4
+      color: "black"
+      fontFamily: Times New Roman
+      italic: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        w
+  - elementId: fig-kda_arch-l153
+    elementType: line
+    bounds: [370.7, 234.6, 54.3, 118.6]
+    viewBox: [54.3, 118.6]
+    points: "1,117.6 53.3,117.6 53.3,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l154
+    elementType: line
+    bounds: [370.7, 234.6, 60.9, 140.4]
+    viewBox: [60.9, 140.4]
+    points: "1,139.4 59.9,139.4 59.9,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l155
+    elementType: line
+    bounds: [370.7, 234.6, 67.4, 165.5]
+    viewBox: [67.4, 165.5]
+    points: "1,164.5 66.4,164.5 66.4,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l156
+    elementType: line
+    bounds: [393.4, 327.3, 44.7, 2]
+    viewBox: [44.7, 2]
+    points: "1,1 43.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l157
+    elementType: line
+    bounds: [393.4, 294.6, 44.7, 2]
+    viewBox: [44.7, 2]
+    points: "1,1 43.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l158
+    elementType: line
+    bounds: [393.4, 265.1, 44.7, 2]
+    viewBox: [44.7, 2]
+    points: "1,1 43.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  - elementId: fig-kda_arch-l159
+    elementType: line
+    bounds: [393.4, 234.6, 44.7, 2]
+    viewBox: [44.7, 2]
+    points: "1,1 43.7,1"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#814B50"}
+  # ===== 可编辑图例结束 =====
   - elementId: param-label
     elementType: text
     bounds: [488, 180, 300, 15]

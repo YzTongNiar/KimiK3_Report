@@ -32,9 +32,14 @@ fig.patch.set_facecolor("white")
 
 SER = "Times New Roman"
 
+REC = []   # 图元记录（供 PPTD 可编辑元素导出）
+
 def rbox(x, y, w, h, fc, text=None, fs=9, ec=DARK, lw=1.1, shadow=None,
          octagon=False, tc="black", bold=False, rounding=1.2):
     """带可选偏移阴影的圆角/切角盒"""
+    REC.append(dict(t="rbox", x=x, y=y, w=w, h=h, fc=fc, text=text, fs=fs, ec=ec,
+                    lw=lw, shadow=shadow, octagon=octagon, tc=tc, bold=bold,
+                    fam=SER, italic=False))
     def shape(dx=0, dy=0, fill=fc, edge=ec, lw_=lw):
         if octagon:
             c = 1.6
@@ -54,22 +59,27 @@ def rbox(x, y, w, h, fc, text=None, fs=9, ec=DARK, lw=1.1, shadow=None,
                 family=SER, color=tc, fontweight="bold" if bold else "normal")
 
 def arrow(x0, y0, x1, y1, color=DARK, lw=1.1, head=True):
+    REC.append(dict(t="arrow", x0=x0, y0=y0, x1=x1, y1=y1, color=color, lw=lw, head=head))
     ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
                 arrowprops=dict(arrowstyle="-|>" if head else "-",
                                 color=color, lw=lw, mutation_scale=9,
                                 shrinkA=0, shrinkB=0))
 
 def line(pts, color=DARK, lw=1.1):
+    REC.append(dict(t="line", pts=[list(p) for p in pts], color=color, lw=lw))
     xs, ys = zip(*pts)
     ax.plot(xs, ys, color=color, lw=lw, solid_capstyle="round")
 
 def circle(cx, cy, r, label=None, fs=9, ec=DARK, lw=1.1, fc="white", tc="black", italic=False):
+    REC.append(dict(t="circle", cx=cx, cy=cy, r=r, label=label, fs=fs, ec=ec,
+                    lw=lw, fc=fc, tc=tc, italic=italic, fam=SER))
     ax.add_patch(Circle((cx, cy), r, fc=fc, ec=ec, lw=lw))
     if label:
         ax.text(cx, cy, label, ha="center", va="center", fontsize=fs,
                 family=SER, color=tc, style="italic" if italic else "normal")
 
 def swish(cx, cy, r=2.1):
+    REC.append(dict(t="swish", cx=cx, cy=cy, r=r))
     circle(cx, cy, r)
     t = np.linspace(0, 1, 40)
     xs = cx - 1.1 + 2.2 * t
@@ -77,6 +87,7 @@ def swish(cx, cy, r=2.1):
     ax.plot(xs, ys, color=DARK, lw=0.9)
 
 def hourglass(cx, y, w=11, h=5.5):
+    REC.append(dict(t="hourglass", cx=cx, y=y, w=w, h=h))
     x = cx - w / 2
     top = [(x, y+h), (x+w, y+h), (x+w*0.72, y+h*0.45), (x+w*0.28, y+h*0.45)]
     bot = [(x+w*0.28, y+h*0.55), (x+w*0.72, y+h*0.55), (x+w, y), (x, y)]
@@ -84,14 +95,23 @@ def hourglass(cx, y, w=11, h=5.5):
     ax.add_patch(Polygon(bot, closed=True, fc=GREEN, ec=DARK, lw=1.0, joinstyle="round"))
 
 def mul_circle(cx, cy, r=2.8):
+    REC.append(dict(t="mul", cx=cx, cy=cy, r=r))
     ax.add_patch(Circle((cx, cy), r, fc="white", ec=DARK, lw=1.1))
     d = r * 0.55
     ax.plot([cx-d, cx+d], [cy-d, cy+d], color=DARK, lw=1.0)
     ax.plot([cx-d, cx+d], [cy+d, cy-d], color=DARK, lw=1.0)
 
 def dashed_frame(x, y, w, h, ec=DARK, lw=1.2, ls="--"):
+    REC.append(dict(t="frame", x=x, y=y, w=w, h=h, ec=ec, lw=lw))
     ax.add_patch(FancyBboxPatch((x, y), w, h,
         boxstyle="round,pad=0,rounding_size=2.2", fc="none", ec=ec, lw=lw, ls=ls))
+
+def label(x, y, text, fs=9, color="black", fam=SER, ha="left", bold=False, italic=False):
+    REC.append(dict(t="label", x=x, y=y, text=text, fs=fs, color=color,
+                    fam=fam, ha=ha, bold=bold, italic=italic))
+    ax.text(x, y, text, fontsize=fs, family=fam, color=color, ha=ha,
+            va="center", fontweight="bold" if bold else "normal",
+            style="italic" if italic else "normal")
 
 # ============================================================
 # 左：KDA 模块（复刻 Figure 2 左下）
@@ -113,8 +133,8 @@ line([(16, 19), (16, 23)])
 line([(16, 29), (16, 31.4)])
 line([(16, 35.6), (16, 37.5)])
 arrow(13.5, 43, 13.5, 52); arrow(18.5, 43, 18.5, 52)
-ax.text(11.6, 47.5, "q", fontsize=11, family=SER, style="italic")
-ax.text(20.2, 47.5, "k", fontsize=11, family=SER, style="italic")
+label(11.6, 47.5, "q", fs=11, italic=True)
+label(20.2, 47.5, "k", fs=11, italic=True)
 
 # --- 塔 B：v ---
 rbox(27, 13, 14, 6, PINK, "Linear", fs=8, shadow=PINK_SH)
@@ -122,23 +142,23 @@ rbox(27.5, 23, 13, 6, GRAY2, "Conv", fs=8, shadow=GRAY_SH, octagon=True)
 swish(34, 33.5)
 line([(34, 19), (34, 23)]); line([(34, 29), (34, 31.4)])
 arrow(34, 35.6, 34, 52)
-ax.text(35.4, 47.5, "v", fontsize=11, family=SER, style="italic")
+label(35.4, 47.5, "v", fs=11, italic=True)
 
 # --- 塔 C：α（改动① 红框） ---
 hourglass(52, 13); hourglass(52, 19.5)
 circle(52, 29.5, 2.1, "σ", fs=9)
 line([(52, 25), (52, 27.4)])
 arrow(52, 31.6, 52, 52)
-ax.text(53.4, 47.5, "α", fontsize=11, family=SER, style="italic")
+label(53.4, 47.5, "α", fs=11, italic=True)
 dashed_frame(44, 11.5, 16, 23.5, ec=RED, lw=1.3, ls=(0, (4, 2)))
-ax.text(60.5, 32, "①", fontsize=10, family="SimHei", color=RED, fontweight="bold")
+label(60.5, 32, "①", fs=10, fam="SimHei", color=RED, bold=True)
 
 # --- 塔 D：β ---
 hourglass(68, 13)
 circle(68, 23, 2.1, "σ", fs=9)
 line([(68, 18.5), (68, 20.9)])
 arrow(68, 25.1, 68, 52)
-ax.text(69.4, 47.5, "β", fontsize=11, family=SER, style="italic")
+label(69.4, 47.5, "β", fs=11, italic=True)
 
 # --- 塔 E：输出门（改动② 红框） ---
 rbox(83, 13, 14, 6, PINK, "Linear", fs=8, shadow=PINK_SH)
@@ -146,7 +166,7 @@ circle(90, 33.5, 2.1, "σ", fs=9)
 line([(90, 19), (90, 31.4)])
 line([(90, 35.6), (90, 78), (58.2, 78)])  # 右侧上行 → ⊗
 dashed_frame(81, 11.5, 18, 9.5, ec=RED, lw=1.3, ls=(0, (4, 2)))
-ax.text(99.6, 16, "②", fontsize=10, family="SimHei", color=RED, fontweight="bold")
+label(99.6, 16, "②", fs=10, fam="SimHei", color=RED, bold=True)
 
 # --- KDA 核心 ---
 rbox(12, 52, 70, 10, BLUE, "Kimi Delta Attention", fs=10.5)
@@ -159,7 +179,7 @@ arrow(54, 72, 54, 75.2)
 rbox(41, 84, 26, 6, PINK, "Linear", fs=8.5, shadow=PINK_SH)
 arrow(54, 80.8, 54, 84)
 arrow(54, 90, 54, 95)
-ax.text(56.5, 92, "$y_t$", fontsize=10, family=SER)
+label(56.5, 92, "$y_t$", fs=10)
 
 # ============================================================
 # 右：层堆叠（复刻 Figure 2 右侧：3×KDA + 1×Gated MLA + AttnRes）
@@ -167,13 +187,12 @@ ax.text(56.5, 92, "$y_t$", fontsize=10, family=SER)
 # 底部：Embedding / Block n−2 / Block n−1（与主栈同轴 x=140）
 rbox(127, 4.5, 26, 6.5, GRAY, "Embedding", fs=8.5)
 for dy in (12.2, 13.4, 14.6):
-    ax.add_patch(Circle((140, dy), 0.35, fc="#9A9A9C", ec="none"))
+    circle(140, dy, 0.35, fc="#9A9A9C", ec="none")
 rbox(127, 16, 26, 6.5, GRAY, "Block $n-2$", fs=8.5)
 rbox(127, 26, 26, 6.5, GRAY, "Block $n-1$", fs=8.5)
 
 dashed_frame(114, 34, 56, 61)
-ax.text(146, 1.2, "1 Block = 3×KDA + 1×Gated MLA（×23，末尾再 +1×Gated MLA）",
-        fontsize=7, family="SimHei", color="#404040", ha="center")
+label(146, 1.2, "1 Block = 3×KDA + 1×Gated MLA（×23，末尾再 +1×Gated MLA）", fs=7, fam="SimHei", color="#404040", ha="center")
 
 XC = 140  # 主栈中心
 # 主干
@@ -200,8 +219,8 @@ for x0ch, y_a, y_b in [(124, 36, 48), (122.3, 51, 62), (120.6, 64.5, 76), (118.9
     line([(XC, y_a), (x0ch, y_a), (x0ch, y_b)], color=MAROON, lw=1.0)
     arrow(x0ch, y_b, XC - 2.1, y_b, color=MAROON, lw=1.0)
 
-ax.text(116.3, 47, "3×", fontsize=12, family=SER, style="italic", ha="center")
-ax.text(116.3, 68.5, "1×", fontsize=12, family=SER, style="italic", ha="center")
+label(116.3, 47, "3×", fs=12, italic=True, ha="center")
+label(116.3, 68.5, "1×", fs=12, italic=True, ha="center")
 
 # AttnRes：α 圆 + w 盒 + maroon 线（α → 模块右缘 回注箭头）
 alphas = [(40.25, 152), (55.25, 154), (68.75, 153), (82.75, 154)]
@@ -210,8 +229,7 @@ for cy, rx in alphas:
     circle(161, cy, 2.4, "α", fs=9, ec=MAROON, lw=1.2, tc=ALPHA_RED, italic=True)
     arrow(161, cy + 2.4, 161, cy + 3.6, color=MAROON, lw=1.0)
     rbox(158.4, cy + 3.8, 5.2, 4.2, "white", None, lw=1.0)
-    ax.text(161, cy + 5.9, "w", fontsize=8, family=SER, style="italic",
-            ha="center", va="center")
+    label(161, cy + 5.9, "w", fs=8, italic=True, ha="center")
 # 三条纵向通道：Block n−1 / n−2 / Embedding
 for x_ch, y_src in [(177, 29.25), (180, 19.25), (183, 7.75)]:
     line([(153, y_src), (x_ch, y_src), (x_ch, 82.75)], color=MAROON, lw=1.0)
@@ -223,3 +241,8 @@ os.makedirs("kimi_k3_arch_analysis/media", exist_ok=True)
 fig.savefig("kimi_k3_arch_analysis/media/kda_arch.png", dpi=300,
             facecolor="white", bbox_inches=None)
 print("saved")
+
+import json, os as _os
+_os.makedirs("emit", exist_ok=True)
+json.dump(REC, open("emit/kda_arch.json", "w", encoding="utf8"), ensure_ascii=False)
+print("recorded", len(REC), "primitives")

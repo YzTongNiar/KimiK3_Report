@@ -80,10 +80,340 @@ elements:
       wrap: false
       align: [left, middle]
       text: 融合算子构成与状态回滚
-  - elementId: arch-figure
-    elementType: image
-    bounds: [38, 198, 424, 218]
-    src: media/kda_decode.png
+  # ===== 可编辑图例（由 emit_pptd.py 生成，勿手改；改图请改绘图脚本后重新生成） =====
+  - elementId: fig-kda_decode-s1
+    elementType: shape
+    bounds: [46.7, 206.7, 405.7, 91.6]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t2
+    elementType: text
+    bounds: [55.4, 218.2, 221.7, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        单融合 kernel：重放 + bonus + 下一草稿共享一个递归循环
+  - elementId: fig-kda_decode-s3
+    elementType: shape
+    bounds: [68.5, 250.3, 65.4, 30.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t4
+    elementType: text
+    bounds: [68.5, 250.3, 65.4, 30.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        短卷积 k=4
+  - elementId: fig-kda_decode-s5
+    elementType: shape
+    bounds: [142.7, 250.3, 65.4, 30.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t6
+    elementType: text
+    bounds: [142.7, 250.3, 65.4, 30.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        输入归一化
+  - elementId: fig-kda_decode-s7
+    elementType: shape
+    bounds: [216.8, 250.3, 65.4, 30.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t8
+    elementType: text
+    bounds: [216.8, 250.3, 65.4, 30.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        门控 σ
+  - elementId: fig-kda_decode-s9
+    elementType: shape
+    bounds: [291, 250.3, 65.4, 30.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t10
+    elementType: text
+    bounds: [291, 250.3, 65.4, 30.5]
+    content:
+      fontSize: 6
+      color: "#1F2A36"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        KDA 递归 S
+  - elementId: fig-kda_decode-s11
+    elementType: shape
+    bounds: [365.2, 250.3, 65.4, 30.5]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t12
+    elementType: text
+    bounds: [365.2, 250.3, 65.4, 30.5]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        输出归一化
+  - elementId: fig-kda_decode-l13
+    elementType: line
+    bounds: [134.1, 264.6, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l14
+    elementType: line
+    bounds: [208.2, 264.6, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l15
+    elementType: line
+    bounds: [282.4, 264.6, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l16
+    elementType: line
+    bounds: [356.5, 264.6, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l17
+    elementType: line
+    bounds: [303.1, 279.8, 32.5, 8.5]
+    viewBox: [32.5, 8.5]
+    points: "31.5,1 31.5,7.5 1,7.5"
+    curve: sharp
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l18
+    elementType: line
+    bounds: [303.1, 280.9, 2, 7.4]
+    viewBox: [2, 7.4]
+    points: "1,6.4 1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t19
+    elementType: text
+    bounds: [305.5, 291, 27.6, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [center, middle]
+      text: |
+        递归循环
+  - elementId: fig-kda_decode-s20
+    elementType: shape
+    bounds: [46.7, 307, 405.7, 100.3]
+    shapeName: roundRect
+    border: {style: dash, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t21
+    elementType: text
+    bounds: [55.4, 317.4, 98.6, 11.9]
+    content:
+      fontSize: 7
+      color: "black"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        MTP 验证拒绝时的状态回滚
+  - elementId: fig-kda_decode-s22
+    elementType: shape
+    bounds: [68.5, 341.9, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t23
+    elementType: text
+    bounds: [68.5, 341.9, 39.3, 26.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        d1 √
+  - elementId: fig-kda_decode-s24
+    elementType: shape
+    bounds: [116.5, 341.9, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#CBE6CF"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t25
+    elementType: text
+    bounds: [116.5, 341.9, 39.3, 26.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        d2 √
+  - elementId: fig-kda_decode-s26
+    elementType: shape
+    bounds: [164.5, 341.9, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#E5B3B2"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t27
+    elementType: text
+    bounds: [164.5, 341.9, 39.3, 26.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        d3 ×
+  - elementId: fig-kda_decode-s28
+    elementType: shape
+    bounds: [212.5, 341.9, 39.3, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#E5B3B2"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t29
+    elementType: text
+    bounds: [212.5, 341.9, 39.3, 26.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        d4 ×
+  - elementId: fig-kda_decode-l30
+    elementType: line
+    bounds: [107.9, 354, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l31
+    elementType: line
+    bounds: [155.9, 354, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l32
+    elementType: line
+    bounds: [203.9, 354, 8.5, 2]
+    viewBox: [8.5, 2]
+    points: "1,1 7.5,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-l33
+    elementType: line
+    bounds: [251.8, 354, 19.4, 2]
+    viewBox: [19.4, 2]
+    points: "1,1 18.4,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-s34
+    elementType: shape
+    bounds: [271.4, 341.9, 82.9, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#F0F0F4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t35
+    elementType: text
+    bounds: [271.4, 341.9, 82.9, 26.2]
+    content:
+      fontSize: 6
+      color: "black"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        片上重建 S（仅 d1, d2）
+  - elementId: fig-kda_decode-l36
+    elementType: line
+    bounds: [354.3, 354, 15.1, 2]
+    viewBox: [15.1, 2]
+    points: "1,1 14.1,1"
+    curve: sharp
+    arrow: [null, arrow]
+    border: {style: solid, width: 0.8, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-s37
+    elementType: shape
+    bounds: [369.5, 341.9, 74.2, 26.2]
+    shapeName: roundRect
+    fill: {type: solid, color: "#C8DCF4"}
+    border: {style: solid, width: 0.5, color: "#1B1B1E"}
+  - elementId: fig-kda_decode-t38
+    elementType: text
+    bounds: [369.5, 341.9, 74.2, 26.2]
+    content:
+      fontSize: 5.5
+      color: "#1F2A36"
+      fontFamily: 黑体
+      wrap: false
+      align: [center, middle]
+      text: |
+        写回 S (verified + bonus)
+  - elementId: fig-kda_decode-t39
+    elementType: text
+    bounds: [68.5, 383, 276.2, 9.3]
+    content:
+      fontSize: 5.5
+      color: "#404040"
+      fontFamily: 黑体
+      bold: true
+      wrap: false
+      align: [left, middle]
+      text: |
+        缓存投影输入 D×(4dk+1)·H×2B，仅为状态快照的 ≈1/32（dv = 128）；状态不离开 decode 阶段
+  # ===== 可编辑图例结束 =====
   - elementId: param-label
     elementType: text
     bounds: [488, 180, 300, 15]

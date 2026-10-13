@@ -222,4 +222,16 @@ def page6():
     label(ax, 134, 11, "小 batch 并行度与带宽利用率同时提升", fs=7, color=NOTE_GRAY, fam=HEI)
     save(fig, "latentmoe.png")
 
-page2(); page3(); page4(); page5(); page6()
+if __name__ == "__main__":
+    import json
+    os.makedirs("emit", exist_ok=True)
+    import figstyle
+    for fn, name in [(page2, "gated_mla"), (page3, "flashkda"),
+                     (page4, "kda_decode"), (page5, "attnres")]:
+        figstyle.REC.clear()
+        fn()
+        json.dump(list(figstyle.REC), open(f"emit/{name}.json", "w", encoding="utf8"),
+                  ensure_ascii=False)
+        print("recorded", name, len(figstyle.REC))
+    figstyle.REC.clear()
+    page6()
