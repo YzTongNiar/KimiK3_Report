@@ -2,6 +2,13 @@ pageType: content
 background:
   type: solid
   color: "#FFFFFF"
+notes: |
+  本页讲 Hybrid Attention 的主力层 Kimi Delta Attention（报告 §2.1.1）。K3 共 93 层，其中 69 层是 KDA，每 3 层 KDA 配 1 层 Gated MLA。
+  先看左图：输入经 q/k/v 投影和 ShortConv 后进入 Kimi Delta Attention 主体，相对 Kimi Linear 的两处红框改动是本页重点。改动一是有界衰减：遗忘门 g 被约束在 (-5,0) 有界区间，解决原无下界衰减的数值不稳定，而且对硬件是利好——对角块计算因此稠密化，可以整体映射到 CUBE。改动二是全秩输出门：用一次标准稠密 GEMM 替换低秩门，表达能力提升，计算形态统一为 matmul。
+  对应右表逐行看负载与诉求：q/k/v 投影是标准稠密 GEMM，Prefill 计算密集、要求 CUBE 算力，Decode 退化为 GEMV、访存密集、要求 HBM 带宽——这是对昇腾最核心的两条诉求；遗忘门和有界衰减是纯 Vector 逐元素负载；chunk 内注意力的 FLOPs 与序列长度 L 无关，CUBE 占比显著提升；跨 chunk 状态传播是 dk×dv 小矩阵串行依赖，并行度低，需要 kernel 内流水掩盖。
+  这里重点展开 KDA 的计算流程，以及为什么它能做到线性计算量。每个 head 维护一个定长状态矩阵 S（dk×dv），核心递推公式是：S_t = (I − β_t·k_t·k_tᵀ)·Diag(α_t)·S_{t−1} + β_t·k_t·v_tᵀ，输出 o_t = S_tᵀ·q_t。其中 β_t 是写入强度，α_t = exp(g_t) 是逐通道衰减因子，g_t = −5σ(e^A·z_t)，也就是改动①的有界衰减。对比一下：标准注意力每个 token 要和全部 L 个历史 token 计算相似度，总计算量 O(L²)、还要存随 L 增长的 KV Cache；KDA 把全部历史压缩进定长的 S，每个 token 只做一次 rank-1 状态更新加一次矩阵-向量乘，单 token 计算量 O(dk·dv)、与 L 无关，所以总量随 L 线性增长，显存也只存 S。压缩靠四个手段：一是 Delta 规则，写入新 key 之前先减去状态对旧值的预测（误差修正），允许状态原地覆写，这是定长状态可行的前提；二是逐通道遗忘门，旧状态按通道有界衰减、持续遗忘无用历史，进一步压缩信息量；三是 chunkwise 重构，prefill 按 C=64 分块，块内拼成稠密 matmul 并行、块间串行传 S，把递推变成 CUBE 友好的形态；四是门控走低秩投影，z 和 β 从 d 维先压到小维度再展开，门控开销占比很小。输出侧再经过改动②的全秩输出门：y = W_o[σ(W_g·x) ⊙ RMSNorm(õ)]。
+  对开发的启发：KDA 把竞争点从"并行度"转向"状态管理"——大容量片上状态驻留、高效小矩阵乘、Vector/Cube 异构流水，是后续算子设计的三个方向。
+  最后看页面底部的开发需求与趋势。算子层：FlashKDA 是 CUDA 专用的 CUTLASS 实现，昇腾需要对等的 Ascend C 融合算子，覆盖 chunkwise prefill（intra-chunk matmul 上 CUBE、跨 chunk 状态传播流水交叠）和 fused recurrent decode 两条路径；vllm-ascend 现状是 Triton 版，12 个以上 kernel、约 3000 行，CUBE 调度深度受限。门控融合：NPU recurrent kernel 尚未融合衰减门计算，vllm-ascend 的 gate.py 需要在 host 侧做 apply_kda_gate 预处理，safe-gate 路径应下沉融合进 kernel、消除显存往返。框架层：vllm-ascend 已注册 kimi_k3 模型适配，待补的是 KDA state 的 MTP 投机解码回滚（只缓存投影输入、片上重建），以及 KDA checkpoint 与 MLA KV 统一分页的 prefix cache。趋势判断：竞争点从并行度转向状态管理——大容量片上状态驻留加高效小矩阵乘加 Vector/Cube 异构流水；稠密化使 CUBE 占比持续上升。
 elements:
   - elementId: source-note
     elementType: text
@@ -57,7 +64,7 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>结构定位</strong>：Delta 规则线性注意力以定长状态替代 KV Cache → 长上下文的显存与延迟由 \(O(L)\) 降为 \(O(1)\)</li>
+        <li><strong>结构定位</strong>：Delta 规则线性注意力，核心递推 \(S_t=(I-\beta_t k_t k_t^{\top})\,\mathrm{Diag}(\alpha_t)S_{t-1}+\beta_t k_t v_t^{\top}\)，以定长状态替代 KV Cache → 显存与延迟由 \(O(L)\) 降为 \(O(1)\)</li>
         <li style="margin-top:4px"><strong>改动① 有界衰减</strong>：逐通道衰减约束在有界区间 → 数值稳定，对角块计算稠密化、可整体映射到 CUBE</li>
         <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：以一次标准稠密 GEMM 替换低秩门 → 计算形态统一为 matmul，硬件亲和性增强</li>
         <li style="margin-top:4px"><strong>负载特征</strong>：Prefill 计算密集（chunk 内并行）、Decode 访存密集（状态原地更新）→ 优化重心从算力转向状态管理</li>
@@ -116,10 +123,8 @@ elements:
         - text: |
             \(2dH(2d_k+d_v)\)
         - text: |
-            <ul>
-            <li>• Prefill 为稠密 GEMM，计算密集 → 要求 CUBE 算力</li>
-            <li>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</li>
-            </ul>
+            <p>• Prefill 为稠密 GEMM，计算密集 → 要求 CUBE 算力</p>
+            <p>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</p>
       - - text: 遗忘门 z + 写入强度 β
         - text: |
             <p>低秩 \(d\rightarrow r\rightarrow Hd_k\)</p>
@@ -127,20 +132,16 @@ elements:
         - text: |
             \(\approx 2dr\)（占比小）
         - text: |
-            <ul>
-            <li>• 小 GEMM + 逐元素 σ/exp → Vector 核承担</li>
-            <li>• 计算占比小 → 宜融合进主 kernel</li>
-            </ul>
+            <p>• 小 GEMM + 逐元素 σ/exp → Vector 核承担</p>
+            <p>• 计算占比小 → 宜融合进主 kernel</p>
       - - text: 有界衰减 <span style="color:$primary">①</span>
         - text: |
             \(g=-5\sigma(e^{A}z)\in(-5,0)\)
         - text: |
             \(O(Hd_k)\)，逐元素
         - text: |
-            <ul>
-            <li>• 纯 Vector 逐元素 → 不占 CUBE</li>
-            <li>• 对角块稠密化 → 可上 CUBE</li>
-            </ul>
+            <p>• 纯 Vector 逐元素 → 不占 CUBE</p>
+            <p>• 对角块稠密化 → 可上 CUBE</p>
       - - text: Chunk 内注意力
         - text: |
             <p>\(A=\mathrm{Tril}((Q\odot\Gamma)(K/\Gamma)^{\top})\)</p>
@@ -148,20 +149,16 @@ elements:
         - text: |
             \(2C(d_k+d_v)\)
         - text: |
-            <ul>
-            <li>• 稠密 matmul，与 L 无关 → CUBE 占比提升</li>
-            <li>• tile 64×128 → 匹配 CUBE 分块</li>
-            </ul>
+            <p>• 稠密 matmul，与 L 无关 → CUBE 占比提升</p>
+            <p>• tile 64×128 → 匹配 CUBE 分块</p>
       - - text: 跨 chunk 状态传播
         - text: |
             \(S\in\mathbb{R}^{d_k\times d_v}\)，串行
         - text: |
             \(2d_kd_v\)
         - text: |
-            <ul>
-            <li>• 小矩阵串行依赖 → CUBE 利用率低</li>
-            <li>• 需 kernel 内流水掩盖 → 调度诉求</li>
-            </ul>
+            <p>• 小矩阵串行依赖 → CUBE 利用率低</p>
+            <p>• 需 kernel 内流水掩盖 → 调度诉求</p>
       - - text: 全秩输出门 + \(W_o\) <span style="color:$primary">②</span>
         - text: |
             <p>\(W_g:d\times Hd_v\)</p>
@@ -169,10 +166,8 @@ elements:
         - text: |
             \(4dHd_v\)
         - text: |
-            <ul>
-            <li>• 标准稠密 GEMM → CUBE 友好</li>
-            <li>• 参数量 \(+dHd_v\) → 显存略增</li>
-            </ul>
+            <p>• 标准稠密 GEMM → CUBE 友好</p>
+            <p>• 参数量 \(+dHd_v\) → 显存略增</p>
   - elementId: param-note
     elementType: text
     bounds: [488, 430, 436, 22]

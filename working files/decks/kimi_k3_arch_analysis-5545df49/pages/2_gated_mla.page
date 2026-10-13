@@ -2,6 +2,13 @@ pageType: content
 background:
   type: solid
   color: "#FFFFFF"
+notes: |
+  本页讲 24+1 层 Gated MLA（报告 §2.1.2），在混合架构里承担不受限的全局内容交互。MLA 的基本思想是把每 token 的 KV 压缩成低维隐向量 c_t 缓存，注意力时经上投影重建 K/V。
+  左图红框是 K3 相对标准 MLA 的两处改动。改动一是全面 NoPE：MLA 层不施加任何显式位置编码，位置与近因感知完全交给 KDA 递归层——长上下文外推不再受 RoPE 基频或 YaRN 限制，且 KV Cache 不含 rope 分量，单 token 缓存进一步减小。改动二是与 KDA 同款的全秩输出门，逐通道调节全局注意力读出，新增一次标准稠密 GEMM。训练侧还有一个细节：注意力输出保持 FP32 以修正 flash attention 的舍入偏差，代价是输出 tile 片上占用翻倍，靠 buffer 重排与 KV staging 交叠换回深流水和高吞吐。
+  这里展开 Gated MLA 的完整计算流程。第一步下投影：每 token 的输入 x_t 经 W_c 压成低维隐向量 c_t（dc 维，远小于 H·dh），KV Cache 只存 c_t——这是 MLA 压缩的核心：标准 MHA 每层每 token 要存 2·H·dh 个元素，MLA 只存 dc（K2 参考值 512，约为原来的 1/40），K3 全面 NoPE 后再省掉 rope 分量。第二步注意力计算：prefill 和训练时把 c_t 上投影重建 k_t、v_t，再做标准多头注意力，不加任何位置编码，位置感知完全交给 KDA 层；decode 时把上投影"吸收"进 q 侧的投影矩阵，直接以 c_t 参与计算，KV 读取量从 H·dh 降回 dc，这是 MLA decode 省带宽的关键。第三步输出：注意力输出 õ 经与 KDA 同款的全秩输出门 y = W_o[σ(W_g·x) ⊙ õ] 调节后投回 d 维。整个流程的主体是稠密 GEMM，CUBE 亲和；唯一随 L 线性增长的是 c_t 缓存，所以 MLA 层的硬件诉求集中在 KV Cache 的容量与带宽，以及吸收矩阵的 GEMV 效率。
+  对应右表看诉求：下投影和 Q/K/V 投影都是稠密 GEMM，Prefill 要求 CUBE 算力、Decode 要求 HBM 带宽；关键优化点是 Decode 阶段"吸收"上投影、直接以 c_t 计算，KV 读取量大幅下降；KV Cache 随 L 线性增长，是 1M 上下文下的主要显存项，NoPE 让单 token 缓存更小、容量诉求相应下降。
+  对开发的启发：推理侧 vllm-ascend 已有 mla_v1 后端可复用，重点是 qk_rope_head_dim=0 配置下各后端（含量化路径）的回归验证，以及输出门与注意力输出的融合；趋势上硬件诉求集中在 KV Cache 容量/带宽与吸收矩阵 GEMV 效率。
+  最后看页面底部的开发需求与趋势。推理算子层：MLA 已接入 vllm-ascend 的 mla_v1 后端，kimi_k3 适配层强制 use_nope=True 并透传 output gate，需要回归验证 qk_rope_head_dim=0 配置下各后端（包括量化路径）的正确性。算子融合：输出门 σ(W_g·x)⊙õ 应与注意力输出及 W_o 融合，避免三次显存往返；训练侧 FP32 输出 tile 需要 Ascend C 级的 buffer 规划，与 KV staging 交叠。框架层：KV Cache 按每 token d_c×2B 分页，与 KDA checkpoint 统一池化；PD 分离部署下 NoPE 缓存更小，跨节点传输负载相应下降。趋势判断：NoPE 把位置建模完全交给递归层，长上下文外推不再受 RoPE 限制；硬件诉求集中在 KV Cache 的容量与带宽，以及吸收矩阵的 GEMV 效率。
 elements:
   # ===== 页眉 =====
   - elementId: source-note
@@ -59,7 +66,7 @@ elements:
       align: [left, middle]
       text: |
         <ul>
-        <li><strong>结构定位</strong>：以低维隐向量缓存替代全量 KV，24+1 层承担全局内容交互 → 长上下文缓存规模降一个量级</li>
+        <li><strong>结构定位</strong>：三步计算——下投影 \(c_t=W_c x_t\) 缓存低维隐向量，注意力时 \(k_t,v_t=W_{k,v} c_t\) 重建（decode 吸收上投影直接以 \(c_t\) 计算），输出门 \(y=W_o[\sigma(W_g x)\odot\tilde{o}]\)；24+1 层承担全局交互 → 缓存规模降一个量级</li>
         <li style="margin-top:4px"><strong>改动① 全面 NoPE</strong>：位置建模完全交给 KDA 递归层 → 上下文外推不受 RoPE 限制，单 token 缓存进一步减小</li>
         <li style="margin-top:4px"><strong>改动② 全秩输出门</strong>：与 KDA 同款门控，逐通道调节全局注意力读出 → 新增一次标准稠密 GEMM，CUBE 友好</li>
         <li style="margin-top:4px"><strong>训练数值</strong>：注意力输出保持 FP32 修正舍入偏差 → 以片上 buffer 重排换精度与吞吐兼得</li>
@@ -119,10 +126,8 @@ elements:
         - text: |
             \(2dd_c\)
         - text: |
-            <ul>
-            <li>• Prefill 稠密 GEMM，计算密集 → 要求 CUBE 算力</li>
-            <li>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</li>
-            </ul>
+            <p>• Prefill 稠密 GEMM，计算密集 → 要求 CUBE 算力</p>
+            <p>• Decode 退化为 GEMV，访存密集 → 要求 HBM 带宽</p>
       - - text: Q/K/V 投影与上投影
         - text: |
             <p>\(q:d\rightarrow Hd_h\)</p>
@@ -130,48 +135,38 @@ elements:
         - text: |
             \(2dHd_h+4d_cHd_h\)
         - text: |
-            <ul>
-            <li>• Prefill 稠密 GEMM → CUBE</li>
-            <li>• Decode 吸收上投影、直接以 \(c_t\) 计算 → KV 读取下降</li>
-            </ul>
+            <p>• Prefill 稠密 GEMM → CUBE</p>
+            <p>• Decode 吸收上投影、直接以 \(c_t\) 计算 → KV 读取下降</p>
       - - text: 全局注意力 <span style="color:$primary">①</span>
         - text: |
             \(q,k,v\in\mathbb{R}^{Hd_h}\)；L 任意
         - text: |
             \(4LHd_h\)，随 L 线性
         - text: |
-            <ul>
-            <li>• CUBE matmul + Vector softmax</li>
-            <li>• NoPE → 省去旋转 kernel 与 sin/cos 表</li>
-            </ul>
+            <p>• CUBE matmul + Vector softmax</p>
+            <p>• NoPE → 省去旋转 kernel 与 sin/cos 表</p>
       - - text: KV Cache
         - text: |
             \(c_t\)：\(d_c\times 2\mathrm{B}\) / token / 层
         - text: —
         - text: |
-            <ul>
-            <li>• 随 L 线性增长 → 1M 上下文主要显存项</li>
-            <li>• NoPE 后单 token 缓存更小 → 容量诉求下降</li>
-            </ul>
+            <p>• 随 L 线性增长 → 1M 上下文主要显存项</p>
+            <p>• NoPE 后单 token 缓存更小 → 容量诉求下降</p>
       - - text: 全秩输出门 <span style="color:$primary">②</span>
         - text: |
             \(W_g:d\times Hd_h\)
         - text: |
             \(2dHd_h\)
         - text: |
-            <ul>
-            <li>• 标准稠密 GEMM → CUBE 友好</li>
-            <li>• 应与注意力输出融合 → 避免显存往返</li>
-            </ul>
+            <p>• 标准稠密 GEMM → CUBE 友好</p>
+            <p>• 应与注意力输出融合 → 避免显存往返</p>
       - - text: 训练 FP32 输出
         - text: |
             输出 tile：\(Hd_h\)，FP32
         - text: —
         - text: |
-            <ul>
-            <li>• 片上占用 ×2 → buffer 需重排</li>
-            <li>• 与 KV staging 交叠 → 换深流水高吞吐</li>
-            </ul>
+            <p>• 片上占用 ×2 → buffer 需重排</p>
+            <p>• 与 KV staging 交叠 → 换深流水高吞吐</p>
   - elementId: param-note
     elementType: text
     bounds: [488, 430, 436, 22]

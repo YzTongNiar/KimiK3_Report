@@ -2,6 +2,12 @@ pageType: content
 background:
   type: solid
   color: "#FFFFFF"
+notes: |
+  本页讲 Block AttnRes（报告 §2.2 与 §5.4.2），一种深度维的注意力：每层用可学习伪查询 w 对嵌入和前序 block 表示做注意力，让深层表示可以直接访问浅层。Block 化把显存和通信开销从 O(Ld) 降为 O(Nd)——K3 的 96 层被压成 8 个 block、含嵌入共 9 个表示，约 126KB，降了一个量级。
+  左图是两阶段机制：inter-block pass 对缓存的 block 表示批量读一次，intra-block 由各层经 online-softmax 把块内部分和合入。它的 FLOPs 占比极小，矛盾全部在访存和通信结构上，所以优化聚焦内存效率。
+  对应右表和调度看：Prefill 在序列并行下把 TP all-reduce 拆成 reduce-scatter 加 all-gather，intra-block kernel 插入两次集合通信之间、在序列分片的 hidden 上物化，每 token 表示只在一个 rank 物化，消除 N 倍冗余；Decode 把 inter-block kernel 放到 side stream 与主流计算交叠，intra-block 合并、部分和更新、RMSNorm 全部融合进前序 TP all-reduce，隐藏延迟、零独立 kernel。
+  对昇腾开发的启发很直接：这要求通信算子的 epilogue 融合能力，即 HCCL 与 AICore 协同，是昇腾侧的新增需求；同时 RS/AG 之间插入 kernel 的通信-计算融合手法是通用的，可以复用到 MoE 等其他模块。
+  最后看页面底部的开发需求与趋势。算子层：online-softmax merge、部分和更新、RMSNorm 要融合进 TP all-reduce 的 epilogue，依赖通信算子的 epilogue 融合能力（HCCL 与 AICore 协同），是昇腾侧新增需求。框架层 Prefill：SP 排布下 RS/AG 拆分与 kernel 插入点调度，vllm-ascend 需支持 AttnRes 的序列并行路径与分片物化。框架层 Decode：side stream 生命周期管理（inter-block kernel 与主流的同步点），以及 block 表示缓存（每序列 9 个）的跨层管理与 PP 切分交互。趋势判断：深度维注意力引入"跨层状态"的新访存模式；RS/AG 之间插入 kernel 的通信-计算融合手法是通用的，可以复用到 MoE 等模块。
 elements:
   # ===== 页眉 =====
   - elementId: source-note
@@ -103,48 +109,38 @@ elements:
         - text: |
             \(O(Nd)\) / 层
         - text: |
-            <ul>
-            <li>• 访存为主 → 批量读一次</li>
-            <li>• Decode 放 side stream 交叠 → 隐藏延迟</li>
-            </ul>
+            <p>• 访存为主 → 批量读一次</p>
+            <p>• Decode 放 side stream 交叠 → 隐藏延迟</p>
       - - text: Intra-block 合并
         - text: |
             online softmax merge，\([d]\)
         - text: |
             \(O(d)\) / 层
         - text: |
-            <ul>
-            <li>• 逐元素 → Vector</li>
-            <li>• 融合进 TP all-reduce epilogue → 零独立 kernel</li>
-            </ul>
+            <p>• 逐元素 → Vector</p>
+            <p>• 融合进 TP all-reduce epilogue → 零独立 kernel</p>
       - - text: 伪查询与权重
         - text: |
             \(w\in\mathbb{R}^{d}\)；\(\alpha=\mathrm{softmax}(w\cdot\mathrm{RMSNorm}(b))\)
         - text: |
             \(O(Nd)\)
         - text: |
-            <ul>
-            <li>• 小 GEMV → Vector</li>
-            <li>• N = 9 → 计算量极小</li>
-            </ul>
+            <p>• 小 GEMV → Vector</p>
+            <p>• N = 9 → 计算量极小</p>
       - - text: Block 表示缓存
         - text: |
             \(N\times d\times 2\mathrm{B}\) / 序列
         - text: —
         - text: |
-            <ul>
-            <li>• 96 层 → 9 个表示 ≈126KB（BF16）</li>
-            <li>• 显存降一个量级</li>
-            </ul>
+            <p>• 96 层 → 9 个表示 ≈126KB（BF16）</p>
+            <p>• 显存降一个量级</p>
       - - text: Prefill 通信
         - text: |
             RS + AG（序列分片）
         - text: —
         - text: |
-            <ul>
-            <li>• 通信量 ≈ all-reduce</li>
-            <li>• 消除冗余物化与 I/O</li>
-            </ul>
+            <p>• 通信量 ≈ all-reduce</p>
+            <p>• 消除冗余物化与 I/O</p>
   - elementId: param-note
     elementType: text
     bounds: [488, 430, 436, 22]

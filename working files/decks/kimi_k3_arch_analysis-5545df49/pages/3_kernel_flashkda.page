@@ -2,6 +2,12 @@ pageType: content
 background:
   type: solid
   color: "#FFFFFF"
+notes: |
+  本页进入 Infrastructure 章节的高性能 kernel（报告 §5.1.1），讲训练和 Prefill 共用的 FlashKDA。要解决的问题是 chunkwise KDA 的结构矛盾：chunk 内可以并行做 matmul，chunk 间状态 S 必须串行传递；朴素实现让两个阶段交替执行，串行传播期间算力空置，气泡占比随 chunk 数线性放大。
+  左图上半部分是调度思路：FlashKDA 把计算分解为 token 并行阶段和 head 并行递归，各自独立调度调参，用 chunk 内的稠密计算把跨 chunk 状态传播"盖"住。下半部分是长序列短板的对策：纯 TP 只切 head、不缩短递归，SM 级 CP planner 在单设备内切分序列、并行求各段转移再精确合并，全程无跨设备通信。
+  对应右表按阶段看：chunk 内注意力是稠密 matmul，要求 CUBE 算力，tile 64×128 正好匹配 CUBE 分块；跨 chunk 读取和状态更新是 dk×dv 小矩阵，CUBE 利用率低，对策是与 chunk 内计算双缓冲交叠、并让 S 驻留片上（dk=dv=128 时每 head 约 32KB）避免 HBM 往返；累积衰减 Γ 是纯 Vector 逐元素，恰好与 matmul 构成异构流水；UT 变换这类小尺寸 matmul 宜融合进主 kernel。
+  对开发的启发：vllm-ascend 现状是 Triton 版多 kernel 串行调度，kernel 间显存往返多、串行段无掩盖，与 FlashKDA 存在代差；需要 Ascend C 融合 chunkwise 算子，加上 CP planner 的 AICore 级对等实现，核心评价指标是串行段掩盖率。
+  最后看页面底部的开发需求与趋势。昇腾现状：vllm-ascend 是 Triton 版 chunk_kda，scaled_dot_kkt、solve_tril、wy_fast、chunk_delta_h、chunk_o 等多个 kernel 串行调度，与 FlashKDA 存在代差。需求一是 Ascend C 融合 chunkwise 算子：intra-chunk matmul 上 CUBE，状态传播与计算双缓冲流水，S 驻留 L1/UB 避免 HBM 往返。需求二是 SM 级 CP planner 的 NPU 对等实现：AICore 级序列切分、段转移并行求值与前缀合并，适配昇腾核间同步机制。趋势判断：线性注意力 prefill 算子的竞争点是串行段掩盖率；Cube/Vector 异构流水加片上状态驻留是达成路径，TileLang 类 DSL 可以缩短开发周期。
 elements:
   # ===== 页眉 =====
   - elementId: source-note
@@ -104,20 +110,16 @@ elements:
         - text: |
             \(2C(d_k+d_v)\)
         - text: |
-            <ul>
-            <li>• 稠密 matmul → 要求 CUBE 算力</li>
-            <li>• tile 64×128 → 匹配 CUBE 分块</li>
-            </ul>
+            <p>• 稠密 matmul → 要求 CUBE 算力</p>
+            <p>• tile 64×128 → 匹配 CUBE 分块</p>
       - - text: 跨 chunk 读取 \((\Gamma\odot Q)S\)
         - text: |
             \([C,d_k]\times[d_k,d_v]\)
         - text: |
             \(2d_kd_v\)
         - text: |
-            <ul>
-            <li>• 小矩阵乘 → CUBE 利用率低</li>
-            <li>• 与 chunk 内计算双缓冲交叠 → 调度诉求</li>
-            </ul>
+            <p>• 小矩阵乘 → CUBE 利用率低</p>
+            <p>• 与 chunk 内计算双缓冲交叠 → 调度诉求</p>
       - - text: 状态更新 \(S\leftarrow MS+\bar{K}^{\top}\tilde{V}\)
         - text: |
             <p>\([d_k,d_k]\times[d_k,d_v]\)</p>
@@ -125,30 +127,24 @@ elements:
         - text: |
             \(\approx 3d_kd_v\)
         - text: |
-            <ul>
-            <li>• 串行依赖 → 并行度受限</li>
-            <li>• S 驻留片上 → 避免 HBM 往返</li>
-            </ul>
+            <p>• 串行依赖 → 并行度受限</p>
+            <p>• S 驻留片上 → 避免 HBM 往返</p>
       - - text: 累积衰减 Γ
         - text: |
             \([C,d_k]\) / head，log 空间 cumsum
         - text: |
             \(O(Cd_k)\)，逐元素
         - text: |
-            <ul>
-            <li>• 纯 Vector 逐元素</li>
-            <li>• 与 CUBE matmul 构成异构流水</li>
-            </ul>
+            <p>• 纯 Vector 逐元素</p>
+            <p>• 与 CUBE matmul 构成异构流水</p>
       - - text: UT 变换（W / U）
         - text: |
             \([C,C]\) 三角求逆 + 小 matmul
         - text: |
             \(O(Cd_k)\)
         - text: |
-            <ul>
-            <li>• 小尺寸 matmul → CUBE 效率受限</li>
-            <li>• 宜融合进主 kernel</li>
-            </ul>
+            <p>• 小尺寸 matmul → CUBE 效率受限</p>
+            <p>• 宜融合进主 kernel</p>
       - - text: SM 级 CP planner
         - text: |
             <p>\(M\in\mathbb{R}^{d_k\times d_k}\)</p>
@@ -156,10 +152,8 @@ elements:
         - text: |
             合并 \(2d_k^{2}d_v\) / 段
         - text: |
-            <ul>
-            <li>• 单设备内切分并行 → 无通信</li>
-            <li>• AICore 级调度需求</li>
-            </ul>
+            <p>• 单设备内切分并行 → 无通信</p>
+            <p>• AICore 级调度需求</p>
   - elementId: param-note
     elementType: text
     bounds: [488, 430, 436, 22]
